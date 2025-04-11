@@ -1,0 +1,27 @@
+{
+  "name": "cs554finalproject",
+  "version": "1.0.0",
+  "description": "A Conventions Showcase App",
+  "homepage": "https://github.com/FilipSigda/CS554FinalProject#readme",
+  "bugs": {
+    "url": "https://github.com/FilipSigda/CS554FinalProject/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FilipSigda/CS554FinalProject.git"
+  },
+  "license": "ISC",
+  "author": "DuckKnight",
+  "type": "module",
+  "main": "app.ts",
+  "scripts": {
+    "start": "npx tsx app.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "mongodb": "^6.15.0"
+  }
+}
