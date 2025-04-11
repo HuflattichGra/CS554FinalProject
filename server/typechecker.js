@@ -46,7 +46,14 @@ export const checkStringTrimmed = (input,var_name) => {
     checkString(input,var_name);
     input = input.trim();
     if(input.length <= 0){
-        throw new Error(var_name + " is an empty String");
+        throw new Error(var_name + ' is an empty String');
     }
     return input;
+}
+
+export const checkId = (input, var_name) => {
+    checkString(input);
+    if(!ObjectId.isValid(input)){
+        throw new Error(var_name + ' is not a valid ObjectId');
+    }
 }
