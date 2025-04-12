@@ -6,9 +6,9 @@ import {checkString, checkStringTrimmed} from '../typechecker.js';
 //TEST:
 export const signUpUser = async (firstname : string, lastname: string, username: string, password: string) => {
     //firstname error checking
-    firstname = checkStringTrimmed(firstname, "name")
+    firstname = checkStringTrimmed(firstname, "first name")
     if (firstname.length < 3) throw "first name is below 3 characters!"
-    if (firstname.length > 25) throw "name is above 25 characters!"
+    if (firstname.length > 25) throw "first name is above 25 characters!"
 
     let hasChar: boolean = false;
 
@@ -22,15 +22,15 @@ export const signUpUser = async (firstname : string, lastname: string, username:
         //39 = apostrophe
         //46 = period (or full-stop)
         if(((i > 96) && (i < 123)) || ((i > 64) && (i < 91))) hasChar = true
-        else if((i != 32) && (i != 45) && (i != 39) && (i != 46)) throw "name contains invalid characters!"
+        else if((i != 32) && (i != 45) && (i != 39) && (i != 46)) throw "first name contains invalid characters!"
     }
 
-    if (hasChar === false) throw "name contains no letters"
+    if (hasChar === false) throw "first name contains no letters"
     
     //lastname error checking
-    lastname = checkStringTrimmed(lastname, "name")
-    if (lastname.length < 3) throw "first name is below 3 characters!"
-    if (lastname.length > 25) throw "name is above 25 characters!"
+    lastname = checkStringTrimmed(lastname, "last name")
+    if (lastname.length < 3) throw "last name is below 3 characters!"
+    if (lastname.length > 25) throw "last name is above 25 characters!"
 
     hasChar = false;
 
@@ -44,10 +44,10 @@ export const signUpUser = async (firstname : string, lastname: string, username:
         //39 = apostrophe
         //46 = period (or full-stop)
         if(((i > 96) && (i < 123)) || ((i > 64) && (i < 91))) hasChar = true
-        else if((i != 32) && (i != 45) && (i != 39) && (i != 46)) throw "name contains invalid characters!"
+        else if((i != 32) && (i != 45) && (i != 39) && (i != 46)) throw "last name contains invalid characters!"
     }
 
-    if (hasChar === false) throw "name contains no letters"
+    if (hasChar === false) throw "last name contains no letters"
 
     //username error checking
     username = checkStringTrimmed(username, "username")
