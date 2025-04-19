@@ -1,9 +1,15 @@
 import express, { Request, Response } from "express";
 import session from "express-session";
 import configRoutes from "./routes/index"
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 
 app.get("/ping", (req: Request, res: Response) => {
   res.send("pong");
