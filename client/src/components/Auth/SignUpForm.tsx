@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, TextField, Button } from '@mui/material';
 import axios from 'axios';
+
+import { useContext } from 'react';
+import UserContext from '../../context/userContext';
 
 const SignUpForm: React.FC = () => {
   const [firstname, setFirstname] = useState('');
@@ -8,23 +12,29 @@ const SignUpForm: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const { user, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    try {
-    // Uncomment the following lines to enable the API call
-        /*
-            const response = await axios.post('/signup', {
-            firstname,
-            lastname,
-            username,
-            password,
-            });
-            console.log('Sign Up Success:', response.data);
-        */
+    try {        
+      // for local testing
+      const response = await axios.post('http://localhost:3000/signup', 
+      {
+        firstname,
+        lastname,
+        username,
+        password,
+      },
+      {withCredentials: true});
+      console.log('Sign Up Success:', response.data);
+
+      setUser(response.data);
+      navigate('/');
 
     } catch (error: any) {
+      alert('Sign Up Error:' + error.response?.data?.error || error.message)
       console.error('Sign Up Error:', error.response?.data?.error || error.message);
     }
   };

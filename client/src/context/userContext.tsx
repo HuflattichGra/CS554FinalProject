@@ -1,7 +1,11 @@
 import React from 'react';
 
 export interface User {
+  _id: string;
+  admin: boolean;
   username: string;
+  firstname: string;
+  lastname: string;
 }
 
 interface userContextType {

@@ -1,7 +1,12 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import reactLogo from '../../assets/react.svg'
 import "./Navbar.css";
+import axios from "axios";
+
+import { useContext } from "react";
+import userContext from "../../context/userContext";
+
 
 // Navbar items type
 interface NavItemType {
@@ -31,6 +36,24 @@ const NavItem: React.FC<{ item: NavItemType }> = ({ item }) => (
 
 // Navbar 
 const Navbar: React.FC = () => {
+  const { user, setUser } = useContext(userContext);
+  const navigate = useNavigate();
+
+  const logout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {        
+      // for local testing
+      const response = await axios.get('http://localhost:3000/logout',{withCredentials: true});
+      console.log('logout Success:', response.data);
+
+      setUser(null);
+      navigate('/auth');
+    } catch (error: any) {
+      console.error(error.response?.data?.error || error.message);
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -46,15 +69,17 @@ const Navbar: React.FC = () => {
 
 
         <div className="right-section">
+          <input type="text" placeholder="Search..." className="search-input" />
           
-          <input
-            type="text"
-            placeholder="Search..."
-            className="search-input"
-          />
-          <div className="auth-buttons">
-            <Link to="/auth">Sign In / Sign Up</Link>
-          </div>
+          {user ? (
+            <div className="auth-buttons">
+              <button className="logout-button" onClick={logout}>Logout</button>
+            </div>
+          ) : (
+            <div className="auth-buttons">
+              <Link to="/auth">Sign In / Sign Up</Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

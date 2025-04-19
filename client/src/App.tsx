@@ -7,6 +7,7 @@ import Home from './components/Home/Home';
 import AuthPage from "./components/Auth/AuthPage";
 import userContext from "./context/userContext";
 import { User } from './context/userContext';
+import GuestOnly from "./components/GuestOnly";
 
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
             </header>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/auth" element={<GuestOnly><AuthPage /></GuestOnly>} />
             </Routes>
         </div>
       </userContext.Provider>
