@@ -11,8 +11,8 @@ export type Comment = {
     likes: Array<string>
 };
 
-const checkIDS = (x: any) => {
-    typecheck.checkId(x);
+const checkIDS = (x: any,var_name:string) => {
+    typecheck.checkId(x,var_name);
 }
 
 function DEBUG_generateComment() {
@@ -32,11 +32,11 @@ function DEBUG_generateComment() {
 function checkComment(obj: any, needsID: boolean = false, noEmpty: boolean = true) {
     var comObj: Comment = obj;
     if (obj._id != undefined || needsID) { typecheck.checkId(obj._id, "comment.id"); }
-    if (obj.postID != undefined || noEmpty) { typecheck.checkId(obj.conventionID, "comment.postID"); }
+    if (obj.postID != undefined || noEmpty) { typecheck.checkId(obj.postID, "comment.postID"); }
     if (obj.userID != undefined || noEmpty) { typecheck.checkId(obj.userID, "comment.userID"); }
-    if (obj.text != undefined || noEmpty) { comObj.text = typecheck.checkStringTrimmed(obj.conventionID, "comment.text"); }
-    if (obj.createdAt != undefined || noEmpty) { }
-    if (obj.likes != undefined || noEmpty) { obj.likes.map(checkIDS, "comment.likes") }
+    if (obj.text != undefined || noEmpty) { comObj.text = typecheck.checkStringTrimmed(obj.text, "comment.text"); }
+    if (obj.createdAt != undefined || noEmpty) { typecheck.checkDate(obj.createdAt,"comment.createdAt");}
+    if (obj.likes != undefined || noEmpty) { obj.likes.map(checkIDS, "comment.likes"); }
     return comObj;
 }
 

@@ -11,8 +11,8 @@ export type Post = {
     likes: Array<string>;
 };
 
-const checkIDS = (x: any) => {
-    typecheck.checkId(x);
+const checkIDS = (x: any,var_name:string) => {
+    typecheck.checkId(x,var_name);
 }
 
 function DEBUG_generatePost() {
