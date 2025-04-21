@@ -3,8 +3,6 @@ import session from "express-session";
 import configRoutes from "./routes/index"
 import cors from 'cors';
 
-import posts from './src/posts';
-
 const app = express();
 app.use(express.json());
 
