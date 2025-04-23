@@ -66,9 +66,9 @@ export const signUpUser = async (firstname : string, lastname: string, username:
 
     if ((hasNum === true) && (hasChar === false)) throw "username only contains numbers!"
 
-    //Checks if username exists
+    //Checks if username already in use
     const userCollection = await users();
-    const user = await userCollection.findOne({username: { $regex: "(?i)" + username + "(?-i)"}});
+    const user = await userCollection.findOne({username: { $regex: "(?i)^" + username + "$(?-i)"}});
     if (user !== null) throw `username ${username} is already taken`;
 
     //password error checking
@@ -171,9 +171,9 @@ export const signInUser = async (username: string, password: string) => {
   
     if(!hasNum || !hasUpper || !hasLower || !hasSpecial) throw "username or password in invalid!"
 
-    //Search for user
+    //Search for user via name(case insensitive)
     const userCollection = await users();
-    const user = await userCollection.findOne({username: { $regex: "(?i)" + username + "(?-i)"}});
+    const user = await userCollection.findOne({username: { $regex: "(?i)^" + username + "$(?-i)"}});
     if(user === null) throw "username or password is invalid";
     
     let comparePassword = false;
