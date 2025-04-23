@@ -57,3 +57,10 @@ export const checkId = (input, var_name) => {
         throw new Error(var_name + ' is not a valid ObjectId');
     }
 }
+
+//checks the given var is date
+export const checkDate = (input, var_name) => {
+    if( !(input instanceof Date)){
+        throw new Error(var_name + ' is not a valid Date');
+    }
+}
