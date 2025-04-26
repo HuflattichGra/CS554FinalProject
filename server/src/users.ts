@@ -1,8 +1,8 @@
 import {users} from '../config/mongoCollections.js';
 import bcrypt from 'bcrypt';
-import {checkString, checkStringTrimmed} from '../typechecker.js';
+import { ObjectId } from "mongodb"
+import {checkString, checkStringTrimmed, checkId} from '../typechecker.js';
 
-//TEST:
 export const signUpUser = async (firstname : string, lastname: string, username: string, password: string) => {
     //firstname error checking
     firstname = checkStringTrimmed(firstname, "first name")
@@ -131,7 +131,6 @@ export const signUpUser = async (firstname : string, lastname: string, username:
     }
 }
 
-//TEST:
 export const signInUser = async (username: string, password: string) => {
     //username error checking
     username = checkStringTrimmed(username, "username")
@@ -200,4 +199,27 @@ export const signInUser = async (username: string, password: string) => {
     }
 }
 
-export default {signInUser, signUpUser}
+export const getUserById = async (id: string) => {
+    checkId(id, "User Id")
+
+    const userCollection = await users();
+    const user = await userCollection.findOne({_id: ObjectId.createFromHexString(id)})
+    if (user === null) throw "User Not Found";
+
+    return {
+        "_id": user._id, 
+        "firstname": user.firstname,
+        "lastname": user.lastname,
+        "username": user.username,
+        "admin": user.admin,
+        "bio": user.bio,
+        "conventionsAttending": user.conventionsAttending,
+        "bookmarks": user.bookmarks,
+        "likes": user.likes,
+        "conventionsFollowing": user.conventionsFollowing,
+        "following": user.following,
+        "followers": user.followers
+    }
+}
+
+export default {signInUser, signUpUser, getUserById}
