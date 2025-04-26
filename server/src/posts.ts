@@ -111,4 +111,17 @@ async function deletePost(id: string) {
     return retVal;
 }
 
-export default { checkPost, addPost, getPosts, getPost, updatePost, deletePost, DEBUG_generatePost };
+async function getPostsByUserId(id: string) { 
+    typecheck.checkId(id);
+
+    const db = await posts();
+    var retVal: Post = await db.find({userID: ObjectId.createFromHexString(id)}).toArray();
+
+    if (retVal == null) {
+        throw new Error("No posts are available");
+    }
+
+    return retVal;
+}
+
+export default { checkPost, addPost, getPosts, getPost, updatePost, deletePost, DEBUG_generatePost, getPostsByUserId };

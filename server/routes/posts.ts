@@ -63,4 +63,17 @@ router.route('/:id')
 })
 ;
 
+router.route('/user/:id')
+.get(async(req,res) => {
+    try{
+        var id = req.params.id;
+
+        var ret = await posts.getPostsByUserId(id);
+
+        res.status(200).send(ret);
+    }catch(e){
+        res.status(400).send({error:e});
+    }
+})
+
 export default router;
