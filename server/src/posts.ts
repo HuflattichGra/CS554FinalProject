@@ -32,7 +32,7 @@ function checkPost(obj: any, needsID: boolean = false, noEmpty: boolean = true) 
     if (obj._id != undefined || needsID) { typecheck.checkId(obj._id, "post.id"); }
     if (obj.conventionID != undefined || noEmpty) { typecheck.checkId(obj.conventionID, "post.conventionID"); }
     if (obj.userID != undefined || noEmpty) { typecheck.checkId(obj.userID, "post.userID"); }
-    if (obj.text != undefined || noEmpty) { postObj.text = typecheck.checkStringTrimmed(obj.conventionID, "post.text"); }
+    if (obj.text != undefined || noEmpty) { postObj.text = typecheck.checkStringTrimmed(obj.text, "post.text"); }
     if (obj.images != undefined || noEmpty) { obj.images.map(checkIDS, "post.images") }
     if (obj.likes != undefined || noEmpty) { obj.likes.map(checkIDS, "post.likes") }
     return postObj;
