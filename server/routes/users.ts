@@ -1,8 +1,13 @@
 import {Router, Request, Response} from 'express';
-import userData from '../models/users';
+import userData from '../src/users';
+import {checkId} from '../typechecker.js';
+import redis from 'redis';
+import { ObjectId } from "mongodb"
+const client = redis.createClient();
+client.connect().then(() => {});
 const router = Router();
 
-
+//Signs up + creates session
 router
     .route('/signup')
     .post(async (req: Request, res: Response) => {
@@ -27,9 +32,13 @@ router
             return res.status(500).json({error: "failed to save to server"})
         }
 
+        req.session.user = user
+        await client.set("user:" + user._id, JSON.stringify(user));
+
         return res.status(200).json(user)
     })
 
+//Logs In + Creates Session
 router
     .route('/login')
     .post(async (req: Request, res: Response)=>{
@@ -49,11 +58,46 @@ router
         }
 
         req.session.user = user
+        await client.set("user:" + user._id, JSON.stringify(user));
 
         return res.status(200).json(user)
     })
 
-//TEST:
+//TEST
+router
+    .route('/user/:id')
+    .get( async (req: Request, res: Response) => {
+        let id = req.params.id
+
+        try{
+            checkId(id, "User Id");
+        } catch (e){
+            return res.status(400).json({error: e})
+        }
+
+        let exists = await client.exists("user:" + id)
+
+        if(exists){
+            let user = JSON.parse(await client.get('user:' + id));
+
+            return res.status(200).json(user);
+        }
+        else{
+            let user = null;
+            
+            try{
+                user = await userData.getUserById(id)
+            } catch (e){
+                return res.status(404).json({error: e})
+            }
+
+            await client.set('user:' + user._id, JSON.stringify(user))
+
+            return res.status(200).json(user);
+        }
+    })
+
+//Destroys Session
 router
     .route('/logout')
     .get(async (req: Request, res: Response) => {
