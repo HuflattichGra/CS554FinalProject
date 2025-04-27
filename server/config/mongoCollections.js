@@ -1,4 +1,4 @@
-import {dbConnection} from './mongoConnection.js';
+import { dbConnection } from "./mongoConnection.js";
 
 const getCollectionFn = (collection) => {
   let _col = undefined;
@@ -13,7 +13,8 @@ const getCollectionFn = (collection) => {
   };
 };
 
-export const users = getCollectionFn('users');
-export const posts = getCollectionFn('posts');
-export const conventions = getCollectionFn('conventions');
-export const comments = getCollectionFn('comments');
+export const users = getCollectionFn("users");
+export const posts = getCollectionFn("posts");
+export const conventions = getCollectionFn("conventions");
+export const comments = getCollectionFn("comments");
+export const images = getCollectionFn("images");
