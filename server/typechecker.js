@@ -52,15 +52,24 @@ export const checkStringTrimmed = (input,var_name) => {
 }
 
 export const checkId = (input, var_name) => {
-    checkString(input);
+    checkString(input,var_name);
     if(!ObjectId.isValid(input)){
         throw new Error(var_name + ' is not a valid ObjectId');
     }
+    return input.trim(); 
 }
 
 //checks the given var is date
 export const checkDate = (input, var_name) => {
-    if( !(input instanceof Date)){
+    if (typeof input !== 'string') {
+        throw new Error(var_name + ' must be a string');
+    }
+
+    const dateObj = new Date(input);
+
+    if (isNaN(dateObj.getTime())) {
         throw new Error(var_name + ' is not a valid Date');
     }
+
+    return input.trim(); 
 }
