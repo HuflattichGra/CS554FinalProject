@@ -1,0 +1,58 @@
+services:
+  mongodb:
+    image: mongo:8.0.8
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ducknight
+  
+  redis:
+    image: redis/redis-stack:7.4.0-v3
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ducknight
+  
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: ducknight-server
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./server/uploads:/app/uploads
+    networks:
+      - ducknight
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: ducknight-client
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+    networks:
+      - ducknight
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  ducknight:
