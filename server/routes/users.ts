@@ -78,7 +78,8 @@ router
         let exists = await client.exists("user:" + id)
 
         if(exists){
-            let user = JSON.parse(await client.get('user:' + id));
+            //Don't need to parse since server returns objectIds as strings anyways
+            let user = await client.get('user:' + id);
 
             return res.status(200).json(user);
         }

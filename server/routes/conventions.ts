@@ -1,6 +1,8 @@
 import express, { Router, Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import client from '../redis/client.js';
+import redis from 'redis';
+const client = redis.createClient();
+client.connect().then(() => {});
 
 interface User {
   _id: string;
@@ -33,7 +35,7 @@ interface Convention {
 const router: Router = express.Router();
 
 const ensureAuthenticated = (req: Request, res: Response, next: NextFunction): void => {
-  if (!req.user) {
+  if (!req.session.user) {
     res.status(401).json({ error: 'Not authenticated' });
     return;
   }
@@ -58,7 +60,7 @@ router.post('/', ensureAuthenticated, async (req: Request, res: Response, next: 
     isOnline: !!isOnline,
     address: address || '',
     exclusive: !!exclusive,
-    owner: req.user!._id,
+    owner: req.session.user!._id,
     panelists: [],
     attendees: []
   };
@@ -113,7 +115,7 @@ router.put('/:id', ensureAuthenticated, async (req: Request, res: Response): Pro
 
   if (!convention) return res.status(404).json({ error: 'Convention not found' });
 
-  if ((convention as Convention).owner !== req.user!._id) {
+  if ((convention as Convention).owner !== req.session.user!._id) {
     return res.status(403).json({ error: 'Not authorized' });
   }
   
@@ -134,7 +136,7 @@ router.delete('/:id', ensureAuthenticated, async (req: Request, res: Response): 
 
   if (!convention) return res.status(404).json({ error: 'Convention not found' });
 
-  if ((convention as Convention).owner !== req.user!._id) {
+  if ((convention as Convention).owner !== req.session.user!._id) {
     return res.status(403).json({ error: 'Not authorized' });
   }
   // TODO: Delete from DB
