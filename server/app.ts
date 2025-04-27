@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
 import session from "express-session";
-import configRoutes from "./routes/index"
-import cors from 'cors';
+import cors from "cors";
+import configRoutes from "./routes/index";
+import { ensureUploadDirExists } from "./images";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use(cors({
@@ -15,17 +17,16 @@ app.get("/ping", (req: Request, res: Response) => {
   res.send("pong");
 });
 
-app.use(session({
+app.use(
+  session({
+    name: "AuthenticationState",
+    secret: "some secret string!",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
-  name: 'AuthenticationState',
-
-  secret: 'some secret string!',
-
-  resave: false,
-
-  saveUninitialized: false,
-
-}))
+ensureUploadDirExists();
 
 configRoutes(app);
 
