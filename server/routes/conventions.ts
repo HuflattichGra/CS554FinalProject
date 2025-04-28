@@ -1,10 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-import { ObjectId } from 'mongodb';
 import conventionFunctions from '../src/conventions.js';
 import { checkId } from '../typechecker.js';
-import redis from 'redis';
-const client = redis.createClient();
-client.connect().then(() => {});
+import client from "../redis/client.js";
+
 const router: Router = express.Router();
 
 // Create Convention

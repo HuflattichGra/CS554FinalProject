@@ -1,10 +1,8 @@
 import {Router, Request, Response} from 'express';
 import userData from '../src/users';
 import {checkId} from '../typechecker.js';
-import redis from 'redis';
-import { ObjectId } from "mongodb"
-const client = redis.createClient();
-client.connect().then(() => {});
+import client from "../redis/client.js";
+
 const router = Router();
 
 //Signs up + creates session

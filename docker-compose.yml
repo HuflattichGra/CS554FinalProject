@@ -29,6 +29,10 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/
+      - MONGO_DB=DucKnight-CS554-Final
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - mongodb
       - redis
