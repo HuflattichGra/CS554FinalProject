@@ -107,4 +107,13 @@ router
         return res.status(200).json({currentSessionDestroyed: true})
     })
 
+router
+    .route('/checkSession')
+    .get(async (req: Request, res: Response) => {
+        if(req.session.user){
+            return res.status(200).json(req.session.user)
+        }
+        return res.status(200).json(null)
+    })
+
 export default router;
