@@ -1,65 +1,73 @@
 /* Navbar.css */
 .navbar {
-    width: 100%;
-    position: relative;
+    width: 100%; 
+    position: fixed;
+    top: 0;
+    left: 0;
     background-color: #1e1e2f;
-
+    z-index: 1000; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .navbar-container {
+}
+
+.navbar-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;    
-  }
-  
-  .left-section {
+    margin: 0 auto;
+}
+
+.left-section {
     flex: 0 0 70%;
     display: flex;
     align-items: center;
+}
 
-  }
-  
-  .right-section {
+.right-section {
     flex: 0 0 30%;
     display: flex;
     align-items: center;
-  }
-  
-  .logo {
+}
+
+.logo {
     width: 40px;
     height: 40px;
     margin-right: 1rem;
-  }
-  
-  .nav-items {
+}
+
+.profile-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    align-items: center;
+}
+
+.nav-items {
     display: flex;
     gap: 1rem;
-  }
-  
-  .nav-item {
+}
+
+.nav-item {
     text-decoration: none;
     color: white;
     font-weight: 500;
-  }
-  
-  .nav-item-active {
+}
+
+.nav-item-active {
     border-bottom: 2px solid #fff;
-  }
-  
-  .search-input {
+}
+
+.search-input {
     padding: 0.4rem 0.6rem;
     border-radius: 4px;
     border: 1px solid #ccc;
     margin-right: 1rem;
-  }
-  
-  .auth-buttons a {
+}
+
+.auth-buttons{
     margin-left: 0.5rem;
     color: white;
     text-decoration: none;
-  }
-  
+    align-items: center;
+}

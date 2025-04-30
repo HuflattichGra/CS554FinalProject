@@ -6,6 +6,7 @@ import axios from "axios";
 
 import { useContext } from "react";
 import userContext from "../../context/userContext";
+import userIcon from '../../assets/user.png';
 
 
 // Navbar items type
@@ -18,7 +19,7 @@ interface NavItemType {
 
 const navItems: NavItemType[] = [
   { label: "Home", href: "/" },
-  { label: "Page1", href: "/" },
+  { label: "Conventions", href: "/" },
   { label: "Page2", href: "/" },
 ];
 
@@ -73,7 +74,16 @@ const Navbar: React.FC = () => {
           
           {user ? (
             <div className="auth-buttons">
-              <button className="logout-button" onClick={logout}>Logout</button>
+              
+              {/* TO DO : Link to user profile page */}
+              <Link to="/" className="profile-icon">
+                <img
+                  src={userIcon}
+                  alt="Profile"
+                  className="profile-icon"
+                />
+              </Link>
+              <button  onClick={logout}>Logout</button>
             </div>
           ) : (
             <div className="auth-buttons">

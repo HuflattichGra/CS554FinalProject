@@ -3,20 +3,20 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { useContext, useEffect, useState} from "react";
 import userContext from "../../context/userContext";
-import "../../../App.css"
+import "../../App.css"
 
-/*interface Post {
+interface Post {
     _id: string;
     conventionID: string;
     userID: string;
     text: string;
     images: Array<string>;
     likes: Array<string>;
-}*/
+}
 
 //Reusable component for anytime a post needs to be displayed on a page
 //Props should accept an object with the following fields
-const PostView: React.FC = (props: any) => {
+const PostView: React.FC<Post> = (props: any) => {
     const [post, setPost] = useState(props)
     const [loading, setLoading] = useState(true)
     const [poster, setPoster] = useState<any >(undefined)

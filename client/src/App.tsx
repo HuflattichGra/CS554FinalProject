@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import './App.css'
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 import Navbar from './components/Navbar/Navbar';
 import Home from './components/Home/Home';
@@ -17,6 +18,26 @@ function App() {
   const shouldHideNav = hideNavRoutes.includes(location.pathname);
 
   const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/checkSession', {
+          withCredentials: true
+        });
+        if (response.data && Object.keys(response.data).length > 0) {
+          setUser(response.data);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.log('Not logged in');
+        setUser(null);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <>
