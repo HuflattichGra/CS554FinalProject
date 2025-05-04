@@ -49,9 +49,7 @@ async function addComment(obj: Comment) {
         throw new Error("Comment was not found in DB");
     }
 
-    var id: string = (dbOut.insertedId);
-
-    console.log(dbOut);
+    var id: string = (dbOut.insertedId.toHexString());
 
     var retVal: Comment = await getComment(id);
 
@@ -62,7 +60,7 @@ async function getComment(id: string) {
     typecheck.checkId(id);
 
     const db = await comments();
-    var retVal: Comment = await db.findOne({ _id: id });
+    var retVal: Comment = await db.findOne({ _id: ObjectId.createFromHexString(id) });
 
     if (retVal == null) {
         throw new Error("Comment with id " + id + " not found");
@@ -88,7 +86,7 @@ async function updateComment(id: string, obj: any) {
     delete obj._id;
 
     const db = await comments();
-    var updateRes: Comment = await db.updateOne({ _id: id }, [{ $set: obj }]);
+    var updateRes: Comment = await db.updateOne({ _id: ObjectId.createFromHexString(id) }, [{ $set: obj }]);
 
     if (updateRes == null) {
         throw new Error("No comments are available");

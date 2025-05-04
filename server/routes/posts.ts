@@ -20,6 +20,7 @@ router.route('/').get(async(req,res) => {
 
         res.status(200).send(ret);
     }catch(e){
+        console.log(e);
         res.status(400).send({error:e});
     }
 });

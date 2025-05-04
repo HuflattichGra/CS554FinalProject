@@ -30,11 +30,11 @@ function DEBUG_generatePost() {
 function checkPost(obj: any, needsID: boolean = false, noEmpty: boolean = true) {
     var postObj: Post = obj;
     if (obj._id != undefined || needsID) { typecheck.checkId(obj._id, "post.id"); }
-    if (obj.conventionID != undefined || noEmpty) { typecheck.checkId(obj.conventionID, "post.conventionID"); }
+    if (obj.conventionID != undefined || noEmpty) { if(obj.conventionID.length > 0){ typecheck.checkId(obj.conventionID, "post.conventionID"); } }
     if (obj.userID != undefined || noEmpty) { typecheck.checkId(obj.userID, "post.userID"); }
     if (obj.text != undefined || noEmpty) { postObj.text = typecheck.checkStringTrimmed(obj.text, "post.text"); }
-    if (obj.images != undefined || noEmpty) { obj.images.map(checkIDS, "post.images") }
-    if (obj.likes != undefined || noEmpty) { obj.likes.map(checkIDS, "post.likes") }
+    if (obj.images != undefined || noEmpty) { if(obj.images.length > 0){obj.images.map(checkIDS, "post.images"); }}
+    if (obj.likes != undefined || noEmpty) { if(obj.likes.length > 0){obj.likes.map(checkIDS, "post.likes"); }}
     return postObj;
 }
 
@@ -47,9 +47,7 @@ async function addPost(obj: Post) {
         throw new Error("Post was not found in DB");
     }
 
-    var id: string = (dbOut.insertedId);
-
-    console.log(dbOut);
+    var id: string = (dbOut.insertedId.toHexString());
 
     var retVal: Post = await getPost(id);
 
@@ -60,7 +58,7 @@ async function getPost(id: string) {
     typecheck.checkId(id);
 
     const db = await posts();
-    var retVal: Post = await db.findOne({ _id: id });
+    var retVal: Post = await db.findOne({ _id: ObjectId.createFromHexString(id) });
 
     if (retVal == null) {
         throw new Error("Post with id " + id + " not found");
