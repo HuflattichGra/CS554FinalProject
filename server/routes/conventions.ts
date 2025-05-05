@@ -50,7 +50,29 @@ router.get('/:id', async (req: Request, res: Response):Promise<any> => {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
+//Get All Conventions
+router.get('/', async (req: Request, res: Response): Promise<any> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
 
+    const cacheKey = `conventions:page:${page}:size:${pageSize}`;
+    const cached = await client.get(cacheKey);
+
+    if (cached) {
+      console.log(`[Cache Hit] Conventions Page ${page}`);
+      return res.status(200).json(JSON.parse(cached));
+    }
+
+    const result = await conventionFunctions.getAllConventions(page, pageSize);
+
+    await client.set(cacheKey, JSON.stringify(result), { EX: 300 });
+
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+  }
+});
 // Update Convention
 router.put('/:id', async (req: Request, res: Response) => {
   try {
@@ -75,7 +97,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     await client.del(`convention:${id}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 
@@ -102,7 +124,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     await client.del(`convention:${id}`);
     return res.status(200).json(deletionResult);
   } catch (e) {
-    return res.status(400).json({ error: e });
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 
@@ -132,7 +154,7 @@ router.patch('/:id/addOwner', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 // Remove Owner
@@ -149,7 +171,7 @@ router.patch('/:id/removeOwner', async (req: Request, res: Response) => {
 
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 
@@ -161,7 +183,7 @@ router.get('/:id/panelists', async (req: Request, res: Response) => {
 
     return res.status(200).json({ panelists: convention.panelists || [] });
   } catch (e) {
-    return res.status(400).json({ error: e });
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 // Add Panelist
@@ -190,7 +212,7 @@ router.patch('/:id/addPanelist', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 
@@ -220,7 +242,7 @@ router.patch('/:id/removePanelist', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 
@@ -240,7 +262,7 @@ router.patch('/:id/applyPanelist', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 
@@ -270,7 +292,7 @@ router.patch('/:id/approvePanelist', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 router.patch('/:id/rejectPanelist', async (req: Request, res: Response) => {
@@ -294,7 +316,7 @@ router.patch('/:id/rejectPanelist', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 router.get('/:id/panelistApplications', async (req: Request, res: Response) => {
@@ -311,7 +333,7 @@ router.get('/:id/panelistApplications', async (req: Request, res: Response) => {
 
     return res.status(200).json({ panelistApplications: convention.panelistApplications || [] });
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 //Apple Attendee
@@ -327,7 +349,7 @@ router.patch('/:id/applyAttendee', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 router.patch('/:id/approveAttendee', async (req: Request, res: Response) => {
@@ -351,9 +373,39 @@ router.patch('/:id/approveAttendee', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
+router.patch('/:id/removeAttendee',async (req: Request, res: Response) => { 
+  try {
+    const conventionId = checkId(req.params.id, 'Convention ID');
+    const user = req.session?.user;
+
+    if (!user || !user._id) {
+      return res.status(401).json({ error: 'User not logged in' });
+    }
+
+    const convention = await conventionFunctions.getConventionById(conventionId);
+    const ownerIds = convention.owners.map((id: any) => id.toString());
+    
+    const { applicantId } = req.body;
+
+    if (!applicantId.includes(user._id.toString()) && !ownerIds.includes(user._id.toString()) && !user.admin) {
+      return res.status(403).json({ error: 'Only convention owners, admins, or the attendee themself can remove an attendee' });
+    }
+
+    const checkedApplicantId = checkId(applicantId, 'Panelist ID');
+
+    const updatedConvention = await conventionFunctions.removeAttendee(conventionId, checkedApplicantId);
+
+    await client.del('conventions:all');
+    await client.del(`convention:${conventionId}`);
+    return res.status(200).json(updatedConvention);
+  } catch (e) {
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+  }
+});
+
 router.patch('/:id/rejectAttendee', async (req: Request, res: Response) => {
   try {
     const conventionId = checkId(req.params.id, 'Convention ID');
@@ -375,7 +427,7 @@ router.patch('/:id/rejectAttendee', async (req: Request, res: Response) => {
     await client.del(`convention:${conventionId}`);
     return res.status(200).json(updatedConvention);
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 router.get('/:id/attendees', async (req: Request, res: Response) => {
@@ -386,7 +438,7 @@ router.get('/:id/attendees', async (req: Request, res: Response) => {
 
     return res.status(200).json({ attendees });
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 router.get('/:id/attendeeApplications', async (req: Request, res: Response) => {
@@ -406,7 +458,7 @@ router.get('/:id/attendeeApplications', async (req: Request, res: Response) => {
 
     return res.status(200).json({ attendeeApplications });
   } catch (e) {
-    return res.status(400).json({ error: e });
+      return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 export default router;

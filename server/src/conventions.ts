@@ -80,7 +80,26 @@ export const getConventionById = async (id: string) => {
     attendees: convention.attendees
   };
 };
+//Get All Convention
+export const getAllConventions = async (page: number, pageSize: number) => {
+  const conventionCollection = await conventions();
 
+  const total = await conventionCollection.countDocuments();
+  const totalPages = Math.ceil(total / pageSize);
+
+  const conventionList = await conventionCollection.find({})
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .toArray();
+
+  return {
+    conventions: conventionList,
+    total,
+    page,
+    pageSize,
+    totalPages
+  };
+};
 // Update Convention
 export const updateConvention = async (
   id: string,
@@ -308,6 +327,24 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
   
     return await getConventionById(conventionId);
   };
+  //Remove attendee
+  export const removeAttendee = async (conventionId: string, userId: string) => {
+    conventionId = checkId(conventionId, 'Convention ID');
+    userId = checkId(userId, 'User ID');  
+    
+    const conventionCollection = await conventions();
+    const convention = await conventionCollection.findOne({ _id: new ObjectId(conventionId) });
+    if (!convention) throw 'Convention not found';
+    const updateResult = await conventionCollection.updateOne(
+      { _id: new ObjectId(conventionId) },
+      { $pull: { attendees: new ObjectId(userId) } }
+    );
+  
+    if (updateResult.matchedCount === 0) throw 'Convention not found';
+    if (updateResult.modifiedCount === 0) throw 'Attendee was not in this convention';
+  
+    return await getConventionById(conventionId);
+  };
   // Approve attendee
   export const approveAttendeeApplication = async (conventionId: string, userId: string) => {
     conventionId = checkId(conventionId, 'Convention ID');
@@ -365,6 +402,7 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
 export default {
   createConvention,
   getConventionById,
+  getAllConventions,
   updateConvention,
   deleteConvention,
   addOwner,
@@ -375,6 +413,7 @@ export default {
   approvePanelistApplication,
   rejectPanelistApplication,
   applyAttendee,
+  removeAttendee,
   approveAttendeeApplication,
   rejectAttendeeApplication,
   listAttendees,

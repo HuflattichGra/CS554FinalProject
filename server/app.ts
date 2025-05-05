@@ -1,11 +1,11 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import session from "express-session";
 import cors from "cors";
 import configRoutes from "./routes/index";
 import { ensureUploadDirExists } from "./images";
 
 const app = express();
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 app.use(cors({
@@ -16,6 +16,8 @@ app.use(cors({
 app.get("/ping", (req: Request, res: Response) => {
   res.send("pong");
 });
+
+
 
 app.use(
   session({
