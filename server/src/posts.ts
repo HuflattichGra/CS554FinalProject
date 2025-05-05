@@ -84,7 +84,7 @@ async function updatePost(id: string, obj: any) {
     delete obj._id;
 
     const db = await posts();
-    var updateRes: Post = await db.updateOne({ _id: id }, [{ $set: obj }]);
+    var updateRes: Post = await db.updateOne({ _id: ObjectId.createFromHexString(id) }, [{ $set: obj }]);
 
     if (updateRes == null) {
         throw new Error("No posts are available");
@@ -96,11 +96,11 @@ async function updatePost(id: string, obj: any) {
 }
 
 async function deletePost(id: string) {
-    typecheck.checkId(id);
+    typecheck.checkId(id,"id");
 
     const db = await posts();
     var retVal: Post = await getPost(id);
-    var deleteRes: Post = await db.deleteOne({ id: ObjectId.createFromHexString(id) });
+    var deleteRes: Post = await db.deleteOne({ _id: ObjectId.createFromHexString(id) });
 
     if (deleteRes == null) {
         throw new Error("delete of " + deleteRes + "failed");
