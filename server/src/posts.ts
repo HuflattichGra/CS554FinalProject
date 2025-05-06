@@ -78,11 +78,13 @@ async function getPost(id: string) {
 
 async function getPosts() {
     const db = await posts();
-    var retVal: Post = await db.find({}).toArray();
+    var retVal: Array<Post> = await db.find({}).toArray();
 
     if (retVal == null) {
         throw new Error("No posts are available");
     }
+
+    retVal.sort(sortByDate);
 
     return retVal;
 }
@@ -124,8 +126,6 @@ async function getPostsByUserId(id: string) {
     const db = await posts();
     var retVal: Array<Post> = await db.find({userID: ObjectId.createFromHexString(id)}).toArray();
 
-    console.log(retVal);
-
     if (retVal == null) {
         throw new Error("No posts are available");
     }
@@ -154,4 +154,4 @@ function sortByDate(a:Post,b:Post){
     return a.createdAt > b.createdAt ? -1 : ((a.createdAt < b.createdAt) ? 1 : 0);
 }
 
-export default { checkPost, addPost, getPosts, getPost, updatePost, deletePost, DEBUG_generatePost, getPostsByUserId };
+export default { checkPost, addPost, getPosts, getPost, updatePost, deletePost, DEBUG_generatePost, getPostsByUserId,getPostsByConventionId };

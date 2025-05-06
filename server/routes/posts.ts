@@ -111,5 +111,18 @@ router.route('/user/:id')
         }
     });
 
+router.route('/convention/:id')
+    .get(async (req, res) => {
+        try {
+            var id = req.params.id;
+
+            var ret = await posts.getPostsByConventionId(id);
+
+            res.status(200).send(ret);
+        } catch (e) {
+            res.status(400).send({ error: (e as Error).message });
+        }
+    });
+
 
 export default router;
