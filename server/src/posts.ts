@@ -9,6 +9,7 @@ export type Post = {
     text: string;
     images: Array<string>;
     likes: Array<string>;
+    createdAt: Date;
 };
 
 const checkIDS = (x: any,var_name:string) => {
@@ -22,7 +23,8 @@ function DEBUG_generatePost() {
         userID: (new ObjectId()).toHexString(),
         text: "This is a sample post",
         images: [],
-        likes: []
+        likes: [],
+        createdAt: new Date(Date.now())
     }
     return obj;
 }
@@ -38,8 +40,15 @@ function checkPost(obj: any, needsID: boolean = false, noEmpty: boolean = true) 
     return postObj;
 }
 
-async function addPost(obj: Post) {
+async function addPost(obj: any) {
     obj = checkPost(obj, false, true);
+
+    obj.userID = ObjectId.createFromHexString(obj.userID);
+    if(obj.conventionID){
+        obj.conventionID = ObjectId.createFromHexString(obj.conventionID);
+    }
+
+    obj.createdAt = new Date(Date.now());
 
     const db = await posts();
     var dbOut = await db.insertOne(obj);
@@ -113,13 +122,36 @@ async function getPostsByUserId(id: string) {
     typecheck.checkId(id);
 
     const db = await posts();
-    var retVal: Post = await db.find({userID: ObjectId.createFromHexString(id)}).toArray();
+    var retVal: Array<Post> = await db.find({userID: ObjectId.createFromHexString(id)}).toArray();
+
+    console.log(retVal);
 
     if (retVal == null) {
         throw new Error("No posts are available");
     }
 
+    retVal.sort(sortByDate);
+
     return retVal;
+}
+
+async function getPostsByConventionId(id:string){
+    typecheck.checkId(id);
+
+    const db = await posts();
+    var retVal: Array<Post> = await db.find({conventionID: ObjectId.createFromHexString(id)}).toArray();
+
+    if (retVal == null) {
+        throw new Error("No posts are available");
+    }
+
+    retVal.sort(sortByDate);
+
+    return retVal;
+}
+
+function sortByDate(a:Post,b:Post){
+    return a.createdAt > b.createdAt ? -1 : ((a.createdAt < b.createdAt) ? 1 : 0);
 }
 
 export default { checkPost, addPost, getPosts, getPost, updatePost, deletePost, DEBUG_generatePost, getPostsByUserId };

@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express';
 import comments from "../src/comments";
 import client from '../redis/client';
 const router = Router();
-client.connect().then(() => { });
 
 const apistring = 'COMMENTS:'
 
