@@ -144,4 +144,17 @@ router.route("/convention/:id").get(async (req, res) => {
   }
 });
 
+// Get posts by userID. Returns all posts by users that the user is following
+router.route("/following/:id").get(async (req, res) => {
+  try {
+    var id = req.params.id;
+
+    var ret = await posts.getPostsByFollowing(id);
+
+    res.status(200).send(ret);
+  } catch (e) {
+    res.status(400).send({ error: (e as Error).message });
+  }
+});
+
 export default router;

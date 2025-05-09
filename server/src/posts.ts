@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { posts } from "../config/mongoCollections";
+import { posts, users } from "../config/mongoCollections";
 // @ts-ignore
 import * as typecheck from "../typechecker.js";
 
@@ -184,6 +184,44 @@ async function getPostsByConventionId(id: string) {
   return retVal;
 }
 
+async function getPostsByFollowing(id: string) {
+  typecheck.checkId(id);
+
+  // Get the user to access their following list
+  const usersCollection = await users();
+  const user = await usersCollection.findOne({
+    _id: ObjectId.createFromHexString(id),
+  });
+
+  if (!user) {
+    throw new Error(`User with id ${id} not found`);
+  }
+
+  if (!user.following || user.following.length === 0) {
+    return []; // Return empty array if user is not following anyone
+  }
+
+  // Convert following array to an array of ObjectIds
+  const followingIds = user.following.map((userId: any) =>
+    userId instanceof ObjectId
+      ? userId
+      : ObjectId.createFromHexString(userId.toString())
+  );
+
+  const db = await posts();
+  var retVal: Array<Post> = await db
+    .find({ userID: { $in: followingIds } })
+    .toArray();
+
+  if (retVal == null) {
+    throw new Error("No posts are available");
+  }
+
+  retVal.sort(sortByDate);
+
+  return retVal;
+}
+
 function sortByDate(a: Post, b: Post) {
   return a.createdAt > b.createdAt ? -1 : a.createdAt < b.createdAt ? 1 : 0;
 }
@@ -198,4 +236,5 @@ export default {
   DEBUG_generatePost,
   getPostsByUserId,
   getPostsByConventionId,
+  getPostsByFollowing,
 };
