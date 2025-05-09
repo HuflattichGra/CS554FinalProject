@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import { useContext } from 'react';
 import UserContext from '../../context/userContext';
+import { API_BASE } from '../../api';
 
 const SignInForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -16,8 +17,7 @@ const SignInForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        // Uncomment the following lines to enable the API call
-        const response = await axios.post('http://localhost:3000/login', 
+        const response = await axios.post(`${API_BASE}/login`, 
           { username, password },
           {withCredentials: true});
         console.log('Sign In Success:', response.data);

@@ -3,6 +3,7 @@ import ReactModal from "react-modal";
 import { useContext } from "react";
 import userContext from "../../context/userContext";
 import axios from "axios";
+import { API_BASE } from "../../api";
 
 ReactModal.setAppElement("#root");
 
@@ -57,7 +58,7 @@ const PostModal: React.FC<PostModalProps> = ({
                 likes: [],
             };
 
-            await axios.post("http://localhost:3000/posts", postData);
+            await axios.post(`${API_BASE}/posts`, postData);
             onClose();
             onPostCreated(); // Notify parent component to refresh posts
         } catch (err: any) {

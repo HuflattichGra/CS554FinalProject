@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import { useContext } from 'react';
 import UserContext from '../../context/userContext';
+import { API_BASE } from '../../api';
 
 const SignUpForm: React.FC = () => {
   const [firstname, setFirstname] = useState('');
@@ -19,8 +20,7 @@ const SignUpForm: React.FC = () => {
     e.preventDefault();
     
     try {        
-      // for local testing
-      const response = await axios.post('http://localhost:3000/signup', 
+      const response = await axios.post(`${API_BASE}/signup`, 
       {
         firstname,
         lastname,

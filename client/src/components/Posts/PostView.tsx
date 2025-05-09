@@ -4,6 +4,7 @@ import axios from "axios";
 import { useContext, useEffect, useState} from "react";
 import userContext from "../../context/userContext";
 import "../../App.css"
+import { API_BASE } from '../../api';
 
 interface Post {
     _id: string;
@@ -25,7 +26,7 @@ const PostView: React.FC<Post> = (props: any) => {
     useEffect(()=>{
         async function fetchData(){
             try{
-                const userData = await axios.get(`http://localhost:3000/user/${props.userID}`)
+                const userData = await axios.get(`${API_BASE}/user/${props.userID}`)
 
                 setPoster(userData.data)
                 setLoading(false)
@@ -44,7 +45,7 @@ const PostView: React.FC<Post> = (props: any) => {
         if(post.likes.includes(user?._id)){
             let newLikes : Array<string> = post.likes.filter((like : string) => like !== user?._id )
 
-            const newPost = await axios.patch(`http://localhost:3000/posts/${props._id}`,
+            const newPost = await axios.patch(`${API_BASE}/posts/${props._id}`,
                 {
                     likes: newLikes
                 }
@@ -54,7 +55,7 @@ const PostView: React.FC<Post> = (props: any) => {
         } else{
             let newLikes: Array<string> = [...post.likes, user?._id!];
 
-            const newPost = await axios.patch(`http://localhost:3000/posts/${props._id}`,
+            const newPost = await axios.patch(`${API_BASE}/posts/${props._id}`,
                 {
                     likes: newLikes
                 }

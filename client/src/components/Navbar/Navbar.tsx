@@ -7,6 +7,7 @@ import axios from "axios";
 import { useContext } from "react";
 import userContext from "../../context/userContext";
 import userIcon from '../../assets/user.png';
+import { API_BASE } from "../../api";
 
 
 // Navbar items type
@@ -44,8 +45,7 @@ const Navbar: React.FC = () => {
     e.preventDefault();
     
     try {        
-      // for local testing
-      const response = await axios.get('http://localhost:3000/logout',{withCredentials: true});
+      const response = await axios.get(`${API_BASE}/logout`,{withCredentials: true});
       console.log('logout Success:', response.data);
 
       setUser(null);
