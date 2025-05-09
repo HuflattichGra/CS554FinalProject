@@ -9,7 +9,7 @@ import AuthPage from "./components/Auth/AuthPage";
 import userContext from "./context/userContext";
 import { User } from './context/userContext';
 import GuestOnly from "./components/GuestOnly";
-
+import PostList from "./components/Posts/PostList";
 
 function App() {
   const location = useLocation();
@@ -49,6 +49,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<GuestOnly><AuthPage /></GuestOnly>} />
+                <Route path="/posts" element={<PostList />} />
             </Routes>
         </div>
       </userContext.Provider>

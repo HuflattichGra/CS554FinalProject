@@ -36,30 +36,31 @@ const PostView: React.FC<Post> = (props: any) => {
             }
         }
         fetchData()
-    }, [])
+    }, [props.userID])
 
     const onSubmitLikes : any = async (e: any) => {
+        console.log("Like button clicked")
         e.preventDefault()
         if(post.likes.includes(user?._id)){
             let newLikes : Array<string> = post.likes.filter((like : string) => like !== user?._id )
 
-            const newPost = await axios.patch(`http://localhost:3000/user/${props.userID}`,
+            const newPost = await axios.patch(`http://localhost:3000/posts/${props._id}`,
                 {
                     likes: newLikes
                 }
              )
 
-            setPost(newPost)
+            setPost(newPost.data)
         } else{
-            let newLikes : Array<string> = post.likes.push(user?._id)
+            let newLikes: Array<string> = [...post.likes, user?._id!];
 
-            const newPost = await axios.patch(`http://localhost:3000/user/${props.userID}`,
+            const newPost = await axios.patch(`http://localhost:3000/posts/${props._id}`,
                 {
                     likes: newLikes
                 }
             )
 
-            setPost(newPost)
+            setPost(newPost.data)
         }
     }
 
@@ -84,12 +85,10 @@ const PostView: React.FC<Post> = (props: any) => {
             <div>
                 <Link to={`user/${post.userID}`}>{poster.username}</Link>
                 <p>{post.text}</p>
-                <p>Likes: {post.likes}</p>
+                <p>Likes: {post.likes?.length || 0}</p>
                 {user ? 
                 <div>
-                    <form id="like" onSubmit={onSubmitLikes}>
-                        <button type='button' className='button'>Like</button>
-                    </form>
+                    <button onClick={onSubmitLikes} className='button'>Like</button>
                     <form id="bookmark" onSubmit={onSubmitBookmark}>
                         <button type='button' className='button'>Bookmark</button>
                     </form>

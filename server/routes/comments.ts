@@ -1,66 +1,91 @@
-import {Router, Request, Response} from 'express';
+import { Router, Request, Response } from 'express';
 import comments from "../src/comments";
+import client from '../redis/client';
 const router = Router();
 
+const apistring = 'COMMENTS:'
+
+const deletePostCache = async () => {
+    const keys = (await client.keys(apistring + "*"));
+    for (let i = 0; i < keys.length; i++) {
+        await client.del(keys[i]);
+    }
+}
+
 //basic route that gets 20 comments
-router.route('/').get(async(req,res) => {
-    try{
+router.route('/').get(async (req, res) => {
+    try {
         var ret = await comments.getComments();
 
         res.status(200).send(ret);
-    }catch(e){
-        res.status(400).send({error:e});
+    } catch (e) {
+        res.status(400).send({ error: e });
     }
 })
-.post(async(req,res) => {
-    try{
-        var body = req.body;
+    .post(async (req, res) => {
+        try {
+            var body = req.body;
 
-        var ret = await comments.addComment(body);
+            var ret = await comments.addComment(body);
 
-        res.status(200).send(ret);
-    }catch(e){
-        res.status(400).send({error:e});
-    }
-});
+            await client.set(apistring + ret._id, JSON.stringify(ret));
+
+            res.status(200).send(ret);
+        } catch (e) {
+            res.status(400).send({ error: e });
+        }
+    });
 
 
 //handles most things comment related
 router.route('/:id')
-.get(async(req,res) => {
-    try{
-        var id = req.params.id;
+    .get(async (req, res) => {
+        try {
+            var id = req.params.id;
 
-        var ret = await comments.getComment(id);
+            var cache = await client.get(apistring + id);
 
-        res.status(200).send(ret);
-    }catch(e){
-        res.status(400).send({error:e});
-    }
-})
-.patch(async(req,res) => {
-    try{
-        var id = req.params.id;
-        var body = req.body;
+            if (cache == null) {
+                var ret = await comments.getComment(id);
 
-        var ret = await comments.updateComment(id,body);
+                await client.set(apistring + ret._id, JSON.stringify(ret));
 
-        res.status(200).send(ret);
-    }catch(e){
-        res.status(400).send({error:e});
-    }
-})
-.delete(async(req,res) => {
-    try{
-        var id = req.params.id;
+                res.status(200).send(ret);
+                return;
+            }
 
-        var ret = await comments.deleteComment(id);
+            res.status(200).send(cache);
+        } catch (e) {
+            res.status(400).send({ error: e });
+        }
+    })
+    .patch(async (req, res) => {
+        try {
+            var id = req.params.id;
+            var body = req.body;
 
-        res.status(200).send(ret);
-    }catch(e){
-        res.status(400).send({error:e});
-    }
-})
-;
+            var ret = await comments.updateComment(id, body);
+
+            await client.set(apistring + ret._id, JSON.stringify(ret));
+
+            res.status(200).send(ret);
+        } catch (e) {
+            res.status(400).send({ error: e });
+        }
+    })
+    .delete(async (req, res) => {
+        try {
+            var id = req.params.id;
+
+            var ret = await comments.deleteComment(id);
+
+            deletePostCache();
+
+            res.status(200).send(ret);
+        } catch (e) {
+            res.status(400).send({ error: e });
+        }
+    })
+    ;
 
 export default router;
