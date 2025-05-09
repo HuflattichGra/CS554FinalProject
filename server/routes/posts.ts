@@ -3,6 +3,8 @@ import posts from "../src/posts";
 import client from "../redis/client";
 import { imageUpload } from "../images/upload";
 import { extractMultiple } from "../images/extract";
+// @ts-ignore
+import { checkStringTrimmed, checkId } from "../typechecker";
 const router = Router();
 
 const apistring = "POST:";
@@ -14,7 +16,6 @@ const deletePostCache = async () => {
   }
 };
 
-//basic route that gets 20 posts
 router
   .route("/")
   .get(async (req, res) => {
@@ -37,8 +38,14 @@ router
   .post(imageUpload.array("images"), async (req: Request, res: Response) => {
     try {
       const { text, conventionID, userID } = req.body;
-      if (!text || !conventionID || !userID) {
-        throw new Error("Missing required fields: text, conventionID, userID");
+      if (!text || !userID) {
+        throw new Error("Missing required fields: text, userID");
+      }
+      const validatedText = checkStringTrimmed(text, "text");
+      const validatedUserID = checkId(userID, "userID");
+      let validatedConventionID = conventionID;
+      if (conventionID) {
+        validatedConventionID = checkId(conventionID, "conventionID");
       }
 
       let imageIds: string[] = [];
@@ -48,9 +55,9 @@ router
       }
 
       const postData = {
-        text,
-        conventionID,
-        userID,
+        text: validatedText,
+        conventionID: validatedConventionID,
+        userID: validatedUserID,
         images: imageIds,
         likes: [],
       };
@@ -64,7 +71,6 @@ router
     }
   });
 
-//handles most things post related
 router
   .route("/:id")
   .get(async (req, res) => {
