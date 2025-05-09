@@ -6,6 +6,7 @@ import client from "../redis/client.js";
 const router = Router();
 
 //Signs up + creates session
+//TODO: redis
 router
     .route('/signup')
     .post(async (req: Request, res: Response) => {
@@ -94,6 +95,35 @@ router
 
             return res.status(200).json(user);
         }
+    })
+
+router
+    .route('user/:id')
+    .patch(async (req: Request, res: Response) => {
+        let id = req.params.id
+
+        if(!req.session.user) return res.status(401).json({error: "Error: Not authorized"}) 
+        if((req.session.user._id !== req.params.id) || (req.session.user.admin !== true)) return res.status(401).json({error: "Error: User is not authorized"}) 
+
+        try{
+            checkId(id, "User Id");
+        } catch (e){
+            return res.status(404).json({error: e})
+        }
+
+        let user = null
+
+        try{
+            user = await userData.updateUser(req.params.id, req.body);
+        } catch (e) {
+            return res.status(400).json({error: e})
+        }
+
+        let exists = await client.exists("user:" + id)
+
+        if (exists) await client.set('user:' + user._id, JSON.stringify(user))
+        
+        return res.status(200).json(user)
     })
 
 //Destroys Session
