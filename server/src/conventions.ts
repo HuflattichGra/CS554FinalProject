@@ -1,6 +1,20 @@
-import { conventions } from '../config/mongoCollections.js';
+import { users, conventions } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import { checkStringTrimmed, checkId, checkDate } from '../typechecker.js';
+
+function calculateCountdownDays(startDate: string): number {
+  if (!startDate) return 0;
+
+  const now = new Date();
+  const start = new Date(startDate);
+
+  const diffTime = start.getTime() - now.getTime();
+
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  return Math.max(diffDays, 0); 
+}
+
 
 // Create Convention
 export const createConvention = async (
@@ -92,13 +106,33 @@ export const getAllConventions = async (page: number, pageSize: number) => {
     .limit(pageSize)
     .toArray();
 
-  return {
-    conventions: conventionList,
-    total,
-    page,
-    pageSize,
-    totalPages
-  };
+    return {
+      conventions: conventionList.map(c => ({
+        _id: c._id.toString(),
+        name: c.name || '',
+        tags: c.tags ?? [],
+        startDate: c.startDate || '',
+        endDate: c.endDate || '',
+        description: c.description || '',
+        isOnline: c.isOnline ?? false,
+        address: c.address || '',
+        exclusive: c.exclusive ?? false,
+        owners: Array.isArray(c.owners) ? c.owners.map(o => o.toString()) : [],
+        panelists: Array.isArray(c.panelists) ? c.panelists.map(p => p.toString()) : [],
+        attendees: Array.isArray(c.attendees) ? c.attendees.map(a => a.toString()) : [],
+        panelistApplications: Array.isArray(c.panelistApplications) ? c.panelistApplications.map(p => p.toString()) : [],
+        attendeeApplications: Array.isArray(c.attendeeApplications) ? c.attendeeApplications.map(a => a.toString()) : [],
+        imageUrl: c.imageUrl || '/default-convention-banner.png',
+        productCount: c.productCount ?? 0,
+        groupCount: c.groupCount ?? 0,
+        countdownDays: calculateCountdownDays(c.startDate)
+      })),
+      total,
+      page,
+      pageSize,
+      totalPages
+    };
+    
 };
 // Update Convention
 export const updateConvention = async (
@@ -399,6 +433,95 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
   
     return convention.attendeeApplications || [];
   };
+  export const getUserBookmarkedConventions = async (userId: string) => {
+    userId = checkId(userId, 'User ID');
+    const userCollection = await users();
+    const conventionCollection = await conventions();
+  
+    const user = await userCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user) throw 'User not found';
+  
+    if (!user.bookmarks || user.bookmarks.length === 0) return [];
+  
+    const result = await conventionCollection.find({
+      _id: { $in: user.bookmarks }
+    }).toArray();
+  
+    return result.map((c) => ({
+      _id: c._id.toString(),
+      name: c.name || '',
+      tags: c.tags ?? [],
+      startDate: c.startDate || '',
+      endDate: c.endDate || '',
+      description: c.description || '',
+      isOnline: c.isOnline ?? false,
+      address: c.address || '',
+      exclusive: c.exclusive ?? false,
+      owners: (c.owners || []).map((o) => o.toString?.() ?? o),
+      panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
+      attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
+      panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
+      attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
+      imageUrl: c.imageUrl || '/default-convention-banner.png',
+      productCount: c.productCount ?? 0,
+      groupCount: c.groupCount ?? 0,
+      countdownDays: calculateCountdownDays(c.startDate)
+    }));
+  };
+  
+  export const getRecommendedConventions = async (userId: string) => {
+    userId = checkId(userId, 'User ID');
+    const conventionCollection = await conventions();
+  
+    const result = await conventionCollection.aggregate([
+      {
+        $project: {
+          name: 1,
+          tags: 1,
+          startDate: 1,
+          endDate: 1,
+          description: 1,
+          address: 1,
+          isOnline: 1,
+          exclusive: 1,
+          owners: 1,
+          panelists: 1,
+          attendees: 1,
+          panelistApplications: 1,
+          attendeeApplications: 1,
+          imageUrl: 1,
+          productCount: 1,
+          groupCount: 1,
+          attendeesCount: { $size: "$attendees" }
+        }
+      },
+      { $sort: { attendeesCount: -1 } },
+      { $limit: 10 }
+    ]).toArray();
+  
+    return result.map((c) => ({
+      _id: c._id.toString(),
+      name: c.name || '',
+      tags: c.tags ?? [],
+      startDate: c.startDate || '',
+      endDate: c.endDate || '',
+      description: c.description || '',
+      isOnline: c.isOnline ?? false,
+      address: c.address || '',
+      exclusive: c.exclusive ?? false,
+      owners: (c.owners || []).map((o) => o.toString?.() ?? o),
+      panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
+      attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
+      panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
+      attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
+      imageUrl: c.imageUrl || '/default-convention-banner.png',
+      productCount: c.productCount ?? 0,
+      groupCount: c.groupCount ?? 0,
+      countdownDays: calculateCountdownDays(c.startDate)
+    }));
+  };
+  
+  
 export default {
   createConvention,
   getConventionById,
@@ -417,5 +540,7 @@ export default {
   approveAttendeeApplication,
   rejectAttendeeApplication,
   listAttendees,
-  listAttendeeApplications
+  listAttendeeApplications,
+  getUserBookmarkedConventions,
+  getRecommendedConventions
 };

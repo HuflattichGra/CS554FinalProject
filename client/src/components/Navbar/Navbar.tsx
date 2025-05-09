@@ -19,7 +19,7 @@ interface NavItemType {
 
 const navItems: NavItemType[] = [
   { label: "Home", href: "/" },
-  { label: "Conventions", href: "/" },
+  { label: "Conventions", href: "/conventions" },
   { label: "Post", href: "/posts" },
 ];
 

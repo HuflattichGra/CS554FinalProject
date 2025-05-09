@@ -109,3 +109,41 @@ export const listAttendeeApplications = async (conventionId: string) => {
   const { data } = await axios.get(`${API_URL}/${conventionId}/attendeeApplications`);
   return data;
 };
+// get bookmarked conventions
+export const getUserBookmarkedConventions = async (userId: string) => {
+  const { data } = await axios.get(`${API_URL}/user/${userId}/bookmarked`);
+  return data;
+};
+
+// get rec conventions
+export const getRecommendedConventions = async (userId: string) => {
+  const { data } = await axios.get(`${API_URL}/user/${userId}/recommended`);
+  return data;
+};
+export const listPanelistApplications = async (conventionId: string) => {
+  const { data } = await axios.get(`/conventions/${conventionId}/panelistApplications`);
+  return data;
+};
+export default{
+  createConvention,
+  getConventionById,
+  getAllConventions,
+  updateConvention,
+  deleteConvention,
+  addOwner,
+  removeOwner,
+  addPanelist,
+  removePanelist,
+  applyPanelist,
+  approvePanelistApplication,
+  rejectPanelistApplication,
+  applyAttendee,
+  removeAttendee,
+  approveAttendeeApplication,
+  rejectAttendeeApplication,
+  listAttendees,
+  listAttendeeApplications,
+  getUserBookmarkedConventions,
+  getRecommendedConventions,
+  listPanelistApplications
+}

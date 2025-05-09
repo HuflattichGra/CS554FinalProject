@@ -10,6 +10,8 @@ import userContext from "./context/userContext";
 import { User } from './context/userContext';
 import GuestOnly from "./components/GuestOnly";
 import PostList from "./components/Posts/PostList";
+import ConventionsPage from "./pages/ConventionsPage";
+import ConventionDetailPage from "./pages/ConventionDetailPage";
 
 function App() {
   const location = useLocation();
@@ -50,6 +52,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<GuestOnly><AuthPage /></GuestOnly>} />
                 <Route path="/posts" element={<PostList />} />
+                <Route path="/conventions" element={<ConventionsPage />} />
+                <Route path="/conventions/:id" element={<ConventionDetailPage />} />
             </Routes>
         </div>
       </userContext.Provider>
