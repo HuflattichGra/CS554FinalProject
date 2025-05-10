@@ -3,6 +3,7 @@ import ReactModal from "react-modal";
 import { useContext } from "react";
 import userContext from "../../context/userContext";
 import axios from "axios";
+import { API_BASE } from "../../api";
 
 ReactModal.setAppElement("#root");
 
@@ -35,13 +36,25 @@ const PostModal: React.FC<PostModalProps> = ({
     const { user } = useContext(userContext);
     const [text, setText] = useState("");
     const [conventionID, setConventionID] = useState("");
-    const [imageUrls, setImageUrls] = useState<string[]>([""]);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-    const handleAddImage = () => setImageUrls([...imageUrls, ""]);
-    const handleImageChange = (value: string, index: number) => {
-        const newUrls = [...imageUrls];
-        newUrls[index] = value;
-        setImageUrls(newUrls);
+    const handleAddImage = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e: Event) => {
+            const files = (e.target as HTMLInputElement).files;
+            if (files && files.length > 0) {
+                setImageFiles([...imageFiles, files[0]]);
+            }
+        };
+        input.click();
+    };
+
+    const handleRemoveImage = (index: number) => {
+        const newFiles = [...imageFiles];
+        newFiles.splice(index, 1);
+        setImageFiles(newFiles);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -49,20 +62,25 @@ const PostModal: React.FC<PostModalProps> = ({
         if (!user) return;
 
         try {
-            const postData = {
-                userID: user._id,
-                conventionID: conventionID.trim(),
-                text: text.trim(),
-                images: imageUrls.filter((url) => url.trim() !== ""),
-                likes: [],
-            };
+            const formData = new FormData();
+            formData.append('text', text.trim());
+            formData.append('conventionID', conventionID.trim());
+            formData.append('userID', user._id);
+            
+            imageFiles.forEach((file) => {
+                formData.append('images', file);
+            });
+            formData.append("imageType", "post");
 
-            await axios.post("http://localhost:3000/posts", postData);
+            await axios.post(`${API_BASE}/posts`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             onClose();
             onPostCreated(); // Notify parent component to refresh posts
         } catch (err: any) {
             onClose();
-            onPostCreated();
             alert("Failed to post: " + err.message);
         }
     };
@@ -99,21 +117,25 @@ const PostModal: React.FC<PostModalProps> = ({
                 </label>
 
                 <div>
-                    <p>Image URLs:</p>
-                    {imageUrls.map((url, idx) => (
-                        <input
-                            key={idx}
-                            type="text"
-                            value={url}
-                            onChange={(e) =>
-                                handleImageChange(e.target.value, idx)
-                            }
-                            style={{ width: "100%", marginBottom: "0.5rem" }}
-                            placeholder="https://example.com/image.jpg"
-                        />
-                    ))}
+                    <p>Images:</p>
+                    {imageFiles.length > 0 ? (
+                        imageFiles.map((file, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <span style={{ marginRight: '1rem' }}>{file.name}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveImage(idx)}
+                                    style={{ marginLeft: 'auto' }}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No images selected</p>
+                    )}
                     <button type="button" onClick={handleAddImage}>
-                        Add Another Image
+                        {imageFiles.length > 0 ? 'Add Another Image' : 'Add Image'}
                     </button>
                 </div>
 

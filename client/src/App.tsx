@@ -10,6 +10,9 @@ import userContext from "./context/userContext";
 import { User } from './context/userContext';
 import GuestOnly from "./components/GuestOnly";
 import PostList from "./components/Posts/PostList";
+import ConventionsPage from "./pages/ConventionsPage";
+import ConventionDetailPage from "./pages/ConventionDetailPage";
+import { API_BASE } from './api';
 
 function App() {
   const location = useLocation();
@@ -22,7 +25,7 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/checkSession', {
+        const response = await axios.get(`${API_BASE}/checkSession`, {
           withCredentials: true
         });
         if (response.data && Object.keys(response.data).length > 0) {
@@ -50,6 +53,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<GuestOnly><AuthPage /></GuestOnly>} />
                 <Route path="/posts" element={<PostList />} />
+                <Route path="/conventions" element={<ConventionsPage />} />
+                <Route path="/conventions/:id" element={<ConventionDetailPage />} />
             </Routes>
         </div>
       </userContext.Provider>

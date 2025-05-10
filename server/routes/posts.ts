@@ -1,128 +1,160 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response } from "express";
 import posts from "../src/posts";
-import client from '../redis/client';
+import client from "../redis/client";
+import { imageUpload } from "../images/upload";
+import { extractMultiple } from "../images/extract";
+// @ts-ignore
+import { checkStringTrimmed, checkId } from "../typechecker";
 const router = Router();
 
-const apistring = 'POST:'
+const apistring = "POST:";
 
 const deletePostCache = async () => {
-    const keys = (await client.keys(apistring + "*"));
-    for (let i = 0; i < keys.length; i++) {
-        await client.del(keys[i]);
-    }
-}
+  const keys = await client.keys(apistring + "*");
+  for (let i = 0; i < keys.length; i++) {
+    await client.del(keys[i]);
+  }
+};
 
-
-//basic route that gets 20 posts
-router.route('/').get(async (req, res) => {
+router
+  .route("/")
+  .get(async (req, res) => {
     try {
+      var cache = await client.get("recentPosts");
 
-        var cache = await client.get('recentPosts');
+      if (cache == null) {
+        var ret = await posts.getPosts();
 
-        if (cache == null) {
-            var ret = await posts.getPosts();
+        await client.set(apistring + "recentPosts", JSON.stringify(ret));
 
-            await client.set(apistring + 'recentPosts', JSON.stringify(ret));
-
-            res.status(200).send(ret);
-            return;
-        }
-        res.status(200).json(JSON.parse(cache));
+        res.status(200).send(ret);
+        return;
+      }
+      res.status(200).json(JSON.parse(cache));
     } catch (e) {
-        res.status(400).send({ error: (e as Error).message });
+      res.status(400).send({ error: (e as Error).message });
     }
-})
-    .post(async (req, res) => {
-        try {
-            var body = req.body;
+  })
+  .post(imageUpload.array("images"), async (req: Request, res: Response) => {
+    try {
+      const { text, conventionID, userID } = req.body;
+      if (!text || !userID) {
+        throw new Error("Missing required fields: text, userID");
+      }
+      const validatedText = checkStringTrimmed(text, "text");
+      const validatedUserID = checkId(userID, "userID");
+      let validatedConventionID = conventionID;
+      if (conventionID) {
+        validatedConventionID = checkId(conventionID, "conventionID");
+      }
 
-            var ret = await posts.addPost(body);
+      let imageIds: string[] = [];
+      if (Array.isArray(req.files) && req.files.length > 0) {
+        const ids = await extractMultiple(req);
+        imageIds = ids.map((id) => id.toString());
+      }
 
-            await client.set(apistring + ret._id, JSON.stringify(ret));
+      const postData = {
+        text: validatedText,
+        conventionID: validatedConventionID,
+        userID: validatedUserID,
+        images: imageIds,
+        likes: [],
+      };
 
-            res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: (e as Error).message });
-        }
-    });
+      const ret = await posts.addPost(postData);
+      await client.set(apistring + ret._id, JSON.stringify(ret));
 
+      res.status(200).send(ret);
+    } catch (e) {
+      res.status(400).send({ error: (e as Error).message });
+    }
+  });
 
-//handles most things post related
-router.route('/:id')
-    .get(async (req, res) => {
-        try {
+router
+  .route("/:id")
+  .get(async (req, res) => {
+    try {
+      var id = req.params.id;
+      var cache = await client.get(apistring + id);
 
-            var id = req.params.id;
-            var cache = await client.get(apistring + id);
+      if (cache == null) {
+        var ret = await posts.getPost(id);
 
-            if (cache == null) {
-                var ret = await posts.getPost(id);
+        await client.set(apistring + ret._id, JSON.stringify(ret));
 
-                await client.set(apistring + ret._id, JSON.stringify(ret));
+        res.status(200).send(ret);
+        return;
+      }
 
-                res.status(200).send(ret);
-                return;
-            }
+      res.status(200).send(cache);
+    } catch (e) {
+      res.status(400).send({ error: (e as Error).message });
+    }
+  })
+  .patch(async (req, res) => {
+    try {
+      var id = req.params.id;
+      var body = req.body;
 
-            res.status(200).send(cache);
-        } catch (e) {
-            res.status(400).send({ error: (e as Error).message });
-        }
-    })
-    .patch(async (req, res) => {
-        try {
-            var id = req.params.id;
-            var body = req.body;
+      var ret = await posts.updatePost(id, body);
 
-            var ret = await posts.updatePost(id, body);
+      await client.set(apistring + ret._id, JSON.stringify(ret));
 
-            await client.set(apistring + ret._id, JSON.stringify(ret));
+      res.status(200).send(ret);
+    } catch (e) {
+      res.status(400).send({ error: (e as Error).message });
+    }
+  })
+  .delete(async (req, res) => {
+    try {
+      var id = req.params.id;
 
-            res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: (e as Error).message });
-        }
-    })
-    .delete(async (req, res) => {
-        try {
-            var id = req.params.id;
+      var ret = await posts.deletePost(id);
 
-            var ret = await posts.deletePost(id);
+      deletePostCache();
 
-            deletePostCache();
+      res.status(200).send(ret);
+    } catch (e) {
+      res.status(400).send({ error: (e as Error).message });
+    }
+  });
 
-            res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: (e as Error).message });
-        }
-    })
-    ;
+router.route("/user/:id").get(async (req, res) => {
+  try {
+    var id = req.params.id;
 
-router.route('/user/:id')
-    .get(async (req, res) => {
-        try {
-            var id = req.params.id;
+    var ret = await posts.getPostsByUserId(id);
 
-            var ret = await posts.getPostsByUserId(id);
+    res.status(200).send(ret);
+  } catch (e) {
+    res.status(400).send({ error: (e as Error).message });
+  }
+});
 
-            res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: (e as Error).message });
-        }
-    });
+router.route("/convention/:id").get(async (req, res) => {
+  try {
+    var id = req.params.id;
 
-router.route('/convention/:id')
-    .get(async (req, res) => {
-        try {
-            var id = req.params.id;
+    var ret = await posts.getPostsByConventionId(id);
 
-            var ret = await posts.getPostsByConventionId(id);
+    res.status(200).send(ret);
+  } catch (e) {
+    res.status(400).send({ error: (e as Error).message });
+  }
+});
 
-            res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: (e as Error).message });
-        }
-    });
+// Get posts by userID. Returns all posts by users that the user is following
+router.route("/following/:id").get(async (req, res) => {
+  try {
+    var id = req.params.id;
 
+    var ret = await posts.getPostsByFollowing(id);
+
+    res.status(200).send(ret);
+  } catch (e) {
+    res.status(400).send({ error: (e as Error).message });
+  }
+});
 
 export default router;

@@ -5,6 +5,7 @@ import axios from 'axios';
 import userContext from "../../context/userContext";
 import PostView from '../Posts/PostView';
 import PostModal from '../Posts/PostModal';
+import { API_BASE } from '../../api';
 
 interface Post {
     _id: string;
@@ -27,7 +28,7 @@ const Home: React.FC = () => {
 
     const fetchData = async () => {
         try{
-            const userData = await axios.get(`http://localhost:3000/posts`)
+            const userData = await axios.get(`${API_BASE}/posts`)
 
             setPosts(userData.data)
             setLoading(false)
