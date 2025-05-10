@@ -4,6 +4,7 @@ import { ObjectId } from "mongodb"
 import {checkString, checkStringTrimmed, checkId} from '../typechecker.js';
 
 interface user {
+    _id: ObjectId,
     firstname: string,
     lastname: string,
     username: string,
@@ -27,12 +28,12 @@ interface updateUser {
     admin?: boolean,
     bio?: string,
     pfp?: string ,
-    conventionsAttending?: string[],
-    bookmarks?: string[],
-    likes?: string[],
-    conventionsFollowing?: string[],
-    following?: string[],
-    followers?: string[]
+    conventionsAttending?: string,
+    bookmarks?: string,
+    likes?: string,
+    conventionsFollowing?: string,
+    following?: string,
+    followers?: string
 }
 
 export const signUpUser = async (firstname : string, lastname: string, username: string, password: string) => {
@@ -374,6 +375,7 @@ export const updateUser = async (id: string, user: updateUser) => {
         let hashedPassword: string = await bcrypt.hash(password, 16);
         newUser.password = hashedPassword; 
     }
+    //TODO: Fix this
     //Profile Picture error checking
     if(user.pfp !== undefined){
         checkId(user.pfp, "Profile Picture")
@@ -384,99 +386,142 @@ export const updateUser = async (id: string, user: updateUser) => {
 
         newUser.pfp = ObjectId.createFromHexString(user.pfp);
     }
-    //TODO: Update Delete Convention and Remove Attendee so that convention id removed from conventionsAttending list
+    //TODO: Update Delete Conventions
     //conventionsAttending Checking
     if(user.conventionsAttending !== undefined){
-        if(!Array.isArray(user.conventionsAttending)) throw "Conventions Attending is not an array"
+        checkId(user.conventionsAttending, "Convention id")
 
-        let conventionIds = [];
+        let conId = ObjectId.createFromHexString(user.conventionsAttending)
 
-        for (let id of user.conventionsAttending ){
-            checkId(id, "Convention id")
+        let conventionCollection = await conventions();
+        const convention = await conventionCollection.findOne({_id: conId})
+        if (convention === null) throw "Convention Attending Does Not Exist"
 
-            let conventionCollection = await conventions();
-            const convention = await conventionCollection.findOne({_id: ObjectId.createFromHexString(id)})
-            if (convention === null) throw "Convention within Conventions Attending list does not exist"
+        let consAttendingStr = newUser.conventionsAttending.map((id) => id.toString());
+        let index = consAttendingStr.indexOf(user.conventionsAttending)
 
-            conventionIds.push(ObjectId.createFromHexString(id))
+        if(index === -1){
+            convention.attendees.push(newUser._id);
+            newUser.conventionsAttending.push(conId)
+        } else {
+            let attendeesStr = convention.attendees.map((id : ObjectId) => id.toString())
+            convention.attendees = convention.attendees.splice(attendeesStr.indexOf(id))
+            newUser.conventionsAttending = newUser.conventionsAttending.splice(index, 1);
         }
 
-        newUser.conventionsAttending = conventionIds;
+        const updatedConvention = await conventionCollection.updateOne({_id: conId}, {$set: convention})
     }
-    //TODO: Update Delete Post so that bookmarked posts are removeed from list
+    //TODO: Update Delete Post
     //bookmarks Checking
     if(user.bookmarks !== undefined){
-        if(!Array.isArray(user.bookmarks)) throw "Bookmarks is not an array"
+        checkId(user.bookmarks, "Bookmark id")
 
-        let bookmarkIds = [];
+        let postId = ObjectId.createFromHexString(user.bookmarks)
 
-        for (let id of user.bookmarks ){
-            checkId(id, "Post id")
+        let bookmarksStr = newUser.bookmarks.map((id) => id.toString());
+        let index = bookmarksStr.indexOf(user.bookmarks)
 
-            let postCollection = await posts();
-            const post = await postCollection.findOne({_id: ObjectId.createFromHexString(id)})
-            if (post === null) throw "Post within Bookmarks list does not exist"
-
-            bookmarkIds.push(ObjectId.createFromHexString(id))
+        if(index === -1){
+            newUser.bookmarks.push(postId)
+        } else {
+            newUser.bookmarks = newUser.bookmarks.splice(index, 1);
         }
-
-        newUser.bookmarks = bookmarkIds;
     }
-    //TODO: Update Delete Post + Like Post so that liked posts are removeed from list
+    //TODO: Update Delete Post
     //likes Checking
     if(user.likes !== undefined){
-        if(!Array.isArray(user.likes)) throw "Likes is not an array"
+        checkId(user.likes, "Liked Post id")
 
-        let likeIds = [];
+        let postId = ObjectId.createFromHexString(user.likes)
 
-        for (let id of user.likes ){
-            checkId(id, "Post id")
+        let postCollection = await posts();
+        const post = await postCollection.findOne({_id: postId})
+        if (post === null) throw "Liked Post does not exist"
 
-            let postCollection = await posts();
-            const post = await postCollection.findOne({_id: ObjectId.createFromHexString(id)})
-            if (post === null) throw "Post within Bookmarks list does not exist"
+        let userLikes = newUser.likes.map((id) => id.toString());
+        let index = userLikes.indexOf(user.likes)
 
-            likeIds.push(ObjectId.createFromHexString(id))
+        if(index === -1){
+            post.likes.push(newUser._id);
+            newUser.likes.push(postId)
+        } else {
+            let postLikes = post.likes.map((id : ObjectId) => id.toString())
+            post.likes = post.likes.splice(postLikes.indexOf(id))
+            newUser.likes = newUser.likes.splice(index, 1);
         }
 
-        newUser.likes = likeIds;
+        const updatedPost = await postCollection.updateOne({_id: postId}, {$set: post})
+    }
+    //TODO: Update Delete Conventions
+    //conventionsFollowing Checking
+    if(user.conventionsFollowing !== undefined){
+        checkId(user.conventionsFollowing, "Convention id")
+
+        let conId = ObjectId.createFromHexString(user.conventionsFollowing)
+
+        let consFollowingStr = newUser.conventionsFollowing.map((id) => id.toString());
+        let index = consFollowingStr.indexOf(user.conventionsFollowing)
+
+        if(index === -1){
+            newUser.conventionsFollowing.push(conId)
+        } else {
+            newUser.conventionsFollowing = newUser.conventionsFollowing.splice(index, 1);
+        }
     }
     //Following checking
     if(user.following !== undefined){
-        if(!Array.isArray(user.following)) throw "Following is not an array"
+        checkId(user.following, "User id")
 
-        let followingIds = [];
+        let FollowId = ObjectId.createFromHexString(user.following)
 
-        for (let id of user.following ){
-            checkId(id, "User id")
+        const userFollowing = await userCollection.findOne({_id: FollowId})
+        if (userFollowing === null) throw "User Does Not Exist"
 
-            const user = await userCollection.findOne({_id: ObjectId.createFromHexString(id)})
-            if (user === null) throw "User within Following list does not exist"
+        let following = newUser.following.map((id) => id.toString());
+        let index = following.indexOf(user.following)
 
-            followingIds.push(ObjectId.createFromHexString(id))
+        if(index === -1){
+            userFollowing.followers.push(newUser._id);
+            newUser.following.push(FollowId)
+        } else {
+            let followers = userFollowing.followers.map((id : ObjectId) => id.toString())
+            userFollowing.followers = userFollowing.followers.splice(followers.indexOf(id))
+            newUser.following = newUser.following.splice(index, 1);
         }
 
-        newUser.following = followingIds;
+        const updatedConvention = await userCollection.updateOne({_id: FollowId}, {$set: userFollowing})
     }
     //Followers Checking
     if(user.followers !== undefined){
-        if(!Array.isArray(user.followers)) throw "Followers is not an array"
+        checkId(user.followers, "User id")
 
-        let followersIds = [];
+        let FollowerId = ObjectId.createFromHexString(user.followers)
 
-        for (let id of user.followers ){
-            checkId(id, "Follower id")
+        const follower = await userCollection.findOne({_id: FollowerId})
+        if (follower === null) throw "User Does Not Exist"
 
-            const user = await userCollection.findOne({_id: ObjectId.createFromHexString(id)})
-            if (user === null) throw "User within Follower list does not exist"
+        let followers = newUser.followers.map((id) => id.toString());
+        let index = followers.indexOf(user.followers)
 
-            followersIds.push(ObjectId.createFromHexString(id))
+        if(index === -1){
+            follower.following.push(newUser._id);
+            newUser.followers.push(FollowerId)
+        } else {
+            let following = follower.following.map((id : ObjectId) => id.toString())
+            follower.following = follower.following.splice(following.indexOf(id))
+            newUser.followers = newUser.followers.splice(index, 1);
         }
 
-        newUser.followers = followersIds;
+        const updatedConvention = await userCollection.updateOne({_id: FollowerId}, {$set: follower})
     }
 
-    const updatedUser = await userCollection.findOneAndUpdate({_id: ObjectId.createFromHexString(id)})
+    const updateRes = await userCollection.updateOne({_id: ObjectId.createFromHexString(id)}, {$set: newUser})
+    
+    if (updateRes == null) {
+        throw new Error("No users are available");
+    }
+
+    const updatedUser : any = getUserById(id);
 
     return {
         "_id": updatedUser._id, 
