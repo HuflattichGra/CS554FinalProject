@@ -98,7 +98,7 @@ router
     })
 
 router
-    .route('user/:id')
+    .route('/user/:id')
     .patch(async (req: Request, res: Response) => {
         let id = req.params.id
 
