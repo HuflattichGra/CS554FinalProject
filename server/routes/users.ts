@@ -62,7 +62,6 @@ router
         return res.status(200).json(user)
     })
 
-//TEST
 router
     .route('/user/:id')
     .get( async (req: Request, res: Response) => {
@@ -77,10 +76,9 @@ router
         let exists = await client.exists("user:" + id)
 
         if(exists){
-            //Don't need to parse since server returns objectIds as strings anyways
             let user = await client.get('user:' + id);
 
-            return res.status(200).json(user);
+            return res.status(200).json(JSON.parse(user));
         }
         else{
             let user = null;
