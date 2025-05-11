@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEffect, useState, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 import userContext from "../../context/userContext";
@@ -16,83 +17,77 @@ interface Post {
     likes: Array<string>;
 }
 
-
 const Home: React.FC = () => {
-
     const { user } = useContext(userContext);
-    
-    const [dataType, setDataType] = useState("posts");
-    const [loading, setLoading] = useState(true)
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const location = useLocation();
 
     const fetchData = async () => {
-        try{
-            const userData = await axios.get(`${API_BASE}/posts`)
+        try {
+            if (!user) {
+                setBookmarkedPosts([]);
+                setLoading(false);
+                return;
+            }
 
-            setPosts(userData.data)
-            setLoading(false)
-        } catch (e){
+            // Get user's bookmarks
+            const userData = await axios.get(`${API_BASE}/user/${user._id}`);
+            const bookmarks = userData.data.bookmarks || [];
+
+            if (bookmarks.length === 0) {
+                setBookmarkedPosts([]);
+                setLoading(false);
+                return;
+            }
+
+            // Get all posts and filter bookmarked ones
+            const postsData = await axios.get(`${API_BASE}/posts`);
+            const filteredPosts = postsData.data.filter((post: Post) => 
+                bookmarks.includes(post._id)
+            );
+            setBookmarkedPosts(filteredPosts);
+            setLoading(false);
+        } catch (e) {
             console.log(e);
-            setPosts([])
-            setLoading(false)
+            setBookmarkedPosts([]);
+            setLoading(false);
         }
-    }
-    useEffect(()=>{
-        fetchData()
-    }, [])
-
-    const samplePost = {
-        _id: "123",
-        conventionID: "abc",
-        userID: "6802c6b0b7787265600a974a",
-        text: "This is a sample post",
-        images: [],
-        likes: ["123","456"],
     };
 
-    if(loading){
-        return(<div>Loading...</div>)
+    useEffect(() => {
+        fetchData();
+    }, [location.pathname, user?._id]); // Refetch when pathname changes or user changes
+
+    if (loading) {
+        return (<div>Loading...</div>);
     }
+
     return (
         <>
-
             <div>
                 <button onClick={() => setShowModal(true)}> Make a Post</button>
             </div>
 
-            
-            {/* {dataType === "posts" && (
-                <>
+            {!user ? (
+                <div>Please log in to see your bookmarked posts</div>
+            ) : bookmarkedPosts.length === 0 ? (
+                <div>No bookmarked posts yet</div>
+            ) : (
+                bookmarkedPosts.map((post: Post) => (
                     <PostView
-                        _id={samplePost._id}
-                        conventionID={samplePost.conventionID}
-                        userID={samplePost.userID}
-                        text={samplePost.text}
-                        images={samplePost.images}
-                        likes={samplePost.likes}
+                        key={post._id}
+                        _id={post._id}
+                        conventionID={post.conventionID}
+                        userID={post.userID}
+                        text={post.text}
+                        images={post.images}
+                        likes={post.likes}
+                        onBookmarkChange={fetchData}
                     />
-                    <PostView
-                        _id={samplePost._id}
-                        conventionID={samplePost.conventionID}
-                        userID={samplePost.userID}
-                        text={samplePost.text}
-                        images={samplePost.images}
-                        likes={samplePost.likes}
-                    />
-                </>
-            )} */}
-            {posts && posts.map((post: Post) => (
-                <PostView
-                    key={post._id}
-                    _id={post._id}
-                    conventionID={post.conventionID}
-                    userID={post.userID}
-                    text={post.text}
-                    images={post.images}
-                    likes={post.likes}
-                />
-            ))}
+                ))
+            )}
 
             {showModal && (
                 <PostModal
@@ -101,7 +96,6 @@ const Home: React.FC = () => {
                     onPostCreated={fetchData}
                 />
             )}
-
         </>
     );
 };

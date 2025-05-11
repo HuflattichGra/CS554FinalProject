@@ -13,6 +13,7 @@ interface Post {
     text: string;
     images: Array<string>;
     likes: Array<string>;
+    onBookmarkChange?: () => void;
 }
 
 //Reusable component for anytime a post needs to be displayed on a page
@@ -44,22 +45,9 @@ const PostView: React.FC<Post> = (props: any) => {
     const onSubmitLikes: any = async (e: any) => {
         console.log("Like button clicked");
         e.preventDefault();
-        if (post.likes.includes(user?._id)) {
-            let newLikes: Array<string> = post.likes.filter(
-                (like: string) => like !== user?._id
-            );
-
-            const newPost = await axios.patch(
-                `${API_BASE}/posts/${props._id}`,
-                {
-                    likes: newLikes,
-                },
-                {
-                    withCredentials: true
-                }
-            );
-
-            // Send the post ID to remove from user's likes
+        
+        try {
+            // Send the post ID to update user's likes
             await axios.patch(
                 `${API_BASE}/user/${user?._id}`,
                 {
@@ -70,32 +58,20 @@ const PostView: React.FC<Post> = (props: any) => {
                 }
             );
 
-            setPost(newPost.data);
-        } else {
-            let newLikes: Array<string> = [...post.likes, user?._id!];
-
-            const newPost = await axios.patch(
-                `${API_BASE}/posts/${props._id}`,
-                {
-                    likes: newLikes,
-                },
-                {
-                    withCredentials: true
-                }
-            );
-
-            // Send the post ID to add to user's likes
-            await axios.patch(
-                `${API_BASE}/user/${user?._id}`,
-                {
-                    likes: props._id
-                },
-                {
-                    withCredentials: true
-                }
-            );
-
-            setPost(newPost.data);
+            // Update local state to reflect the change
+            if (post.likes.includes(user?._id)) {
+                setPost({
+                    ...post,
+                    likes: post.likes.filter((like: string) => like !== user?._id)
+                });
+            } else {
+                setPost({
+                    ...post,
+                    likes: [...post.likes, user?._id!]
+                });
+            }
+        } catch (error) {
+            console.error('Error updating likes:', error);
         }
     };
 
@@ -112,6 +88,11 @@ const PostView: React.FC<Post> = (props: any) => {
                     withCredentials: true
                 }
             );
+
+            // Trigger a refetch of bookmarked posts
+            if (props.onBookmarkChange) {
+                props.onBookmarkChange();
+            }
         } catch (error) {
             console.error("Error updating bookmarks:", error);
         }

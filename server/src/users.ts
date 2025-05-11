@@ -431,9 +431,11 @@ export const updateUser = async (id: string, user: updateUser) => {
         let index = bookmarksStr.indexOf(user.bookmarks)
 
         if(index === -1){
+            // Add bookmark
             newUser.bookmarks.push(postId)
         } else {
-            newUser.bookmarks = newUser.bookmarks.splice(index, 1);
+            // Remove bookmark
+            newUser.bookmarks.splice(index, 1);
         }
     }
     //TODO: Update Delete Post
@@ -451,12 +453,17 @@ export const updateUser = async (id: string, user: updateUser) => {
         let index = userLikes.indexOf(user.likes)
 
         if(index === -1){
+            // Add like
             post.likes.push(newUser._id);
             newUser.likes.push(postId)
         } else {
+            // Remove like
             let postLikes = post.likes.map((id : ObjectId) => id.toString())
-            post.likes = post.likes.splice(postLikes.indexOf(id))
-            newUser.likes = newUser.likes.splice(index, 1);
+            let postLikeIndex = postLikes.indexOf(newUser._id.toString())
+            if (postLikeIndex !== -1) {
+                post.likes.splice(postLikeIndex, 1);
+            }
+            newUser.likes.splice(index, 1);
         }
 
         const updatedPost = await postCollection.updateOne({_id: postId}, {$set: post})
