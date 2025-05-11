@@ -336,9 +336,10 @@ export const updateUser = async (id: string, user: updateUser) => {
         if ((hasNum === true) && (hasChar === false)) throw "username only contains numbers!"
 
         //Checks if username already in use
-        const otherUser = await userCollection.findOne({username: { $regex: "(?i)^" + username + "$(?-i)"}});
-        if (otherUser !== null) throw `username ${username} is already taken`;
-
+        if(user.username !== newUser.username){
+            const otherUser = await userCollection.findOne({username: { $regex: "(?i)^" + username + "$(?-i)"}});
+            if (otherUser !== null) throw `username ${username} is already taken`;
+        }
         newUser.username = username
     }
     //password error checking
@@ -370,10 +371,18 @@ export const updateUser = async (id: string, user: updateUser) => {
             comparePassword = await bcrypt.compare(password, newUser.password);
         } catch (e){}
         
-        if(!comparePassword) throw "New password is same as old password!";
+        if(comparePassword) throw "New password is same as old password!";
 
         let hashedPassword: string = await bcrypt.hash(password, 16);
         newUser.password = hashedPassword; 
+    }
+
+    if(user.bio !== undefined){
+        let bio = checkStringTrimmed(user.bio, "Bio")
+
+        if (bio.length > 256) throw "Error: Bio is too long!"
+
+        newUser.bio = bio;
     }
     //TODO: Fix this
     //Profile Picture error checking
@@ -471,6 +480,7 @@ export const updateUser = async (id: string, user: updateUser) => {
     //Following checking
     if(user.following !== undefined){
         checkId(user.following, "User id")
+        if(id === user.following) throw "Error: User cannot follow themselves"
 
         let FollowId = ObjectId.createFromHexString(user.following)
 
@@ -494,6 +504,8 @@ export const updateUser = async (id: string, user: updateUser) => {
     //Followers Checking
     if(user.followers !== undefined){
         checkId(user.followers, "User id")
+
+        if(id === user.followers) throw "Error: User cannot follow themselves"
 
         let FollowerId = ObjectId.createFromHexString(user.followers)
 
@@ -521,7 +533,7 @@ export const updateUser = async (id: string, user: updateUser) => {
         throw new Error("No users are available");
     }
 
-    const updatedUser : any = getUserById(id);
+    const updatedUser : any = await getUserById(id);
 
     return {
         "_id": updatedUser._id, 

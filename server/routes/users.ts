@@ -98,7 +98,7 @@ router
     })
 
 router
-    .route('user/:id')
+    .route('/user/:id')
     .patch(async (req: Request, res: Response) => {
         let id = req.params.id
 
@@ -123,6 +123,7 @@ router
 
         if (exists) await client.set('user:' + user._id, JSON.stringify(user))
         
+        console.log(user);
         return res.status(200).json(user)
     })
 
