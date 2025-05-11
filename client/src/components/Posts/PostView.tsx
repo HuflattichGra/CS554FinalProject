@@ -53,27 +53,22 @@ const PostView: React.FC<Post> = (props: any) => {
                 `${API_BASE}/posts/${props._id}`,
                 {
                     likes: newLikes,
+                },
+                {
+                    withCredentials: true
                 }
             );
 
-            // Right now the patch will return a 401 because the admin file is set to false
-            /*
-            // Get user's current likes array
-            const userResponse = await axios.get(
-                `${API_BASE}/user/${user?._id}`
+            // Send the post ID to remove from user's likes
+            await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
+                {
+                    likes: props._id
+                },
+                {
+                    withCredentials: true
+                }
             );
-            const currentUserLikes = userResponse.data.likes || [];
-
-            // Remove this post from user's likes
-            const updatedUserLikes = currentUserLikes.filter(
-                (like: string) => like !== props._id
-            );
-
-            // Update user's likes array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                likes: updatedUserLikes,
-            });
-            */
 
             setPost(newPost.data);
         } else {
@@ -83,24 +78,22 @@ const PostView: React.FC<Post> = (props: any) => {
                 `${API_BASE}/posts/${props._id}`,
                 {
                     likes: newLikes,
+                },
+                {
+                    withCredentials: true
                 }
             );
-            // Right now the patch will return a 401 because the admin file is set to false
-            /*
-            // Get user's current likes array
-            const userResponse = await axios.get(
-                `${API_BASE}/user/${user?._id}`
+
+            // Send the post ID to add to user's likes
+            await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
+                {
+                    likes: props._id
+                },
+                {
+                    withCredentials: true
+                }
             );
-            const currentUserLikes = userResponse.data.likes || [];
-
-            // Add this post to user's likes
-            const updatedUserLikes = [...currentUserLikes, props._id];
-
-            // Update user's likes array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                likes: updatedUserLikes,
-            });
-            */
 
             setPost(newPost.data);
         }
@@ -109,31 +102,18 @@ const PostView: React.FC<Post> = (props: any) => {
     const onSubmitBookmark: any = async (e: any) => {
         e.preventDefault();
         try {
-            // Get user's current bookmarks array
-            const userResponse = await axios.get(`${API_BASE}/user/${user?._id}`);
-            const currentBookmarks = userResponse.data.bookmarks || [];
-            
-            let updatedBookmarks;
-            if (currentBookmarks.includes(props._id)) {
-                // Remove this post from bookmarks if it's already bookmarked
-                updatedBookmarks = currentBookmarks.filter(
-                    (bookmark: string) => bookmark !== props._id
-                );
-            } else {
-                // Add this post to bookmarks if it's not bookmarked
-                updatedBookmarks = [...currentBookmarks, props._id];
-            }
-
-            // Update user's bookmarks array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                bookmarks: updatedBookmarks,
-            });
-
-            
-            //alert(currentBookmarks.includes(props._id) ? "Post unbookmarked!" : "Post bookmarked!");
+            // Send the post ID to toggle in user's bookmarks
+            await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
+                {
+                    bookmarks: props._id
+                },
+                {
+                    withCredentials: true
+                }
+            );
         } catch (error) {
             console.error("Error updating bookmarks:", error);
-            alert("Failed to update bookmarks");
         }
     };
 
@@ -156,11 +136,9 @@ const PostView: React.FC<Post> = (props: any) => {
                         <button onClick={onSubmitLikes} className="button">
                             Like
                         </button>
-                        <form id="bookmark" onSubmit={onSubmitBookmark}>
-                            <button type="button" className="button">
+                        <button onClick={onSubmitBookmark} className="button">
                                 Bookmark
-                            </button>
-                        </form>
+                        </button>
                     </div>
                 ) : null}
             </div>
