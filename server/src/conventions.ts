@@ -75,9 +75,32 @@ export const getConventionById = async (id: string) => {
   id = checkId(id, 'Convention ID');
 
   const conventionCollection = await conventions();
+  const userCollection = await users();
   const convention = await conventionCollection.findOne({ _id: new ObjectId(id) });
 
   if (!convention) throw 'Convention not found';
+  let populatedPanelists = [];
+  if (Array.isArray(convention.panelists) && convention.panelists.length > 0) {
+    populatedPanelists = await userCollection
+      .find({ _id: { $in: convention.panelists } })
+      .project({ _id: 1, username: 1 })
+      .toArray();
+  }
+let populatedOwners = [];
+if (Array.isArray(convention.owners) && convention.owners.length > 0) {
+  populatedOwners = await userCollection
+    .find({ _id: { $in: convention.owners } })
+    .project({ _id: 1, username: 1 })
+    .toArray();
+}
+
+let populatedAttendees = [];
+if (Array.isArray(convention.attendees) && convention.attendees.length > 0) {
+  populatedAttendees = await userCollection
+    .find({ _id: { $in: convention.attendees } })
+    .project({ _id: 1, username: 1 })
+    .toArray();
+}
 
   return {
     _id: convention._id,
@@ -90,7 +113,7 @@ export const getConventionById = async (id: string) => {
     address: convention.address,
     exclusive: convention.exclusive,
     owners: convention.owners,
-    panelists: convention.panelists,
+    panelists: populatedPanelists, 
     attendees: convention.attendees
   };
 };
@@ -343,21 +366,33 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
       throw 'Already an attendee';
     }
   
-    if (convention.exclusive) {
-      // exclusive attendees
-      const updateResult = await conventionCollection.updateOne(
-        { _id: new ObjectId(conventionId) },
-        { $addToSet: { attendeeApplications: new ObjectId(userId) } }
-      );
-      if (updateResult.modifiedCount === 0) throw 'Already applied';
-    } else {
-      // not exclusive attendees
-      const updateResult = await conventionCollection.updateOne(
-        { _id: new ObjectId(conventionId) },
-        { $addToSet: { attendees: new ObjectId(userId) } }
-      );
-      if (updateResult.modifiedCount === 0) throw 'Already joined';
-    }
+    // if (convention.exclusive) {
+    //   const isAlreadyApplied = (convention.attendeeApplications || []).map((id: any) => id.toString()).includes(userId);
+    //   console.log('Already applied?', isAlreadyApplied, 'userId:', userId);
+    //   if (isAlreadyApplied) {
+    //     await conventionCollection.updateOne(
+    //       { _id: new ObjectId(conventionId) },
+    //       { $pull: { attendeeApplications: new ObjectId(userId) } }
+    //     );
+    //   } else {
+    //     await conventionCollection.updateOne(
+    //       { _id: new ObjectId(conventionId) },
+    //       { $addToSet: { attendeeApplications: new ObjectId(userId) } }
+    //     );
+    //   }
+    // } else {
+    //   // not exclusive attendees
+    //   const updateResult = await conventionCollection.updateOne(
+    //     { _id: new ObjectId(conventionId) },
+    //     { $addToSet: { attendees: new ObjectId(userId) } }
+    //   );
+    //   if (updateResult.modifiedCount === 0) throw 'Already joined';
+    // }
+    const updateResult = await conventionCollection.updateOne(
+      { _id: new ObjectId(conventionId) },
+      { $addToSet: { attendees: new ObjectId(userId) } }
+    );
+    if (updateResult.modifiedCount === 0) throw 'Already joined';
   
     return await getConventionById(conventionId);
   };
@@ -379,6 +414,26 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
   
     return await getConventionById(conventionId);
   };
+  export const getAllAttendeeApplication = async (conventionId: string) => {
+    conventionId = checkId(conventionId, 'Convention ID');
+    const conventionCollection = await conventions();
+  
+    const convention = await conventionCollection.findOne(
+      { _id: new ObjectId(conventionId) },
+      { projection: { attendeeApplications: 1 } }
+    );
+  
+    if (!convention) throw 'Convention not found';
+ 
+    const userCollection = await users(); 
+    const applicants = await userCollection
+      .find({ _id: { $in: convention.attendeeApplications || [] } })
+      .project({ username: 1, email: 1 }) 
+      .toArray();
+  
+    return applicants;
+  };
+  
   // Approve attendee
   export const approveAttendeeApplication = async (conventionId: string, userId: string) => {
     conventionId = checkId(conventionId, 'Convention ID');
@@ -394,8 +449,7 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
     );
   
     if (updateResult.matchedCount === 0) throw 'Convention not found';
-    if (updateResult.modifiedCount === 0) throw 'Approval failed';
-  
+    if (updateResult.modifiedCount === 0) throw 'Attendee already exists';
     return await getConventionById(conventionId);
   };
 
@@ -419,12 +473,22 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
     conventionId = checkId(conventionId, 'Convention ID');
   
     const conventionCollection = await conventions();
-    const convention = await conventionCollection.findOne({ _id: new ObjectId(conventionId) });
+    const convention = await conventionCollection.findOne(
+      { _id: new ObjectId(conventionId) },
+      { projection: { attendees: 1 } }
+    );
+  
     if (!convention) throw 'Convention not found';
   
-    return convention.attendees || [];
+    const userCollection = await users();
+    const attendeeUsers = await userCollection
+      .find({ _id: { $in: convention.attendees || [] } })
+      .project({ username: 1 })  
+      .toArray();
+  
+    return attendeeUsers;
   };
-  export const listAttendeeApplications = async (conventionId: string) => {
+    export const listAttendeeApplications = async (conventionId: string) => {
     conventionId = checkId(conventionId, 'Convention ID');
   
     const conventionCollection = await conventions();
@@ -469,9 +533,11 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
     }));
   };
   
-  export const getRecommendedConventions = async (userId: string) => {
+  export const getRecommendedConventions = async (userId: string, page: number, pageSize: number) => {
     userId = checkId(userId, 'User ID');
     const conventionCollection = await conventions();
+  
+    const total = await conventionCollection.countDocuments();
   
     const result = await conventionCollection.aggregate([
       {
@@ -496,29 +562,38 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
         }
       },
       { $sort: { attendeesCount: -1 } },
-      { $limit: 10 }
+      { $skip: (page - 1) * pageSize },
+      { $limit: pageSize }
     ]).toArray();
   
-    return result.map((c) => ({
-      _id: c._id.toString(),
-      name: c.name || '',
-      tags: c.tags ?? [],
-      startDate: c.startDate || '',
-      endDate: c.endDate || '',
-      description: c.description || '',
-      isOnline: c.isOnline ?? false,
-      address: c.address || '',
-      exclusive: c.exclusive ?? false,
-      owners: (c.owners || []).map((o) => o.toString?.() ?? o),
-      panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
-      attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
-      panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
-      attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
-      imageUrl: c.imageUrl || '/default-convention-banner.png',
-      productCount: c.productCount ?? 0,
-      groupCount: c.groupCount ?? 0,
-      countdownDays: calculateCountdownDays(c.startDate)
-    }));
+    const totalPages = Math.ceil(total / pageSize);
+  
+    return {
+      conventions: result.map((c) => ({
+        _id: c._id.toString(),
+        name: c.name || '',
+        tags: c.tags ?? [],
+        startDate: c.startDate || '',
+        endDate: c.endDate || '',
+        description: c.description || '',
+        isOnline: c.isOnline ?? false,
+        address: c.address || '',
+        exclusive: c.exclusive ?? false,
+        owners: (c.owners || []).map((o) => o.toString?.() ?? o),
+        panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
+        attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
+        panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
+        attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
+        imageUrl: c.imageUrl || '/default-convention-banner.png',
+        productCount: c.productCount ?? 0,
+        groupCount: c.groupCount ?? 0,
+        countdownDays: calculateCountdownDays(c.startDate)
+      })),
+      total,
+      page,
+      pageSize,
+      totalPages
+    };
   };
   
   
@@ -536,6 +611,7 @@ export default {
   approvePanelistApplication,
   rejectPanelistApplication,
   applyAttendee,
+  getAllAttendeeApplication,
   removeAttendee,
   approveAttendeeApplication,
   rejectAttendeeApplication,

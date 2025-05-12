@@ -98,6 +98,7 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
       onSuccess();
       onClose();
     } catch (e) {
+      alert(e?.response?.data?.error || 'Failed to save convention');
       console.error('Failed to create convention', e);
     }
   };

@@ -9,48 +9,80 @@ import CreateConventionModal from '../components/Convention/CreateConventionModa
 import Pagination from '../components/Convention/Pagination';
 import UserConventionsTabs from '../components/Convention/UserConventionsTabs';
 import userContext from '../context/userContext';
+import { useLocation } from 'react-router-dom';
 
 const TABS = ['Created', 'Attending', 'Bookmarked', 'Recommended'];
 
 const ConventionsPage: React.FC = () => {
   const { user } = useContext(userContext);
-  const [tab, setTab] = useState('Created');
+  const [tab, setTab] = useState('Attending');
   const [showModal, setShowModal] = useState(false);
   const [conventions, setConventions] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const location = useLocation();
 
   const fetchConventions = async () => {
     if (!user) return;
+    const pageSize = 10;
 
     try {
-      if (tab === 'Created' || tab === 'Attending') {
-        const res = await getAllConventions(page, 8);
-        const currentUserId = user._id;
+      let conventions: any[] = [];
+      let totalPages = 1;
+
+      if (tab === 'Created') {
+        const res = await getAllConventions(1, 9999);
         const filtered = res.conventions.filter((c: any) =>
-          tab === 'Created'
-            ? c.owners.includes(currentUserId)
-            : c.attendees.includes(currentUserId)
+          c.owners.includes(user._id)
         );
-        setConventions(filtered);
-        setTotalPages(res.totalPages || 1);
-      } else if (tab === 'Bookmarked') {
-        const data = await getUserBookmarkedConventions(user._id);
-        setConventions(data);
-        setTotalPages(1);
-      } else if (tab === 'Recommended') {
-        const data = await getRecommendedConventions(user._id);
-        setConventions(data);
-        setTotalPages(1);
+        const startIdx = (page - 1) * pageSize;
+        const endIdx = startIdx + pageSize;
+
+        conventions = filtered.slice(startIdx, endIdx);
+        totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
       }
+
+      else if (tab === 'Attending') {
+        const res = await getAllConventions(1, 9999);
+        const filtered = res.conventions.filter((c: any) =>
+          c.attendees.includes(user._id)
+        );
+        const startIdx = (page - 1) * pageSize;
+        const endIdx = startIdx + pageSize;
+
+        conventions = filtered.slice(startIdx, endIdx);
+        totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      }
+
+      else if (tab === 'Recommended') {
+        const res = await getRecommendedConventions(user._id, page, pageSize);
+        conventions = res.conventions || [];
+        totalPages = res.totalPages || 1;
+      }
+
+      else if (tab === 'Bookmarked') {
+        const all = await getUserBookmarkedConventions(user._id);
+        const startIdx = (page - 1) * pageSize;
+        const endIdx = startIdx + pageSize;
+        conventions = all.slice(startIdx, endIdx);
+        totalPages = Math.max(1, Math.ceil(all.length / pageSize));
+      }
+
+      setConventions(conventions);
+      setTotalPages(totalPages);
+
     } catch (e) {
       console.error('Failed to fetch conventions', e);
     }
   };
 
+
   useEffect(() => {
-    fetchConventions();
-  }, [tab, page]);
+    if (user) {
+      fetchConventions();
+      
+    }
+  }, [user, tab, page,location.state]);
 
   if (!user) {
     return <div className="text-center mt-10 text-gray-500">Loading user session...</div>;
@@ -90,15 +122,18 @@ const ConventionsPage: React.FC = () => {
               countdownDays={con.countdownDays}
               productCount={con.productCount}
               groupCount={con.groupCount}
+              onDeleted={fetchConventions}
             />
 
           ))
         )}
       </div>
 
-      {tab === 'Created' || tab === 'Attending' ? (
+      {['Created', 'Attending', 'Recommended', 'Bookmarked'].includes(tab) && (
         <Pagination current={page} total={totalPages} onPageChange={setPage} />
-      ) : null}
+      )}
+
+
 
       {showModal && (
         <CreateConventionModal

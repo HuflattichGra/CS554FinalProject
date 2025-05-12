@@ -25,20 +25,28 @@ export const getAllConventions = async (page = 1, pageSize = 10) => {
 
 // update Convention
 export const updateConvention = async (id: string, updateData: any) => {
-  const { data } = await axios.put(`${API_URL}/${id}`, updateData);
+  const { data } = await axios.put(`${API_URL}/${id}`, updateData, {
+    withCredentials: true
+  });
   return data;
 };
 
+
 // delete Convention
 export const deleteConvention = async (id: string) => {
-  const { data } = await axios.delete(`${API_URL}/${id}`);
+  const { data } = await axios.delete(`${API_URL}/${id}`, {
+    withCredentials: true
+  });
   return data;
 };
+
 
 // add Owner
 export const addOwner = async (conventionId: string, ownerId: string) => {
   const { data } = await axios.patch(`${API_URL}/${conventionId}/addOwner`, {
     ownerId,
+  }, {
+    withCredentials: true
   });
   return data;
 };
@@ -47,6 +55,8 @@ export const addOwner = async (conventionId: string, ownerId: string) => {
 export const removeOwner = async (conventionId: string, ownerId: string) => {
   const { data } = await axios.patch(`${API_URL}/${conventionId}/removeOwner`, {
     ownerId,
+  }, {
+    withCredentials: true
   });
   return data;
 };
@@ -55,29 +65,34 @@ export const removeOwner = async (conventionId: string, ownerId: string) => {
 export const addPanelist = async (conventionId: string, panelistId: string) => {
   const { data } = await axios.patch(`${API_URL}/${conventionId}/addPanelist`, {
     panelistId,
+  }, {
+    withCredentials: true
   });
   return data;
 };
 
+
 // remove Panelist
-export const removePanelist = async (
-  conventionId: string,
-  panelistId: string
-) => {
-  const { data } = await axios.patch(
-    `${API_URL}/${conventionId}/removePanelist`,
-    { panelistId }
-  );
+export const removePanelist = async (conventionId: string, panelistId: string) => {
+  const { data } = await axios.patch(`${API_URL}/${conventionId}/removePanelist`, {
+    panelistId
+  }, {
+    withCredentials: true
+  });
   return data;
 };
+
 
 // apply Panelist
 export const applyPanelist = async (conventionId: string) => {
   const { data } = await axios.patch(
-    `${API_URL}/${conventionId}/applyPanelist`
+    `${API_URL}/${conventionId}/applyPanelist`,
+    {},
+    { withCredentials: true }
   );
   return data;
 };
+
 
 // approve Panelist Application
 export const approvePanelistApplication = async (
@@ -86,7 +101,8 @@ export const approvePanelistApplication = async (
 ) => {
   const { data } = await axios.patch(
     `${API_URL}/${conventionId}/approvePanelist`,
-    { applicantId }
+    { applicantId },
+    { withCredentials: true }
   );
   return data;
 };
@@ -98,30 +114,34 @@ export const rejectPanelistApplication = async (
 ) => {
   const { data } = await axios.patch(
     `${API_URL}/${conventionId}/rejectPanelist`,
-    { applicantId }
+    { applicantId },
+    { withCredentials: true }
   );
   return data;
 };
+
 
 // apply Attendee
 export const applyAttendee = async (conventionId: string) => {
   const { data } = await axios.patch(
-    `${API_URL}/${conventionId}/applyAttendee`
+    `${API_URL}/${conventionId}/applyAttendee`,
+    {},
+    { withCredentials: true }  
   );
   return data;
 };
 
+
 // remove Attendee
-export const removeAttendee = async (
-  conventionId: string,
-  attendeeId: string
-) => {
+export const removeAttendee = async (conventionId: string, attendeeId: string) => {
   const { data } = await axios.patch(
     `${API_URL}/${conventionId}/removeAttendee`,
-    { attendeeId }
+    { attendeeId },
+    { withCredentials: true }  
   );
   return data;
 };
+
 
 // approve Attendee Application
 export const approveAttendeeApplication = async (
@@ -130,7 +150,17 @@ export const approveAttendeeApplication = async (
 ) => {
   const { data } = await axios.patch(
     `${API_URL}/${conventionId}/approveAttendee`,
-    { applicantId }
+    { applicantId },
+    { withCredentials: true }
+  );
+  return data;
+};
+
+export const addAttendee = async (conventionId: string, attendeeId: string) => {
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/addAttendee`,
+    { attendeeId },
+    { withCredentials: true }
   );
   return data;
 };
@@ -142,7 +172,17 @@ export const rejectAttendeeApplication = async (
 ) => {
   const { data } = await axios.patch(
     `${API_URL}/${conventionId}/rejectAttendee`,
-    { applicantId }
+    { applicantId },
+    { withCredentials: true }
+  );
+  return data;
+};
+
+export const cancelAttendeeApplication = async (conventionId: string) => {
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/cancelAttendeeApplication`,
+    {},
+    { withCredentials: true }
   );
   return data;
 };
@@ -156,10 +196,12 @@ export const listAttendees = async (conventionId: string) => {
 // Query all attendee applications
 export const listAttendeeApplications = async (conventionId: string) => {
   const { data } = await axios.get(
-    `${API_URL}/${conventionId}/attendeeApplications`
+    `${API_URL}/${conventionId}/attendeeApplications`,
+    { withCredentials: true }
   );
   return data;
 };
+
 // get bookmarked conventions
 export const getUserBookmarkedConventions = async (userId: string) => {
   const { data } = await axios.get(`${API_URL}/user/${userId}/bookmarked`);
@@ -167,16 +209,22 @@ export const getUserBookmarkedConventions = async (userId: string) => {
 };
 
 // get rec conventions
-export const getRecommendedConventions = async (userId: string) => {
-  const { data } = await axios.get(`${API_URL}/user/${userId}/recommended`);
-  return data;
-};
-export const listPanelistApplications = async (conventionId: string) => {
+export const getRecommendedConventions = async (userId: string, page = 1, pageSize = 8) => {
   const { data } = await axios.get(
-    `/conventions/${conventionId}/panelistApplications`
+    `${API_URL}/user/${userId}/recommended?page=${page}&pageSize=${pageSize}`
   );
   return data;
 };
+
+
+export const listPanelistApplications = async (conventionId: string) => {
+  const { data } = await axios.get(
+    `/conventions/${conventionId}/panelistApplications`,
+    { withCredentials: true }
+  );
+  return data;
+};
+
 export default {
   createConvention,
   getConventionById,
@@ -190,6 +238,7 @@ export default {
   applyPanelist,
   approvePanelistApplication,
   rejectPanelistApplication,
+  cancelAttendeeApplication,
   applyAttendee,
   removeAttendee,
   approveAttendeeApplication,

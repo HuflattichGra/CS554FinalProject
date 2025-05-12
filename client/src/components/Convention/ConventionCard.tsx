@@ -14,6 +14,7 @@ export interface ConventionCardProps {
   countdownDays: number;
   productCount?: number;
   groupCount?: number;
+  onDeleted?: () => void;
 }
 
 const ConventionCard: React.FC<ConventionCardProps> = ({
@@ -25,7 +26,7 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
   address,
   imageUrl = '/default-convention-banner.png',
   countdownDays,
-
+  onDeleted
 }) => {
   const navigate = useNavigate();
   // const con = { _id, name, tags, startDate, endDate, address, imageUrl, countdownDays, productCount, groupCount };
@@ -35,7 +36,7 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
     navigate(`/conventions/${_id}`);
   };
 
-  
+
   return (
     <Card
       className="cursor-pointer"
@@ -53,7 +54,10 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
 
           <div className="text-sm text-gray-500 flex items-center gap-1">
             <CalendarIcon size={16} />
-            <span>{startDate} ~ {endDate}</span>
+            <span>
+              {new Date(startDate).toISOString().slice(0, 10)} - {new Date(endDate).toISOString().slice(0, 10)}
+            </span>
+
           </div>
 
           <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">

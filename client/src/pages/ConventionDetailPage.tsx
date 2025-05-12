@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConventionById } from '../api/conventions';
+import { getConventionById, applyAttendee, removeAttendee, cancelAttendeeApplication } from '../api/conventions';
 import userContext from '../context/userContext';
 import ManageConventionPanel from '../components/Convention/ManageConventionPanel';
-
+import { Badge } from '../components/ui/badge';
 const ConventionDetailPage: React.FC = () => {
   const { id } = useParams();
   const { user } = useContext(userContext);
+
   const [convention, setConvention] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -14,13 +15,71 @@ const ConventionDetailPage: React.FC = () => {
     try {
       if (!id) return;
       const data = await getConventionById(id);
-      setConvention(data);
+      setConvention(flattenConvention(data));
     } catch (e) {
       console.error('Failed to load convention', e);
     } finally {
       setLoading(false);
     }
   }, [id]);
+
+  const handleApply = async () => {
+    if (!user || !user._id) {
+      alert('Please log in to apply.');
+      return;
+    }
+
+    try {
+      const updated = await applyAttendee(convention._id);
+      alert('Application submitted!');
+
+      const flat = flattenConvention(updated);
+      console.log('Updated convention data:', flat);
+      setConvention(flat);
+    } catch (e: any) {
+      console.error(e);
+      alert(e?.response?.data?.error || 'Failed to apply.');
+    }
+  };
+
+  const handleCancelApplication = async () => {
+    if (!user || !user._id) return;
+
+    try {
+      console.log('Cancelling application, exclusive:', convention.exclusive);
+      let updated;
+
+      updated = await cancelAttendeeApplication(convention._id);
+      alert('Application withdrawn.');
+
+      const flat = flattenConvention(updated);
+      console.log('Updated convention data after cancellation:', flat);
+      setConvention(flat);
+    } catch (e: any) {
+      console.error(e);
+      alert(e?.response?.data?.error || 'Failed to cancel application.');
+    }
+  };
+
+  const flattenConvention = (c: any) => ({
+    _id: c._id.toString(),
+    name: c.name || '',
+    tags: c.tags ?? [],
+    startDate: c.startDate || '',
+    endDate: c.endDate || '',
+    description: c.description || '',
+    isOnline: c.isOnline ?? false,
+    address: c.address || '',
+    exclusive: c.exclusive ?? false,
+    owners: (c.owners || []).map((o) => o.toString?.() ?? o),
+    panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
+    attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
+    panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
+    attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
+    imageUrl: c.imageUrl || '/default-convention-banner.png',
+    productCount: c.productCount ?? 0,
+    groupCount: c.groupCount ?? 0,
+  });
 
   useEffect(() => {
     fetchConvention();
@@ -37,7 +96,14 @@ const ConventionDetailPage: React.FC = () => {
   const isOwner = user && Array.isArray(convention.owners) && convention.owners.includes(user._id);
   const isAdmin = user?.admin;
 
-  const isAttending = user && Array.isArray(convention.attendees) && convention.attendees.includes(user._id);
+
+  const hasUser = (list: any[] | undefined, userId: string): boolean => {
+    if (!userId) return false;
+    return Array.isArray(list) && list.some((id: any) => id?.toString?.() === userId);
+  };
+
+  const isAttending = user && hasUser(convention.attendees, user._id);
+
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -48,9 +114,13 @@ const ConventionDetailPage: React.FC = () => {
       />
 
       <h1 className="text-3xl font-bold mb-2">{convention.name}</h1>
-      <p className="text-sm text-gray-500 mb-2">
+      {/* <p className="text-sm text-gray-500 mb-2">
         {convention.startDate} - {convention.endDate}
+      </p> */}
+      <p>
+        {new Date(convention.startDate).toISOString().slice(0, 10)} - {new Date(convention.endDate).toISOString().slice(0, 10)}
       </p>
+
       <p className="text-sm text-gray-600 mb-4">
         {convention.isOnline ? 'Online' : convention.address}
       </p>
@@ -76,13 +146,65 @@ const ConventionDetailPage: React.FC = () => {
         <strong>Exclusive:</strong> {convention.exclusive ? 'Yes' : 'No'}
       </div>
 
+      {Array.isArray(convention.panelists) && convention.panelists.length > 0 && !(isOwner || isAdmin) && (
+        <div className="mb-4">
+          <span className="font-medium">Panelists:</span>
+          <div className="mt-2 flex gap-2 flex-wrap">
+            {convention?.panelists?.map((p: any) => (
+              <Badge key={p._id} className="flex items-center gap-2">
+                {p.username}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
       {(isOwner || isAdmin) ? (
         <ManageConventionPanel convention={convention} refresh={fetchConvention} />
       ) : (
         <div className="mt-6">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded">
-            {isAttending ? 'You are attending' : 'Apply to Attend'}
-          </button>
+          {isAttending ? (
+            <button
+              className="px-4 py-2 bg-gray-600 text-white rounded"
+              onClick={async () => {
+                const confirmLeave = window.confirm('Are you sure you want to cancel attending this convention?');
+                if (!confirmLeave || !user) return;
+
+                try {
+                  console.log('Removing attendee:', user._id);
+                  await removeAttendee(convention._id, user._id);
+                  alert('You have canceled your attendance.');
+                  fetchConvention();
+                } catch (e: any) {
+                  console.error(e);
+                  alert(e?.response?.data?.error || 'Failed to remove attendee.');
+                }
+              }}
+            >
+              Cancel Attendance
+            </button>
+          ) : (
+            <div>
+              {hasUser(convention.attendeeApplications, user?._id || '') ? (
+                <div className="flex items-center">
+                  <span className="text-green-600 mr-3">Applied for attendance</span>
+                  <button
+                    className="px-3 py-1 bg-red-600 text-white text-sm rounded"
+                    onClick={handleCancelApplication}
+                  >
+                    Cancel Application
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white rounded"
+                  onClick={handleApply}
+                >
+                  Apply to Attend
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
