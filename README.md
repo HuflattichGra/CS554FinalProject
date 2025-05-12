@@ -11,6 +11,49 @@
 
 ---
 
+## Getting Started
+
+### Option 1: Using Docker (Recommended)
+
+1. Make sure you have [Docker](https://www.docker.com/products/docker-desktop) installed on your system
+2. Navigate to the project root directory
+3. Run the docker-compose command:
+   ```
+   docker-compose up
+   ```
+5. Wait for all containers to start (client, server, Redis, MongoDB)
+6. Access the application at http://localhost:5173
+
+### Option 2: Manual Setup
+
+Make sure node.js and imagemagick is installed
+
+#### Server Setup
+1. Open a terminal in the server directory
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Start the server:
+   ```
+   npm start
+   ```
+   The server will run on http://localhost:3000
+
+#### Client Setup
+1. Open another terminal in the client directory
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Start the client:
+   ```
+   npm run dev
+   ```
+   The client will run on http://localhost:5173
+
+---
+
 ## Conventions Showcase App  
 
 A social media platform focused on getting people to discover conventions, showcase their art and hobbies, and engage with others.  

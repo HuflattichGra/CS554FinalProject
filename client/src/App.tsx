@@ -12,6 +12,7 @@ import GuestOnly from "./components/GuestOnly";
 import PostList from "./components/Posts/PostList";
 import ConventionsPage from "./pages/ConventionsPage";
 import ConventionDetailPage from "./pages/ConventionDetailPage";
+import Profile from './components/Profile/Profile';
 import { API_BASE } from './api';
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
                 <Route path="/posts" element={<PostList />} />
                 <Route path="/conventions" element={<ConventionsPage />} />
                 <Route path="/conventions/:id" element={<ConventionDetailPage />} />
+                <Route path="/user/:id" element={< Profile/>} />
             </Routes>
         </div>
       </userContext.Provider>

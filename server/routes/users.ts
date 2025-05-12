@@ -121,6 +121,23 @@ router
 
         if (exists) await client.set('user:' + user._id, JSON.stringify(user))
         
+        //Update redis cache for liked posts
+        if(req.body.likes){
+            client.del('POST:' + req.body.likes)
+        }
+
+        if(req.body.conventionsAttending){
+            client.del("convention:" + req.body.conventionsAttending)
+        }
+
+        if(req.body.following){
+            client.del("user:" + req.body.following)
+        }
+
+        if(req.body.followers) {
+            client.del("user:" + req.body.followers)
+        }
+
         console.log(user);
         return res.status(200).json(user)
     })

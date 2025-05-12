@@ -1,0 +1,21 @@
+.tab{
+    border-bottom: 1px solid #ccc;
+    transition: 0.3;
+}
+.tab button{
+    background-color: inherit;
+    padding: 14px 16px;
+}
+.tab button:hover {
+  background-color: #1a1a1a;
+}
+.tab button.active {
+  border-color: #ccc;
+}
+
+
+.content{
+    border-bottom: 1px solid #ccc;
+    transition: 0.3;
+    margin-top: 6px;
+}
