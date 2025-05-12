@@ -9,6 +9,10 @@
 .tab button:hover {
   background-color: #1a1a1a;
 }
+.tab button.active {
+  border-color: #ccc;
+}
+
 
 .content{
     border-bottom: 1px solid #ccc;

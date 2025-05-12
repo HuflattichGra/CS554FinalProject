@@ -50,18 +50,27 @@ const Profile: React.FC = () => {
     let id = useParams().id
 
     const onShowPosts: any = async () => {
+        document.getElementById("postButton").className = "active"
+        document.getElementById("likeButton").className = ""
+        document.getElementById("bookmarkButton").className = ""
         setShowPosts(true)
         setShowLikes(false)
         setShowBookmarks(false)
     }
 
     const onShowLikes: any = async () => {
+        document.getElementById("postButton").className = ""
+        document.getElementById("likeButton").className = "active"
+        document.getElementById("bookmarkButton").className = ""
         setShowPosts(false)
         setShowLikes(true)
         setShowBookmarks(false)
     }
 
     const onShowBookmarks: any = async () => {
+        document.getElementById("postButton").className = ""
+        document.getElementById("likeButton").className = ""
+        document.getElementById("bookmarkButton").className = "active"
         setShowPosts(false)
         setShowLikes(false)
         setShowBookmarks(true)
@@ -118,9 +127,9 @@ const Profile: React.FC = () => {
                 <p>Following: {profile?.following.length}</p>
                 <p>Followers: {profile?.followers.length}</p>
                 <div className="tab">
-                    <button onClick={onShowPosts}>Posts</button>
-                    <button onClick={onShowLikes}>Likes</button>
-                    <button onClick={onShowBookmarks}>Bookmarks</button>
+                    <button onClick={onShowPosts} id="postButton" className='active'>Posts</button>
+                    <button onClick={onShowLikes} id="likeButton" className=''>Likes</button>
+                    <button onClick={onShowBookmarks} id="bookmarkButton" className=''>Bookmarks</button>
                 </div>
 
                 <div className='content'>
