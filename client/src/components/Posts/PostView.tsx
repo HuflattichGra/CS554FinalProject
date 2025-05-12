@@ -109,7 +109,7 @@ const PostView: React.FC<Post> = (props: any) => {
     } else {
         return (
             <div>
-                <Link to={`user/${post.userID}`}>{poster.username}</Link>
+                <Link to={`/user/${post.userID}`}>{poster.username}</Link>
                 <p>{post.text}</p>
                 <p>Likes: {post.likes?.length || 0}</p>
                 {user ? (
