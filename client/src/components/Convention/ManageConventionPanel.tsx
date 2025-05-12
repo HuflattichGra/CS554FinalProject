@@ -24,7 +24,7 @@ import { Badge } from '../ui/badge.tsx';
 import { Label } from '../ui/label';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
+import { Link } from 'react-router-dom';
 const ManageConventionPanel = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -300,13 +300,29 @@ const ManageConventionPanel = () => {
                         <Button onClick={handleAddPanelist}>Add Panelist</Button>
                     </div>
                     <div className="mt-2 flex gap-2 flex-wrap">
-                        {convention?.panelists?.map((p: any) => (
-                            <Badge key={p._id} className="flex items-center gap-2">
-                                {p.username}
-                                <Button size="sm" variant="destructive" onClick={() => handleRemovePanelist(p._id)}>x</Button>
-                            </Badge>
-                        ))}
+                        {convention?.panelists?.map((p: any) => {
+                            const userId = typeof p._id === 'object' && p._id?.$oid
+                                ? p._id.$oid
+                                : p._id?.toString?.() ?? '';
+
+                            return (
+                                <Badge key={userId} className="flex items-center gap-2">
+                                    <Link to={`/user/${userId}`} className="hover:underline text-blue-600">
+                                        {p.username}
+                                    </Link>
+                                    <Button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRemovePanelist(userId);
+                                        }}
+                                    >
+                                        x
+                                    </Button>
+                                </Badge>
+                            );
+                        })}
                     </div>
+
                 </Card>
 
                 {/* Attendees */}
@@ -321,20 +337,29 @@ const ManageConventionPanel = () => {
                         <Button onClick={handleAddAttendee}>Add Attendee</Button>
                     </div>
                     <div className="mt-2 flex gap-2 flex-wrap">
-                        {attendees.map((a) => (
-                            <Badge key={a._id} className="flex items-center gap-2">
-                                {a.username}
-                                <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => handleRemoveAttendee(a._id?.$oid || a._id)}
-                                >
-                                    x
-                                </Button>
-                            </Badge>
+                        {attendees.map((a) => {
+                            const userId = typeof a._id === 'object' && a._id?.$oid
+                                ? a._id.$oid
+                                : a._id?.toString?.() ?? '';
 
-                        ))}
+                            return (
+                                <Badge key={userId} className="flex items-center gap-2">
+                                    <Link to={`/user/${userId}`} className="hover:underline text-blue-600">
+                                        {a.username}
+                                    </Link>
+                                    <Button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRemoveAttendee(userId);
+                                        }}
+                                    >
+                                        x
+                                    </Button>
+                                </Badge>
+                            );
+                        })}
                     </div>
+
                 </Card>
 
             </div>

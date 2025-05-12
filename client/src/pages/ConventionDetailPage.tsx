@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConventionById, applyAttendee, 
-  removeAttendee, cancelAttendeeApplication } from '../api/conventions';
+import {
+  getConventionById, applyAttendee,
+  removeAttendee, cancelAttendeeApplication
+} from '../api/conventions';
 import userContext from '../context/userContext';
 import ManageConventionPanel from '../components/Convention/ManageConventionPanel';
 import { Badge } from '../components/ui/badge.tsx';
+import { Link } from 'react-router-dom';
 const ConventionDetailPage: React.FC = () => {
   const { id } = useParams();
   const { user } = useContext(userContext);
@@ -167,20 +170,21 @@ const ConventionDetailPage: React.FC = () => {
             <div className="mb-4"> <span className="font-medium">Panelists:
               {convention.panelists.length < 1 ? ' Stay Tune!' : ''}</span></div>
             <div className="mt-2 flex gap-2 flex-wrap">
-              {convention?.panelists?.map((p: any) => (
-                <Badge
-                  key={
-                    typeof p._id === 'object' && p._id?.$oid
-                      ? p._id.$oid
-                      : p._id?.toString?.() || p.username
-                  }
-                  className="flex items-center gap-2"
-                >
-                  {p.username}
-                </Badge>
+              {convention?.panelists?.map((p: any) => {
+                const userId = typeof p._id === 'object' && p._id?.$oid
+                  ? p._id.$oid
+                  : p._id?.toString?.() || '';
 
-              ))}
+                return (
+                  <Link to={`/user/${userId}`} key={userId}>
+                    <Badge className="flex items-center gap-2 cursor-pointer hover:bg-blue-100">
+                      {p.username}
+                    </Badge>
+                  </Link>
+                );
+              })}
             </div>
+
           </div>
         )}
       </div>
