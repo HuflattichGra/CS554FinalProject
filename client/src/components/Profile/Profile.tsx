@@ -95,7 +95,7 @@ const Profile: React.FC = () => {
         return(
             <div>
                 <h1>{profile?.username}</h1>
-                <p>{profile?.bio}</p>
+                <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
                 <p>Following: {profile?.following.length}</p>
                 <p>Followers: {profile?.followers.length}</p>
                 <div className="tab">
