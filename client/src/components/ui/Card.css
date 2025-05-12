@@ -1,0 +1,11 @@
+.card {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  .card.expired {
+    background-color: #f9fafb;
+    opacity: 0.7;
+  }

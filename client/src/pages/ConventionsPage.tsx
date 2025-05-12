@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import {
   getAllConventions,
-  getUserBookmarkedConventions,
-  getRecommendedConventions
+  getUserFollowingConventions,
+  getRecommendedConventions,
 } from '../api/conventions';
 import ConventionCard from '../components/Convention/ConventionCard';
 import CreateConventionModal from '../components/Convention/CreateConventionModal';
@@ -11,7 +11,7 @@ import UserConventionsTabs from '../components/Convention/UserConventionsTabs';
 import userContext from '../context/userContext';
 import { useLocation } from 'react-router-dom';
 
-const TABS = ['Created', 'Attending', 'Bookmarked', 'Recommended'];
+const TABS = ['Created', 'Attending', 'Following', 'Recommended'];
 
 const ConventionsPage: React.FC = () => {
   const { user } = useContext(userContext);
@@ -60,12 +60,10 @@ const ConventionsPage: React.FC = () => {
         totalPages = res.totalPages || 1;
       }
 
-      else if (tab === 'Bookmarked') {
-        const all = await getUserBookmarkedConventions(user._id);
-        const startIdx = (page - 1) * pageSize;
-        const endIdx = startIdx + pageSize;
-        conventions = all.slice(startIdx, endIdx);
-        totalPages = Math.max(1, Math.ceil(all.length / pageSize));
+      else if (tab === 'Following') {
+        const res = await getUserFollowingConventions(user._id, page, pageSize);
+        conventions = res.conventions || [];
+        totalPages = res.totalPages || 1;
       }
 
       setConventions(conventions);
@@ -75,7 +73,30 @@ const ConventionsPage: React.FC = () => {
       console.error('Failed to fetch conventions', e);
     }
   };
-
+  conventions.map((con: any) => {
+    const isPast = new Date(con.endDate) < new Date();
+    const isAdmin = user?.admin;
+    const isClickable = isAdmin || !isPast;
+  
+    return (
+      <ConventionCard
+        key={con._id}
+        _id={con._id}
+        name={con.name}
+        tags={con.tags}
+        startDate={con.startDate}
+        endDate={con.endDate}
+        address={con.address}
+        imageUrl={con.imageUrl}
+        countdownDays={con.countdownDays}
+        productCount={con.productCount}
+        groupCount={con.groupCount}
+        onDeleted={fetchConventions}
+        isClickable={isClickable}  
+      />
+    );
+  });
+  
 
   useEffect(() => {
     if (user) {
@@ -123,13 +144,14 @@ const ConventionsPage: React.FC = () => {
               productCount={con.productCount}
               groupCount={con.groupCount}
               onDeleted={fetchConventions}
+              owners={con.owners} 
             />
 
           ))
         )}
       </div>
 
-      {['Created', 'Attending', 'Recommended', 'Bookmarked'].includes(tab) && (
+      {['Created', 'Attending', 'Recommended', 'Following'].includes(tab) && (
         <Pagination current={page} total={totalPages} onPageChange={setPage} />
       )}
 

@@ -5,7 +5,7 @@ interface UserConventionsTabsProps {
   onTabChange: (tab: string) => void;
 }
 
-const TABS = ['Attending', 'Created', 'Bookmarked', 'Recommended'];
+const TABS = ['Attending', 'Created', 'Following', 'Recommended'];
 
 const UserConventionsTabs: React.FC<UserConventionsTabsProps> = ({ activeTab, onTabChange }) => {
   return (

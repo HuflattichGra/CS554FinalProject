@@ -6,10 +6,10 @@ import {
   DialogFooter,
   DialogClose
 } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { Label } from '../ui/label';
+import { Input } from '../ui/input.tsx';
+import { Button } from '../ui/button.tsx';
+import { Textarea } from '../ui/textarea.tsx';
+import { Label } from '../ui/label.tsx';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { createConvention } from '../../api/conventions';
@@ -84,8 +84,8 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
     const formData = {
       name,
       tags,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
       isOnline,
       address,
       exclusive,
@@ -123,17 +123,24 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
             <DatePicker
               selected={startDate}
               onChange={setStartDate}
+              showTimeSelect
+              timeIntervals={15}
+              dateFormat="yyyy-MM-dd HH:mm"
               placeholderText="Start Date"
               className="w-full p-2 border rounded"
             />
             <DatePicker
               selected={endDate}
               onChange={setEndDate}
+              showTimeSelect
+              timeIntervals={15}
+              dateFormat="yyyy-MM-dd HH:mm"
               placeholderText="End Date"
               className="w-full p-2 border rounded"
             />
           </div>
         </div>
+
 
         <div>
           <Label>Is the convention online?</Label>

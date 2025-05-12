@@ -1,8 +1,9 @@
 import React from 'react';
+import './Label.css';
 
 const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement>> = ({ className = '', ...props }) => (
   <label
-    className={`block text-sm font-medium text-gray-700 mb-1 ${className}`}
+    className={`form-label ${className}`}
     {...props}
   />
 );

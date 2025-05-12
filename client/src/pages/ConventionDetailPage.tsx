@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConventionById, applyAttendee, removeAttendee, cancelAttendeeApplication } from '../api/conventions';
+import { getConventionById, applyAttendee, 
+  removeAttendee, cancelAttendeeApplication } from '../api/conventions';
 import userContext from '../context/userContext';
 import ManageConventionPanel from '../components/Convention/ManageConventionPanel';
-import { Badge } from '../components/ui/badge';
+import { Badge } from '../components/ui/badge.tsx';
 const ConventionDetailPage: React.FC = () => {
   const { id } = useParams();
   const { user } = useContext(userContext);
@@ -23,7 +24,7 @@ const ConventionDetailPage: React.FC = () => {
       setLoading(false);
     }
   }, [id]);
- 
+
   const handleApply = async () => {
     if (!user || !user._id) {
       alert('Please log in to apply.');
@@ -73,7 +74,7 @@ const ConventionDetailPage: React.FC = () => {
     address: c.address || '',
     exclusive: c.exclusive ?? false,
     owners: (c.owners || []).map((o) => o.toString?.() ?? o),
-    panelists: c.panelists || [],  
+    panelists: c.panelists || [],
     attendees: c.attendees || [],
     panelistApplications: c.panelistApplications || [],
     attendeeApplications: c.attendeeApplications || [],
@@ -81,12 +82,11 @@ const ConventionDetailPage: React.FC = () => {
     productCount: c.productCount ?? 0,
     groupCount: c.groupCount ?? 0,
   });
-  
 
   useEffect(() => {
     fetchConvention();
   }, [fetchConvention]);
- 
+
 
   if (!convention) {
     return <div className="text-center mt-10 text-red-500">Convention not found.</div>;
@@ -94,6 +94,7 @@ const ConventionDetailPage: React.FC = () => {
 
   const isOwner = user && Array.isArray(convention.owners) && convention.owners.includes(user._id);
   const isAdmin = user?.admin;
+  const isEnded = new Date(convention.endDate) < new Date();
 
 
   const hasUser = (list: any[] | undefined, userId: string): boolean => {
@@ -117,8 +118,22 @@ const ConventionDetailPage: React.FC = () => {
         {convention.startDate} - {convention.endDate}
       </p> */}
       <p>
-        {new Date(convention.startDate).toISOString().slice(0, 10)} - {new Date(convention.endDate).toISOString().slice(0, 10)}
+        {new Date(convention.startDate).toLocaleString(undefined, {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })} -{' '}
+        {new Date(convention.endDate).toLocaleString(undefined, {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}
       </p>
+
 
       <p className="text-sm text-gray-600 mb-4">
         {convention.isOnline ? 'Online' : convention.address}
@@ -145,25 +160,25 @@ const ConventionDetailPage: React.FC = () => {
         <strong>Exclusive:</strong> {convention.exclusive ? 'Yes' : 'No'}
         {/* {convention.panelists.length > 0 && (
         )} */}
-        <div className="mb-4"> <span className="font-medium">Panelists:
-          {convention.panelists.length < 1 ? ' Stay Tune!' : ''}</span></div>
+
 
         {Array.isArray(convention.panelists) && convention.panelists.length > 0 && !(isOwner || isAdmin) && (
           <div className="mb-4">
-            <span className="font-medium"></span>
+            <div className="mb-4"> <span className="font-medium">Panelists:
+              {convention.panelists.length < 1 ? ' Stay Tune!' : ''}</span></div>
             <div className="mt-2 flex gap-2 flex-wrap">
               {convention?.panelists?.map((p: any) => (
                 <Badge
-                key={
-                  typeof p._id === 'object' && p._id?.$oid
-                    ? p._id.$oid
-                    : p._id?.toString?.() || p.username
-                }
-                className="flex items-center gap-2"
-              >
-                {p.username}
-              </Badge>
-              
+                  key={
+                    typeof p._id === 'object' && p._id?.$oid
+                      ? p._id.$oid
+                      : p._id?.toString?.() || p.username
+                  }
+                  className="flex items-center gap-2"
+                >
+                  {p.username}
+                </Badge>
+
               ))}
             </div>
           </div>
@@ -209,12 +224,14 @@ const ConventionDetailPage: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded"
-                  onClick={handleApply}
-                >
-                  Apply to Attend
-                </button>
+                <div>
+                  {!isEnded && <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                    onClick={handleApply}
+                  >
+                    Apply to Attend
+                  </button>}
+                </div>
               )}
             </div>
           )}

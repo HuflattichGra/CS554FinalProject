@@ -1,4 +1,5 @@
 import React from 'react';
+import './Card.css';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -6,7 +7,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Card: React.FC<CardProps> = ({ className = '', children, ...props }) => (
-  <div className={`border rounded-lg shadow-sm p-4 bg-white ${className}`} {...props}>
+  <div className={`card ${className}`} {...props}>
     {children}
   </div>
 );

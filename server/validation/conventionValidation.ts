@@ -21,11 +21,11 @@ export function validateConventionFields(body: any) {
     errors.push('startDate is required and must be a valid date');
   } else {
     const start = dayjs(body.startDate);
-    const today = dayjs();
-    if (start.isBefore(today, 'day')) {
+    const now = dayjs();
+    if (start.isBefore(now)) {
       errors.push('startDate cannot be in the past');
     }
-    if (start.isAfter(today.add(100, 'year'))) {
+    if (start.isAfter(now.add(100, 'year'))) {
       errors.push('startDate must be within 100 years');
     }
   }

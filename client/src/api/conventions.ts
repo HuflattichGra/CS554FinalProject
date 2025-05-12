@@ -224,6 +224,22 @@ export const listPanelistApplications = async (conventionId: string) => {
   );
   return data;
 };
+export const followConvention = async (conventionId: string) => {
+  const { data } = await axios.patch(`${API_URL}/${conventionId}/follow`, {}, { withCredentials: true });
+  return data;
+};
+
+export const unfollowConvention = async (conventionId: string) => {
+  const { data } = await axios.patch(`${API_URL}/${conventionId}/unfollow`, {}, { withCredentials: true });
+  return data;
+};
+
+export const getUserFollowingConventions = async (userId: string, page: number, pageSize: number) => {
+  const { data } = await axios.get(`${API_URL}/user/${userId}/following?page=${page}&pageSize=${pageSize}`, {
+    withCredentials: true
+  });
+  return data;
+};
 
 export default {
   createConvention,
@@ -248,4 +264,7 @@ export default {
   getUserBookmarkedConventions,
   getRecommendedConventions,
   listPanelistApplications,
+  followConvention,
+  unfollowConvention,
+  getUserFollowingConventions
 };

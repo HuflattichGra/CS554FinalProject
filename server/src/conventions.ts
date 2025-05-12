@@ -598,6 +598,93 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
     };
   };
   
+  export const followConvention = async (userId: string, conventionId: string) => {
+    checkId(userId, 'User ID');
+    checkId(conventionId, 'Convention ID');
+  
+    const userCollection = await users();
+    const conventionCollection = await conventions();
+  
+    const user = await userCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user) throw 'User not found';
+  
+    const alreadyFollowing = (user.conventionsFollowing || []).some(
+      (id: ObjectId) => id.toString() === conventionId
+    );
+    if (alreadyFollowing) throw 'Already following';
+  
+    const updateRes = await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $addToSet: { conventionsFollowing: new ObjectId(conventionId) } }
+    );
+    if (updateRes.modifiedCount === 0) throw 'Failed to follow convention';
+  
+    return { followed: true };
+  };
+  
+  export const unfollowConvention = async (userId: string, conventionId: string) => {
+    checkId(userId, 'User ID');
+    checkId(conventionId, 'Convention ID');
+  
+    const userCollection = await users();
+  
+    const updateRes = await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $pull: { conventionsFollowing: new ObjectId(conventionId) } }
+    );
+    if (updateRes.modifiedCount === 0) throw 'Failed to unfollow convention';
+  
+    return { unfollowed: true };
+  };
+  
+  export const getUserFollowingConventions = async (userId: string, page: number, pageSize: number) => {
+    userId = checkId(userId, 'User ID');
+    const userCollection = await users();
+    const conventionCollection = await conventions();
+  
+    const user = await userCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user) throw 'User not found';
+  
+    const followingIds = user.conventionsFollowing || [];
+    const total = followingIds.length;
+    const totalPages = Math.ceil(total / pageSize);
+    const skip = (page - 1) * pageSize;
+  
+    const followingSlice = followingIds.slice(skip, skip + pageSize);
+    const conventionObjects = await conventionCollection
+      .find({ _id: { $in: followingSlice } })
+      .toArray();
+  
+    const conventionsF = conventionObjects.map((c) => ({
+      _id: c._id.toString(),
+      name: c.name || '',
+      tags: c.tags ?? [],
+      startDate: c.startDate || '',
+      endDate: c.endDate || '',
+      description: c.description || '',
+      isOnline: c.isOnline ?? false,
+      address: c.address || '',
+      exclusive: c.exclusive ?? false,
+      owners: (c.owners || []).map((o) => o.toString?.() ?? o),
+      panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
+      attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
+      panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
+      attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
+      imageUrl: c.imageUrl || '/default-convention-banner.png',
+      productCount: c.productCount ?? 0,
+      groupCount: c.groupCount ?? 0,
+      countdownDays: calculateCountdownDays(c.startDate)
+    }));
+  
+    return {
+      conventions: conventionsF,
+      total,
+      page,
+      pageSize,
+      totalPages
+    };
+  };
+  
   
 export default {
   createConvention,
@@ -620,5 +707,8 @@ export default {
   listAttendees,
   listAttendeeApplications,
   getUserBookmarkedConventions,
-  getRecommendedConventions
+  getRecommendedConventions,
+  followConvention,
+  unfollowConvention,
+  getUserFollowingConventions
 };

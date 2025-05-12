@@ -659,6 +659,62 @@ router.get('/user/:userId/recommended', async (req: Request, res: Response) => {
     return res.status(400).json({ error: e.toString() });
   }
 });
+router.patch('/:id/follow', async (req: Request, res: Response) => {
+  try {
+    const conventionId = checkId(req.params.id, 'Convention ID');
+    const user = req.session?.user;
+    if (!user || !user._id) return res.status(401).json({ error: 'User not logged in' });
 
+    const updated = await conventionFunctions.followConvention(user._id, conventionId);
+
+    await client.del(`convention:${conventionId}`);
+    await client.del('conventions:all');
+    await client.del('users:all');
+    const keys = await client.keys('conventions:page:*');
+    if (keys.length > 0) {
+      await client.del(...keys);
+    }
+
+    return res.status(200).json(updated);
+  } catch (e) {
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+  }
+});
+
+router.patch('/:id/unfollow', async (req: Request, res: Response) => {
+  try {
+    const conventionId = checkId(req.params.id, 'Convention ID');
+    const user = req.session?.user;
+    if (!user || !user._id) return res.status(401).json({ error: 'User not logged in' });
+
+    const updated = await conventionFunctions.unfollowConvention(user._id, conventionId);
+
+    await client.del(`convention:${conventionId}`);
+    await client.del('conventions:all');
+    await client.del('users:all');
+    const keys = await client.keys('conventions:page:*');
+    if (keys.length > 0) {
+      await client.del(...keys);
+    }
+
+    return res.status(200).json(updated);
+  } catch (e) {
+    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+  }
+});
+
+router.get('/user/:userId/following', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+
+    const result = await conventionFunctions.getUserFollowingConventions(userId, page, pageSize);
+
+    return res.status(200).json(result);
+  } catch (e) {
+    return res.status(400).json({ error: e.toString() });
+  }
+});
 
 export default router;

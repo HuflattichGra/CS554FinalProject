@@ -53,9 +53,9 @@ const ManageConventionPanel = () => {
             setAttendees(attendees.map((u, i) => ({
                 ...u,
                 _id: u._id?.$oid || u._id?.toString?.() || `attendee-${i}`
-              })));
-              
-              
+            })));
+
+
             setPanelistApplications(Array.isArray(pa) ? pa : []);
             setAttendeeApplications(Array.isArray(aa) ? aa : []);
         } catch (e) {
@@ -177,16 +177,23 @@ const ManageConventionPanel = () => {
                                     <DatePicker
                                         selected={form.startDate ? new Date(form.startDate) : null}
                                         onChange={(date) => setForm({ ...form, startDate: date })}
+                                        showTimeSelect
+                                        timeIntervals={15}
+                                        dateFormat="yyyy-MM-dd HH:mm"
                                         placeholderText="Start Date"
                                         className="w-full p-2 border rounded"
                                     />
                                     <DatePicker
                                         selected={form.endDate ? new Date(form.endDate) : null}
                                         onChange={(date) => setForm({ ...form, endDate: date })}
+                                        showTimeSelect
+                                        timeIntervals={15}
+                                        dateFormat="yyyy-MM-dd HH:mm"
                                         placeholderText="End Date"
                                         className="w-full p-2 border rounded"
                                     />
                                 </div>
+
                             </div>
                             <div>
                                 <Label>Is the convention online?</Label>
@@ -276,8 +283,7 @@ const ManageConventionPanel = () => {
                         </div>
                     ) : (
                         <div>
-                            <p className="text-lg font-semibold">{convention?.name}</p>
-                            <p className="text-muted-foreground">{convention?.description}</p>
+
                         </div>
                     )}
                 </Card>
