@@ -76,7 +76,7 @@ const Navbar: React.FC = () => {
             <div className="auth-buttons">
               
               {/* TO DO : Link to user profile page */}
-              <Link to="/" className="profile-icon">
+              <Link to={`/user/${user._id}`} className="profile-icon">
                 <img
                   src={userIcon}
                   alt="Profile"
