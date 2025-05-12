@@ -40,6 +40,8 @@ const Profile: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<user>()
     const [posts, setPosts] = useState<Post[]>([]);
+    const [likes, setLikes] = useState<Post[]>([]);
+    const [bookmarks, setBookmarks] = useState<Post[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [showPosts, setShowPosts] = useState(true);
     const [showLikes, setShowLikes] = useState(false);
@@ -69,15 +71,32 @@ const Profile: React.FC = () => {
         try{
             const userData = await axios.get(`${API_BASE}/user/${id}`)
             const userPosts = await axios.get(`${API_BASE}/posts/user/${id}`)
+            let userLikes = []
+
+            for(let likeId of userData.data.likes){
+                let like = await axios.get(`${API_BASE}/posts/${likeId}`)
+                userLikes.push(like.data);
+            }
+
+            let userBookmarks = []
+
+            for(let bookmarkId of userData.data.bookmarks){
+                let bookmark = await axios.get(`${API_BASE}/posts/${bookmarkId}`)
+                userBookmarks.push(bookmark.data);
+            }
 
             setProfile(userData.data);
             setPosts(userPosts.data)
+            setLikes(userLikes)
+            setBookmarks(userBookmarks);
             setLoading(false)
         } catch (e){
             console.log(e);
             setError(e.message);
             setProfile(undefined)
             setPosts([])
+            setLikes([])
+            setBookmarks([])
             setLoading(false)
         }
     }
@@ -115,6 +134,30 @@ const Profile: React.FC = () => {
                             images={post.images}
                             likes={post.likes}
                         />)) : <p>User has not posted yet...</p>)
+                    }
+
+                    {showLikes && (likes.length !== 0 ? likes.map((post: Post) => (
+                        <PostView
+                            key={post._id}
+                            _id={post._id}
+                            conventionID={post.conventionID}
+                            userID={post.userID}
+                            text={post.text}
+                            images={post.images}
+                            likes={post.likes}
+                        />)) : <p>User has not liked anything yet...</p>)
+                    }
+
+                    {showBookmarks && (bookmarks.length !== 0 ? bookmarks.map((post: Post) => (
+                        <PostView
+                            key={post._id}
+                            _id={post._id}
+                            conventionID={post.conventionID}
+                            userID={post.userID}
+                            text={post.text}
+                            images={post.images}
+                            likes={post.likes}
+                        />)) : <p>User has not bookmarked anything yet...</p>)
                     }
                 </div>
             </div>
