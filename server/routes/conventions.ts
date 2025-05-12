@@ -54,7 +54,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
 
     const cached = await client.get(cacheKey);
     if (cached) {
-      console.log(`[Cache Hit] Convention ${id}`);
+      // console.log(`[Cache Hit] Convention ${id}`);
       return res.status(200).json(JSON.parse(cached));
     }
 

@@ -93,6 +93,8 @@ if (Array.isArray(convention.owners) && convention.owners.length > 0) {
     .project({ _id: 1, username: 1 })
     .toArray();
 }
+// console.log('panelist raw ids:', convention.panelists);
+// console.log('matched panelists:', populatedPanelists);
 
 let populatedAttendees = [];
 if (Array.isArray(convention.attendees) && convention.attendees.length > 0) {
@@ -113,7 +115,7 @@ if (Array.isArray(convention.attendees) && convention.attendees.length > 0) {
     address: convention.address,
     exclusive: convention.exclusive,
     owners: convention.owners,
-    panelists: populatedPanelists, 
+    panelists: populatedPanelists|| [], 
     attendees: convention.attendees
   };
 };

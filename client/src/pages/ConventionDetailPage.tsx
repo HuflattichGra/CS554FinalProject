@@ -16,13 +16,14 @@ const ConventionDetailPage: React.FC = () => {
       if (!id) return;
       const data = await getConventionById(id);
       setConvention(flattenConvention(data));
+
     } catch (e) {
       console.error('Failed to load convention', e);
     } finally {
       setLoading(false);
     }
   }, [id]);
-
+ 
   const handleApply = async () => {
     if (!user || !user._id) {
       alert('Please log in to apply.');
@@ -72,22 +73,20 @@ const ConventionDetailPage: React.FC = () => {
     address: c.address || '',
     exclusive: c.exclusive ?? false,
     owners: (c.owners || []).map((o) => o.toString?.() ?? o),
-    panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
-    attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
-    panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
-    attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
+    panelists: c.panelists || [],  
+    attendees: c.attendees || [],
+    panelistApplications: c.panelistApplications || [],
+    attendeeApplications: c.attendeeApplications || [],
     imageUrl: c.imageUrl || '/default-convention-banner.png',
     productCount: c.productCount ?? 0,
     groupCount: c.groupCount ?? 0,
   });
+  
 
   useEffect(() => {
     fetchConvention();
   }, [fetchConvention]);
-
-  if (loading) {
-    return <div className="text-center mt-10 text-gray-500">Loading convention...</div>;
-  }
+ 
 
   if (!convention) {
     return <div className="text-center mt-10 text-red-500">Convention not found.</div>;
@@ -144,20 +143,34 @@ const ConventionDetailPage: React.FC = () => {
       <div className="text-sm text-gray-500 mb-6">
         {/* <strong>Countdown:</strong> {convention.countdownDays} days |{' '} */}
         <strong>Exclusive:</strong> {convention.exclusive ? 'Yes' : 'No'}
-      </div>
+        {/* {convention.panelists.length > 0 && (
+        )} */}
+        <div className="mb-4"> <span className="font-medium">Panelists:
+          {convention.panelists.length < 1 ? ' Stay Tune!' : ''}</span></div>
 
-      {Array.isArray(convention.panelists) && convention.panelists.length > 0 && !(isOwner || isAdmin) && (
-        <div className="mb-4">
-          <span className="font-medium">Panelists:</span>
-          <div className="mt-2 flex gap-2 flex-wrap">
-            {convention?.panelists?.map((p: any) => (
-              <Badge key={p._id} className="flex items-center gap-2">
+        {Array.isArray(convention.panelists) && convention.panelists.length > 0 && !(isOwner || isAdmin) && (
+          <div className="mb-4">
+            <span className="font-medium"></span>
+            <div className="mt-2 flex gap-2 flex-wrap">
+              {convention?.panelists?.map((p: any) => (
+                <Badge
+                key={
+                  typeof p._id === 'object' && p._id?.$oid
+                    ? p._id.$oid
+                    : p._id?.toString?.() || p.username
+                }
+                className="flex items-center gap-2"
+              >
                 {p.username}
               </Badge>
-            ))}
+              
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+
 
       {(isOwner || isAdmin) ? (
         <ManageConventionPanel convention={convention} refresh={fetchConvention} />
@@ -207,6 +220,7 @@ const ConventionDetailPage: React.FC = () => {
           )}
         </div>
       )}
+
     </div>
   );
 };
