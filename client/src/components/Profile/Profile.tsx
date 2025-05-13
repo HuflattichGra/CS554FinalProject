@@ -161,16 +161,45 @@ const Profile: React.FC = () => {
     else {
         return(
             <div>
-                <h1>{profile?.username}</h1>                <h3>{profile?.firstname} {profile?.lastname}</h3>                <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
-                <p>Following: {profile?.following.length}</p>
-                <p>Followers: {profile?.followers.length}</p>
-                <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p>
-                {user?._id === profile._id && 
-                    <a href="/add-funds" className="add-funds-button">Add Funds</a>
-                }
-                {user?._id !== profile._id && user !== null ? 
-                (user?.following.includes(profile._id) ? <button onClick={onFollow}>Unfollow</button> : <button onClick={onFollow}>Follow</button>) 
-                :  <button onClick={() => setShowEditModal(true)}>Edit Profile</button>}
+                <div className="profile-container">
+                    <div className="username-section">
+                        <h1>{profile?.username}</h1>
+                    </div>
+                    <div className="profile-image-section">
+                        {profile?.pfp ? (
+                            <img 
+                                src={`${API_BASE}/image/download/${profile.pfp}`} 
+                                alt={`${profile.username}'s profile picture`} 
+                                className="profile-image" 
+                            />
+                        ) : (
+                            <div className="default-profile-image">
+                                {profile.username.charAt(0).toUpperCase()}
+                            </div>
+                        )}
+                    </div>
+                    <div className="profile-info">              
+                        <h3>{profile?.firstname} {profile?.lastname}</h3>                
+                        <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
+                        <p>Following: {profile?.following.length}</p>
+                        <p>Followers: {profile?.followers.length}</p>
+                        <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p>
+                    </div>
+                </div>
+                <div className="profile-actions">
+                    {user?._id === profile._id && (
+                        <>
+                            <a href="/add-funds" className="add-funds-button">Add Funds</a>
+                            <button className="edit-profile-button" onClick={() => setShowEditModal(true)}>Edit Profile</button>
+                        </>
+                    )}
+                    
+                    {user?._id !== profile._id && user !== null && (
+                        user?.following.includes(profile._id) ? 
+                            <button className="follow-button unfollow" onClick={onFollow}>Unfollow</button> : 
+                            <button className="follow-button" onClick={onFollow}>Follow</button>
+                    )}
+                </div>
                 <div className="tab">
                     <button onClick={onShowPosts} id="postButton" className='active'>Posts</button>
                     <button onClick={onShowLikes} id="likeButton" className=''>Likes</button>
