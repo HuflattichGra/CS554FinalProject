@@ -183,7 +183,7 @@ const Profile: React.FC = () => {
                         <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
                         <p>Following: {profile?.following.length}</p>
                         <p>Followers: {profile?.followers.length}</p>
-                        <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p>
+                        {user?._id === profile._id ? <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p> : <></>}
                     </div>
                 </div>
                 <div className="profile-actions">
@@ -202,8 +202,8 @@ const Profile: React.FC = () => {
                 </div>
                 <div className="tab">
                     <button onClick={onShowPosts} id="postButton" className='active'>Posts</button>
-                    <button onClick={onShowLikes} id="likeButton" className=''>Likes</button>
-                    <button onClick={onShowBookmarks} id="bookmarkButton" className=''>Bookmarks</button>
+                    {user?._id === profile._id ? <button onClick={onShowLikes} id="likeButton" className=''>Likes</button> : <></>}
+                    {user?._id === profile._id ? <button onClick={onShowBookmarks} id="bookmarkButton" className=''>Bookmarks</button> : <></>}
                 </div>
 
                 <div className='content'>
