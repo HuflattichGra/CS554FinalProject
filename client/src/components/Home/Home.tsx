@@ -63,18 +63,9 @@ const Home: React.FC = () => {
                 setBookmarkedPosts(filteredPosts);
             }
 
-            // Get user's followed conventions
-            const conventionsData = await axios.get(`${API_BASE}/conventions`);
-            //console.log('User data:', userData.data);
-            //console.log('Conventions following:', userData.data.conventionsFollowing);
-            //console.log('All conventions:', conventionsData.data.conventions);
-            const followedConvs = conventionsData.data.conventions.filter((conv: Convention) => {
-                const isFollowing = userData.data.conventionsFollowing?.includes(conv._id);
-                console.log('Checking convention:', conv._id, 'Is following:', isFollowing);
-                return isFollowing;
-            });
-            //console.log('Filtered conventions:', followedConvs);
-            setFollowedConventions(followedConvs);
+            // Get user's followed conventions using the specific endpoint
+            const followedConventionsData = await axios.get(`${API_BASE}/conventions/user/${user._id}/following`);
+            setFollowedConventions(followedConventionsData.data.conventions || []);
             setLoading(false);
         } catch (e) {
             console.log(e);
