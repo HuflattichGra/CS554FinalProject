@@ -40,7 +40,6 @@ services:
       - ./server/uploads:/app/uploads
     networks:
       - ducknight
-
   client:
     build:
       context: ./client
