@@ -37,7 +37,7 @@ function checkComment(obj: any, needsID: boolean = false, noEmpty: boolean = tru
     if (obj.userID != undefined || noEmpty) { typecheck.checkId(obj.userID, "comment.userID"); }
     if (obj.text != undefined || noEmpty) { comObj.text = typecheck.checkStringTrimmed(obj.text, "comment.text"); }
     if (obj.createdAt != undefined || noEmpty) { if(obj.createdAt instanceof Date){}else{typecheck.checkDate(obj.createdAt,"comment.createdAt");}}
-    if (obj.likes != undefined || noEmpty) { obj.likes.map(checkIDS, "comment.likes"); }
+    if (obj.likes != undefined || noEmpty) { if(obj.likes.length){ obj.likes.map(checkIDS, "comment.likes"); } }
     return comObj;
 }
 
@@ -122,7 +122,7 @@ async function getCommmentFromPost(id:string) {
     typecheck.checkId(id);
 
     const db = await comments();
-    var retVal : Comment = await db.find({ postID: ObjectId.createFromHexString(id) }).toArray();
+    var retVal : Array<Comment> = await db.find({ postID: ObjectId.createFromHexString(id) }).toArray();
 
     if(retVal == null){
         throw new Error("GetCommentFromPost " + id + " failed");

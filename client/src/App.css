@@ -11,6 +11,9 @@
   border-width: 0.1em;
   border-color: black;
   border-style: solid;
+  color:whitesmoke;
+  background-color: #1a1a1a;
+  border-radius: 20px;
 }
 
 .post-element {
@@ -55,6 +58,7 @@
 
 .likeCount{
   background-color: rgba(0, 0, 0, 0);
+  width: 3%;
 }
 
 .bookmark {
