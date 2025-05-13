@@ -5,6 +5,7 @@ import userContext from "../../context/userContext";
 import axios from "axios";
 import { API_BASE } from "../../api";
 import { getEveryConvention } from "../../api/conventions";
+import { useNavigate } from "react-router-dom";
 
 ReactModal.setAppElement("#root");
 
@@ -46,6 +47,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     onPostUpdated,
     post
 }) => {
+    const redirect = useNavigate();
     const { user } = useContext(userContext);
     const [text, setText] = useState("");
     const [conventionID, setConventionID] = useState("");
@@ -60,12 +62,12 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
             setText(post.text);
             setConventionID(post.conventionID);
             setExistingImages(post.images || []);
-            
+
             console.log("Initializing edit form with images:", post.images);
-            
+
             // Generate URLs for existing images
             if (post.images && post.images.length > 0) {
-                const imageUrls = post.images.map((imageId: string) => 
+                const imageUrls = post.images.map((imageId: string) =>
                     `${API_BASE}/image/download/${imageId}`
                 );
                 setExistingImageUrls(imageUrls);
@@ -111,17 +113,18 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
         // Create new arrays without the removed image
         const newImages = [...existingImages];
         const newImageUrls = [...existingImageUrls];
-        
+
         // Remove the image at the specified index
         newImages.splice(index, 1);
         newImageUrls.splice(index, 1);
-        
+
         // Update state with the new arrays
         setExistingImages(newImages);
         setExistingImageUrls(newImageUrls);
-        
+
         console.log("Image removed, remaining images:", newImages);
-    };    const handleSubmit = async (e: React.FormEvent) => {
+    };
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) return;
 
@@ -131,26 +134,26 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
             formData.append('text', text.trim());
             formData.append('conventionID', conventionID.trim());
             formData.append('userID', user._id); // Ensure user ID is sent for authorization
-            
+
             // Add existing images that weren't removed
             // This sends only the image IDs that are still in the existingImages array
             // after the user may have removed some by clicking the X button
             existingImages.forEach(imageId => {
                 formData.append('keepImages', imageId);
             });
-            
+
             // Add new images
             newImageFiles.forEach(file => {
                 formData.append('images', file);
             });
-            
+
             formData.append('imageType', 'post');
 
             // If no existing images and no new images, explicitly set an empty images array
             if (existingImages.length === 0 && newImageFiles.length === 0) {
                 formData.append('images', JSON.stringify([]));
-            }            
-            
+            }
+
             console.log('Submitting updated post with:', {
                 existingImages: existingImages.length,
                 newImageFiles: newImageFiles.length
@@ -162,7 +165,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                 },
                 withCredentials: true
             });
-            
+
             // Close the modal first
             onClose();
             // Then refresh the post data
@@ -176,7 +179,30 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
         } finally {
             setIsSaving(false);
         }
-    };return (
+    };
+
+    const handleDelete = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+        try{
+            var commentData = await axios.get(`${API_BASE}/comments/posts/${post._id}`);
+
+            for(let i=0;i<commentData.data.length;i++){
+                await axios.delete(`${API_BASE}/comments/${commentData.data[i]._id}`);
+            }
+
+            await axios.delete(`${API_BASE}/posts/${post._id}`);
+        }catch (err: any) {
+            console.error("Update post error:", err);
+            onClose();
+            alert("Failed to update post: " + (err.response?.data?.error || err.message));
+        }finally{
+            setIsSaving(false);
+        }
+        redirect('/posts');
+    }
+
+    return (
         <ReactModal
             isOpen={isOpen}
             onRequestClose={onClose}
@@ -225,19 +251,19 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '1rem' }}>
                             {existingImageUrls.map((imageUrl, idx) => (
                                 <div key={idx} style={{ position: 'relative', width: '100px', marginBottom: '0.5rem' }}>
-                                    <img 
-                                        src={imageUrl} 
-                                        alt={`Current image ${idx + 1}`} 
+                                    <img
+                                        src={imageUrl}
+                                        alt={`Current image ${idx + 1}`}
                                         style={{ width: '100%', height: 'auto', borderRadius: '4px' }}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveExistingImage(idx)}
-                                        style={{ 
+                                        style={{
                                             position: 'absolute',
                                             top: '5px',
                                             right: '5px',
-                                            background: 'rgba(255,0,0,0.7)', 
+                                            background: 'rgba(255,0,0,0.7)',
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: '50%',
@@ -280,8 +306,8 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                     ) : (
                         <p>No new images selected</p>
                     )}
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         onClick={handleAddImage}
                         style={{
                             marginTop: '0.5rem',
@@ -298,8 +324,25 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                 </div>
 
                 <div style={{ marginTop: "1.5rem", display: 'flex', justifyContent: 'flex-end' }}>
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
+                        disabled={isSaving}
+                        onClick={handleDelete}
+                        style={{
+                            marginRight: '1em',
+                            padding: '8px 16px',
+                            background:'red',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: isSaving ? 'not-allowed' : 'pointer',
+                            opacity: isSaving ? 0.7 : 1
+                        }}
+                    >
+                        {isSaving ? 'Deleting...' : 'Delete'}
+                    </button>
+                    <button
+                        type="button"
                         onClick={onClose}
                         style={{
                             padding: '8px 16px',
@@ -311,7 +354,8 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                         }}
                     >
                         Cancel
-                    </button>                    <button 
+                    </button>                    
+                    <button
                         type="submit"
                         disabled={isSaving}
                         style={{
