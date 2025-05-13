@@ -499,41 +499,7 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
   
     return convention.attendeeApplications || [];
   };
-  export const getUserBookmarkedConventions = async (userId: string) => {
-    userId = checkId(userId, 'User ID');
-    const userCollection = await users();
-    const conventionCollection = await conventions();
-  
-    const user = await userCollection.findOne({ _id: new ObjectId(userId) });
-    if (!user) throw 'User not found';
-  
-    if (!user.bookmarks || user.bookmarks.length === 0) return [];
-  
-    const result = await conventionCollection.find({
-      _id: { $in: user.bookmarks }
-    }).toArray();
-  
-    return result.map((c) => ({
-      _id: c._id.toString(),
-      name: c.name || '',
-      tags: c.tags ?? [],
-      startDate: c.startDate || '',
-      endDate: c.endDate || '',
-      description: c.description || '',
-      isOnline: c.isOnline ?? false,
-      address: c.address || '',
-      exclusive: c.exclusive ?? false,
-      owners: (c.owners || []).map((o) => o.toString?.() ?? o),
-      panelists: (c.panelists || []).map((p) => p.toString?.() ?? p),
-      attendees: (c.attendees || []).map((a) => a.toString?.() ?? a),
-      panelistApplications: (c.panelistApplications || []).map((p) => p.toString?.() ?? p),
-      attendeeApplications: (c.attendeeApplications || []).map((a) => a.toString?.() ?? a),
-      imageUrl: c.imageUrl || '/default-convention-banner.png',
-      productCount: c.productCount ?? 0,
-      groupCount: c.groupCount ?? 0,
-      countdownDays: calculateCountdownDays(c.startDate)
-    }));
-  };
+   
   
   export const getRecommendedConventions = async (userId: string, page: number, pageSize: number) => {
     userId = checkId(userId, 'User ID');
@@ -706,7 +672,6 @@ export default {
   rejectAttendeeApplication,
   listAttendees,
   listAttendeeApplications,
-  getUserBookmarkedConventions,
   getRecommendedConventions,
   followConvention,
   unfollowConvention,

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import userContext from '../../context/userContext';
 import { followConvention, unfollowConvention, getUserFollowingConventions } from '../../api/conventions';
 import { Button } from '../ui/button.tsx'
+import '../ui/Card.css'
 export interface ConventionCardProps {
   _id: string;
   name: string;
@@ -19,6 +20,7 @@ export interface ConventionCardProps {
   owners?: string[];
   onDeleted?: () => void;
   isClickable?: boolean;
+  currentTab?: string
 }
 
 const ConventionCard: React.FC<ConventionCardProps> = ({
@@ -31,8 +33,7 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
   owners,
   imageUrl = '/default-convention-banner.png',
   countdownDays,
-  onDeleted,
-
+  currentTab
 
 }) => {
   const navigate = useNavigate();
@@ -49,7 +50,12 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
   // console.log('convention object:', con);
   const handleClick = () => {
     if (isClickable !== false) {
-      navigate(`/conventions/${_id}`);
+      if (currentTab) {
+        sessionStorage.setItem('conventionTab', currentTab);
+      }
+      navigate(`/conventions/${_id}`, {
+        state: { fromTab: currentTab }
+      });
     }
   };
   const handleToggleFollow = async (e: React.MouseEvent) => {
@@ -87,19 +93,19 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
 
   return (
     <Card
-      className={isEnded ? 'expired cursor-pointer' : 'cursor-pointer'}
+      className={isEnded ? 'expired cursor-pointer convention-card' : 'cursor-pointer convention-card'}
 
       onClick={handleClick}
     >
       <img
         src={imageUrl}
         alt="Convention Banner"
-        className="w-full sm:w-64 h-40 object-cover rounded-xl"
+        className="convention-card-image"
       />
 
-      <div className="flex-1 flex flex-col justify-between">
+      <div className="convention-card-content">
         <div>
-          <h2 className="text-xl font-bold mb-1">{name}</h2>
+          <h2 className="convention-card-title">{name}</h2>
           {!cantFollow && (
             <Button
               className="btn"
@@ -115,7 +121,7 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
           )}
 
 
-          <div className="text-sm text-gray-500 flex items-center gap-1">
+          <div className="convention-card-detail">
             <CalendarIcon size={16} />
             <span>
               {new Date(startDate).toLocaleString(undefined, {
@@ -137,16 +143,16 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
 
           </div>
 
-          <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+          <div className="convention-card-detail">
             <MapPinIcon size={16} />
             <span>{address}</span>
           </div>
 
-          <div className="flex flex-wrap mt-2 text-xs gap-2">
+          <div className="tag-container">
             {tags?.map((tag, index) => (
               <span
                 key={index}
-                className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                className="tag-badge"
               >
                 #{tag}
               </span>
@@ -155,8 +161,8 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
           </div>
         </div>
 
-        <div className="mt-2 flex justify-between text-sm text-gray-600">
-          <div className="text-lg font-bold text-black">
+        <div className="convention-card-footer">
+          <div className="countdown-text">
             {isEnded ? 'This Event Has Ended' : `${countdownDays} Day to Go`}
           </div>
         </div>

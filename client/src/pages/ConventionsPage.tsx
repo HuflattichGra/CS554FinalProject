@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, } from 'react';
 import {
   getAllConventions,
   getUserFollowingConventions,
@@ -9,18 +9,23 @@ import CreateConventionModal from '../components/Convention/CreateConventionModa
 import Pagination from '../components/Convention/Pagination';
 import UserConventionsTabs from '../components/Convention/UserConventionsTabs';
 import userContext from '../context/userContext';
-import { useLocation } from 'react-router-dom';
-
-const TABS = ['Created', 'Attending', 'Following', 'Recommended'];
+import { useLocation, useNavigate } from 'react-router-dom';
+import '../components/ui/conventionPage.css'
+const TABS = ['Created', 'Attending', 'Following', 'Picked for you'];
 
 const ConventionsPage: React.FC = () => {
   const { user } = useContext(userContext);
-  const [tab, setTab] = useState('Attending');
+  const location = useLocation();
+
+  const [tab, setTab] = useState(() => {
+    const savedTab = sessionStorage.getItem('conventionTab');
+    return TABS.includes(savedTab || '') ? savedTab! : 'Attending';
+  });
+
   const [showModal, setShowModal] = useState(false);
   const [conventions, setConventions] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const location = useLocation();
 
   const fetchConventions = async () => {
     if (!user) return;
@@ -54,7 +59,7 @@ const ConventionsPage: React.FC = () => {
         totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
       }
 
-      else if (tab === 'Recommended') {
+      else if (tab === 'Picked for you') {
         const res = await getRecommendedConventions(user._id, page, pageSize);
         conventions = res.conventions || [];
         totalPages = res.totalPages || 1;
@@ -77,7 +82,7 @@ const ConventionsPage: React.FC = () => {
     const isPast = new Date(con.endDate) < new Date();
     const isAdmin = user?.admin;
     const isClickable = isAdmin || !isPast;
-  
+
     return (
       <ConventionCard
         key={con._id}
@@ -92,43 +97,53 @@ const ConventionsPage: React.FC = () => {
         productCount={con.productCount}
         groupCount={con.groupCount}
         onDeleted={fetchConventions}
-        isClickable={isClickable}  
+        isClickable={isClickable}
+        currentTab={tab}
       />
     );
   });
-  
 
   useEffect(() => {
     if (user) {
       fetchConventions();
-      
     }
-  }, [user, tab, page,location.state]);
+    const fromTab = location.state?.fromTab;
+    if (fromTab && TABS.includes(fromTab)) {
+      setTab(fromTab);
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+    window.scrollTo(0, 0);
+  }, [user, tab, page, location]);
 
   if (!user) {
     return <div className="text-center mt-10 text-gray-500">Loading user session...</div>;
   }
 
   return (
-    <div className="conventions-page max-w-5xl mx-auto px-4">
-      <div className="flex justify-between items-center mt-6 mb-4">
-        <h1 className="text-2xl font-bold">My Conventions</h1>
+    <div className="conventions-page">
+      <div className="conventions-header">
+        <h1 className="conventions-title">My Conventions</h1>
         <button
-          className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+          className="create-button"
           onClick={() => setShowModal(true)}
         >
           + Create Convention
         </button>
       </div>
 
-      <UserConventionsTabs activeTab={tab} onTabChange={(t) => {
-        setTab(t);
-        setPage(1);
-      }} />
+      <UserConventionsTabs
+        activeTab={tab}
+        onTabChange={(t) => {
+          setTab(t);
+          setPage(1);
+          sessionStorage.setItem('conventionTab', t);  
+        }}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+
+      <div className="conventions-grid">
         {conventions.length === 0 ? (
-          <p className="text-gray-400 col-span-2">No conventions found.</p>
+          <p className="conventions-empty">No conventions found.</p>
         ) : (
           conventions.map((con: any) => (
             <ConventionCard
@@ -144,14 +159,15 @@ const ConventionsPage: React.FC = () => {
               productCount={con.productCount}
               groupCount={con.groupCount}
               onDeleted={fetchConventions}
-              owners={con.owners} 
+              owners={con.owners}
+              currentTab={tab}
             />
 
           ))
         )}
       </div>
 
-      {['Created', 'Attending', 'Recommended', 'Following'].includes(tab) && (
+      {['Created', 'Attending', 'Picked for you', 'Following'].includes(tab) && (
         <Pagination current={page} total={totalPages} onPageChange={setPage} />
       )}
 

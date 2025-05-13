@@ -8,6 +8,7 @@ import userContext from '../context/userContext';
 import ManageConventionPanel from '../components/Convention/ManageConventionPanel';
 import { Badge } from '../components/ui/badge.tsx';
 import { Link } from 'react-router-dom';
+import '../components/ui/conventionDetail.css'
 const ConventionDetailPage: React.FC = () => {
   const { id } = useParams();
   const { user } = useContext(userContext);
@@ -109,18 +110,16 @@ const ConventionDetailPage: React.FC = () => {
 
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="convention-detail-container">
       <img
         src={convention.imageUrl || '/default-convention-banner.png'}
         alt="Banner"
-        className="w-full h-64 object-cover rounded mb-4"
+        className="convention-banner"
       />
 
-      <h1 className="text-3xl font-bold mb-2">{convention.name}</h1>
-      {/* <p className="text-sm text-gray-500 mb-2">
-        {convention.startDate} - {convention.endDate}
-      </p> */}
-      <p>
+      <h1 className="convention-title">{convention.name}</h1>
+ 
+      <p className="convention-dates">
         {new Date(convention.startDate).toLocaleString(undefined, {
           year: 'numeric',
           month: '2-digit',
@@ -138,19 +137,19 @@ const ConventionDetailPage: React.FC = () => {
       </p>
 
 
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="convention-location">
         {convention.isOnline ? 'Online' : convention.address}
       </p>
 
-      <p className="text-gray-700 mb-4">{convention.description}</p>
+      <p className="convention-description">{convention.description}</p>
 
       {Array.isArray(convention.tags) && convention.tags.length > 0 && (
-        <div className="mb-4">
-          <span className="font-medium">Tags:</span>{' '}
+        <div className="convention-tags">
+          <span className="tags-label">Tags:</span>{' '}
           {convention.tags.map((tag: string, index: number) => (
             <span
               key={index}
-              className="inline-block bg-gray-200 px-2 py-1 mr-2 rounded text-sm"
+              className="tag-badge"
             >
               {tag}
             </span>
@@ -158,7 +157,7 @@ const ConventionDetailPage: React.FC = () => {
         </div>
       )}
 
-      <div className="text-sm text-gray-500 mb-6">
+      <div className="exclusive-panelist-section">
         {/* <strong>Countdown:</strong> {convention.countdownDays} days |{' '} */}
         <strong>Exclusive:</strong> {convention.exclusive ? 'Yes' : 'No'}
         {/* {convention.panelists.length > 0 && (
@@ -166,10 +165,10 @@ const ConventionDetailPage: React.FC = () => {
 
 
         {Array.isArray(convention.panelists) && convention.panelists.length > 0 && !(isOwner || isAdmin) && (
-          <div className="mb-4">
-            <div className="mb-4"> <span className="font-medium">Panelists:
+          <div className="panelist-list-container">
+            <div className="panelist-label"> <span>Panelists:
               {convention.panelists.length < 1 ? ' Stay Tune!' : ''}</span></div>
-            <div className="mt-2 flex gap-2 flex-wrap">
+            <div className="panelist-list">
               {convention?.panelists?.map((p: any) => {
                 const userId = typeof p._id === 'object' && p._id?.$oid
                   ? p._id.$oid
@@ -177,7 +176,7 @@ const ConventionDetailPage: React.FC = () => {
 
                 return (
                   <Link to={`/user/${userId}`} key={userId}>
-                    <Badge className="flex items-center gap-2 cursor-pointer hover:bg-blue-100">
+                    <Badge >
                       {p.username}
                     </Badge>
                   </Link>
@@ -194,10 +193,10 @@ const ConventionDetailPage: React.FC = () => {
       {(isOwner || isAdmin) ? (
         <ManageConventionPanel convention={convention} refresh={fetchConvention} />
       ) : (
-        <div className="mt-6">
+        <div className="attendance-action">
           {isAttending ? (
             <button
-              className="px-4 py-2 bg-gray-600 text-white rounded"
+              className="btn-cancel"
               onClick={async () => {
                 const confirmLeave = window.confirm('Are you sure you want to cancel attending this convention?');
                 if (!confirmLeave || !user) return;
@@ -218,10 +217,10 @@ const ConventionDetailPage: React.FC = () => {
           ) : (
             <div>
               {hasUser(convention.attendeeApplications, user?._id || '') ? (
-                <div className="flex items-center">
-                  <span className="text-green-600 mr-3">Applied for attendance</span>
+                <div className="application-status">
+                  <span className="application-status-label">Applied for attendance</span>
                   <button
-                    className="px-3 py-1 bg-red-600 text-white text-sm rounded"
+                    className="btn-red"
                     onClick={handleCancelApplication}
                   >
                     Cancel Application
@@ -230,7 +229,7 @@ const ConventionDetailPage: React.FC = () => {
               ) : (
                 <div>
                   {!isEnded && <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                    className="btn-apply"
                     onClick={handleApply}
                   >
                     Apply to Attend

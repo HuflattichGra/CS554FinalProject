@@ -1,0 +1,138 @@
+.convention-detail-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 16px;
+  }
+  
+  .convention-banner {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .convention-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  .convention-dates {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  .convention-location {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+  
+  .convention-description {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+  }
+  
+  .convention-tags {
+    margin-bottom: 16px;
+  }
+  
+  .tags-label {
+    font-weight: 500;
+    margin-right: 6px;
+  }
+  
+  .tag-badge {
+    display: inline-block;
+    background-color: #e5e7eb;
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-right: 8px;
+    margin-top: 4px;
+  }
+  
+  .exclusive-panelist-section {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 24px;
+  }
+  
+  .panelist-list-container {
+    margin-top: 8px;
+    justify-content: center; 
+  }
+  
+  .panelist-label {
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  
+  .panelist-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+    justify-content: center; 
+  }
+  
+  .panelist-badge-link {
+    text-decoration: none;
+  }
+  
+  .panelist-badge {
+    background-color: #e0ecff;
+    color: #003366;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .panelist-badge:hover {
+    background-color: #c9e0ff;
+  }
+  
+  .attendance-action {
+    margin-top: 24px;
+  }
+  
+  .btn-cancel,
+  .btn-apply,
+  .btn-red {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .btn-cancel {
+    background-color: #555;
+  }
+  
+  .btn-apply {
+    background-color: #0077cc;
+  }
+  
+  .btn-red {
+    background-color: #cc3333;
+    margin-left: 8px;
+  }
+  
+  .application-status {
+    display: flex;
+    align-items: center;
+  }
+  
+  .application-status-label {
+    color: green;
+    margin-right: 12px;
+  }
+  

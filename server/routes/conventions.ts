@@ -638,14 +638,7 @@ router.get('/:id/attendees', async (req: Request, res: Response) => {
 //       return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
 //   }
 // });
-router.get('/user/:userId/bookmarked', async (req: Request, res: Response) => {
-  try {
-    const data = await conventionFunctions.getUserBookmarkedConventions(req.params.userId);
-    return res.status(200).json(data);
-  } catch (e) {
-    return res.status(400).json({ error: e.toString() });
-  }
-});
+ 
 router.get('/user/:userId/recommended', async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
