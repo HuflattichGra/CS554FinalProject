@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { posts, users } from "../config/mongoCollections";
+import { posts, users, conventions } from "../config/mongoCollections";
 import comments from "./comments";
 // @ts-ignore
 import * as typecheck from "../typechecker.js";
@@ -72,6 +72,22 @@ async function addPost(obj: any) {
   }
   obj = checkPost(obj, false, true);
 
+  // Check if user exists
+  const userCollection = await users();
+  const user = await userCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
+  if (user === null) {
+    throw new Error("User does not exist");
+  }
+
+  // Check if convention exists if conventionID is provided
+  if (obj.conventionID) {
+    const conventionCollection = await conventions();
+    const convention = await conventionCollection.findOne({ _id: ObjectId.createFromHexString(obj.conventionID) });
+    if (convention === null) {
+      throw new Error("Convention does not exist");
+    }
+  }
+
   obj.userID = ObjectId.createFromHexString(obj.userID);
   if (obj.conventionID) {
     obj.conventionID = ObjectId.createFromHexString(obj.conventionID);
@@ -124,6 +140,22 @@ async function updatePost(id: string, obj: any) {
   typecheck.checkId(id);
   checkPost(obj, false, false);
   delete obj._id;
+
+  // Check if user exists
+  const userCollection = await users();
+  const user = await userCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
+  if (user === null) {
+    throw new Error("User does not exist");
+  }
+
+  // Check if convention exists if conventionID is provided
+  if (obj.conventionID) {
+    const conventionCollection = await conventions();
+    const convention = await conventionCollection.findOne({ _id: ObjectId.createFromHexString(obj.conventionID) });
+    if (convention === null) {
+      throw new Error("Convention does not exist");
+    }
+  }
 
   obj.userID = ObjectId.createFromHexString(obj.userID);
   if (obj.conventionID) {
