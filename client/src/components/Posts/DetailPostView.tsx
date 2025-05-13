@@ -4,11 +4,11 @@ import axios from 'axios';
 
 import userContext from "../../context/userContext";
 import PostView from '../Posts/PostView';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { API_BASE } from '../../api';
-import { Heart } from 'lucide-react';
 import styles from "./PostView.module.css";
 import CommentModal from './CommentModal';
+import { Heart, User } from "lucide-react";
 
 interface Post {
     _id: string;
@@ -28,6 +28,7 @@ const DetailPostView: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [post, setPost] = useState<Post>();
     const [comments, setComments] = useState<any>([]);
+    const [commenters, setCommenters] = useState<any>([]);
     const [showModal, setShowModal] = useState(false);
     let id = useParams().id;
 
@@ -42,6 +43,16 @@ const DetailPostView: React.FC = () => {
                 var commentFetch = await axios.get(`${API_BASE}/comments/posts/${id}`);
 
                 setComments(commentFetch.data);
+
+
+                var commenters: any[] = [];
+                for (let i = 0; i < commentFetch.data.length; i++) {
+                    var userfetch = await axios.get(`${API_BASE}/user/${commentFetch.data[i].userID}`);
+
+                    commenters = [...commenters, userfetch.data];
+                }
+
+                setCommenters(commenters);
             }
 
             setLoading(false);
@@ -57,6 +68,22 @@ const DetailPostView: React.FC = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    const getCommenter = ((comment: any) => {
+        var commenter = null;
+        for (let i = 0; i < commenters.length; i++) {
+            if (commenters[i]._id == comment.userID) {
+                commenter = commenters[i];
+            }
+        }
+
+        return <Link to={`/user/${comment.userID}`}>
+            <div className={styles.userInfo}>
+                <User size={18} className={styles.userIcon} />
+                <p>{commenter.username}</p>
+            </div>
+        </Link>
+    });
 
     if (loading) {
         return (<div>Loading...</div>);
@@ -79,6 +106,9 @@ const DetailPostView: React.FC = () => {
                         <div id="CommentGroup">
                             {comments.map((x: any) =>
                                 <div key={x._id} className={`Post ${styles.container}`}>
+                                    <div className={styles.topOfPost}>
+                                        {getCommenter(x)}
+                                    </div>
                                     <p>{x.text}</p>
                                     <div className={styles.flexContainer}>
                                         {user ?
@@ -157,7 +187,7 @@ const DetailPostView: React.FC = () => {
                     <p>Failed to load post</p>
                 }
 
-                <button
+                {user ? <button
                     onClick={() => setShowModal(true)}
                     style={{
                         padding: '8px 16px',
@@ -169,7 +199,7 @@ const DetailPostView: React.FC = () => {
                     }}
                 >
                     Make a Comment
-                </button>
+                </button> : <></>}
 
                 {showModal && (
                     <CommentModal
