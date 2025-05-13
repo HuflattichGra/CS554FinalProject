@@ -1,8 +1,7 @@
 import React from 'react';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import userContext from "../../context/userContext";
 import PostView from '../Posts/PostView';
 import PostModal from '../Posts/PostModal';
 import { API_BASE } from '../../api';
@@ -24,8 +23,6 @@ type SearchType = 'content' | 'convention' | 'poster' | null;
 const POSTS_PER_PAGE = 5;
 
 const PostList: React.FC = () => {
-    const { user } = useContext(userContext);
-    const [dataType, setDataType] = useState("posts");
     const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState<Post[]>([]);
     const [allPosts, setAllPosts] = useState<Post[]>([]);
@@ -96,18 +93,16 @@ const PostList: React.FC = () => {
         setPosts(postsForPage);
         setHasMore(endIndex < filteredPosts.length);
     };
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const query = e.target.value;
-        setSearchQuery(query);
+    
+    const handleSearch = () => {
         setPage(1);
-        filterAndSetPosts(allPosts, query, searchType, 1);
+        filterAndSetPosts(allPosts, searchQuery, searchType, 1);
     };
-
-    const handleSearchTypeChange = (type: SearchType) => {
-        setSearchType(type);
+    const handleSearchTypeChange = (type: SearchType | string) => {
+        const selectedType = type === '' ? null : type as SearchType;
+        setSearchType(selectedType);
         setPage(1);
-        filterAndSetPosts(allPosts, searchQuery, type, 1);
+        filterAndSetPosts(allPosts, searchQuery, selectedType, 1);
     };
 
     const loadMore = () => {
@@ -126,72 +121,74 @@ const PostList: React.FC = () => {
 
     return (
         <>
-            <div className="mb-4">
-                <div className="flex flex-col gap-4">
-                    <div className="flex justify-end">
+        <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <button 
                             onClick={() => setShowModal(true)}
-                            className="px-4 py-2 bg-black text-white rounded"
+                            style={{ 
+                                padding: '8px 16px', 
+                                backgroundColor: 'black', 
+                                color: 'white', 
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
                         >
                             Make a Post
                         </button>
-                    </div>
-                    <br />
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => handleSearchTypeChange('poster')}
-                            className={`px-4 py-2 rounded transition ${
-                                searchType === 'poster'
-                                    ? 'bg-blue-600 text-white font-semibold'
-                                    : 'bg-gray-200 hover:bg-gray-300'
-                            }`}
-                        >
-                            Search by Poster
-                        </button>
-                        <button
-                            onClick={() => handleSearchTypeChange('content')}
-                            className={`px-4 py-2 rounded transition ${
-                                searchType === 'content'
-                                    ? 'bg-blue-600 text-white font-semibold'
-                                    : 'bg-gray-200 hover:bg-gray-300'
-                            }`}
-                        >
-                            Search by Content
-                        </button>
-                        <button
-                            onClick={() => handleSearchTypeChange('convention')}
-                            className={`px-4 py-2 rounded transition ${
-                                searchType === 'convention'
-                                    ? 'bg-blue-600 text-white font-semibold'
-                                    : 'bg-gray-200 hover:bg-gray-300'
-                            }`}
-                        >
-                            Search by Convention
-                        </button>
-                    </div>
-                    <div className="flex gap-4">
-                        <input
-                            type="text"
-                            placeholder={searchType ? `Search by ${searchType}...` : "Select a search type..."}
-                            value={searchQuery}
-                            onChange={handleSearch}
-                            disabled={!searchType}
-                            className="flex-1 px-6 py-3 text-lg border"
-                        />
-                        {/* <button
-                            onClick={() => filterAndSetPosts(allPosts, searchQuery, searchType, 1)}
-                            disabled={!searchType}
-                            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        >
-                            Search
-                        </button> */}
+                        
+                        <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
+                            <input
+                                type="text"
+                                placeholder={searchType ? `Search by ${searchType}...` : "Search..."}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ 
+                                    flex: 1, 
+                                    padding: '8px 16px', 
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    fontSize: '14px'
+                                }}
+                            />
+                            
+                            <select 
+                                value={searchType || ''}
+                                onChange={(e) => handleSearchTypeChange(e.target.value as SearchType)}
+                                style={{ 
+                                    padding: '8px 12px', 
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    backgroundColor: 'white'
+                                }}
+                            >
+                                <option value="" disabled>Select search type</option>
+                                <option value="poster">By Poster</option>
+                                <option value="content">By Content</option>
+                                <option value="convention">By Convention</option>
+                            </select>
+                            
+                            <button
+                                onClick={handleSearch}
+                                style={{ 
+                                    padding: '8px 16px', 
+                                    backgroundColor: 'black', 
+                                    color: 'white', 
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Search
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             <br />
-
             {posts.length === 0 ? (
-                <div className="text-center text-gray-500 mt-4">
+                <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '16px' }}>
                     {searchQuery && searchType ? 'No posts found matching your search.' : 'No posts available.'}
                 </div>
             ) : (
@@ -209,10 +206,17 @@ const PostList: React.FC = () => {
                     ))}
 
                     {hasMore && (
-                        <div className="flex justify-center mt-4 mb-4">
+                        <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
                             <button
                                 onClick={loadMore}
-                                className="px-4 py-2 bg-black text-white rounded"
+                                style={{ 
+                                    padding: '8px 16px', 
+                                    backgroundColor: 'black', 
+                                    color: 'white', 
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
                             >
                                 Load More
                             </button>
