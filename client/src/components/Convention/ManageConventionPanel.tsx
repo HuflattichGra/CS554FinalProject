@@ -25,6 +25,7 @@ import { Label } from '../ui/label';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Link } from 'react-router-dom';
+import '../ui/conventionManage.css'
 const ManageConventionPanel = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -143,18 +144,18 @@ const ManageConventionPanel = () => {
         if (id) fetchData();
     }, [id]);
     return (
-        <div className="grid grid-cols-4 gap-4">
-            <div className="col-span-3 space-y-4">
+        <div className="manage-convention-container">
+            <div className="left-panel">
                 {/* Convention Basic Info */}
-                <Card className="p-4">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold">Convention Details</h2>
+                <Card className="section-card">
+                    <div className="section-header">
+                        <h2 className="section-title">Convention Details</h2>
                         <Button onClick={() => setEditMode(!editMode)}>
                             {editMode ? 'Cancel' : 'Edit'}
                         </Button>
                     </div>
                     {editMode ? (
-                        <div className="space-y-2">
+                        <div className="edit-form">
                             <div>
                                 <Label>Name</Label>
                                 <Input
@@ -173,7 +174,7 @@ const ManageConventionPanel = () => {
                             </div>
                             <div>
                                 <Label>Start Date - End Date</Label>
-                                <div className="flex gap-2">
+                                <div className="date-range">
                                     <DatePicker
                                         selected={form.startDate ? new Date(form.startDate) : null}
                                         onChange={(date) => setForm({ ...form, startDate: date })}
@@ -181,7 +182,6 @@ const ManageConventionPanel = () => {
                                         timeIntervals={15}
                                         dateFormat="yyyy-MM-dd HH:mm"
                                         placeholderText="Start Date"
-                                        className="w-full p-2 border rounded"
                                     />
                                     <DatePicker
                                         selected={form.endDate ? new Date(form.endDate) : null}
@@ -190,14 +190,13 @@ const ManageConventionPanel = () => {
                                         timeIntervals={15}
                                         dateFormat="yyyy-MM-dd HH:mm"
                                         placeholderText="End Date"
-                                        className="w-full p-2 border rounded"
                                     />
                                 </div>
 
                             </div>
                             <div>
                                 <Label>Is the convention online?</Label>
-                                <div className="flex gap-4">
+                                <div className="radio-group">
                                     <label>
                                         <input
                                             type="radio"
@@ -234,11 +233,11 @@ const ManageConventionPanel = () => {
                                     onKeyDown={handleAddTag}
                                     placeholder="Add tag, press Enter"
                                 />
-                                <div className="mt-1 flex flex-wrap gap-2">
+                                <div className="tag-list">
                                     {(form.tags || []).map((tag: string, idx: number) => (
                                         <span
                                             key={idx}
-                                            className="inline-flex items-center gap-1 bg-gray-200 px-2 py-1 rounded-full text-sm"
+                                            className="tag-item"
                                         >
                                             #{tag}
                                             <button
@@ -248,7 +247,7 @@ const ManageConventionPanel = () => {
                                                         tags: form.tags.filter((_: string, i: number) => i !== idx)
                                                     });
                                                 }}
-                                                className="text-gray-600 hover:text-red-500"
+                                                className="tag-remove"
                                                 aria-label={`Remove tag ${tag}`}
                                             >
                                                 &times;
@@ -259,7 +258,7 @@ const ManageConventionPanel = () => {
                             </div>
                             <div>
                                 <Label>Exclusive</Label>
-                                <div className="flex gap-4">
+                                <div className="radio-group">
                                     <label>
                                         <input
                                             type="radio"
@@ -289,9 +288,9 @@ const ManageConventionPanel = () => {
                 </Card>
 
                 {/* Panelists */}
-                <Card className="p-4">
-                    <h3 className="text-lg font-semibold">Manage Panelists</h3>
-                    <div className="flex gap-2 mt-2">
+                <Card className="section-card">
+                    <h3 className="section-subtitle">Manage Panelists</h3>
+                    <div className="input-row">
                         <Input
                             value={panelistUsername}
                             onChange={(e) => setPanelistUsername(e.target.value)}
@@ -299,15 +298,15 @@ const ManageConventionPanel = () => {
                         />
                         <Button onClick={handleAddPanelist}>Add Panelist</Button>
                     </div>
-                    <div className="mt-2 flex gap-2 flex-wrap">
+                    <div className="user-badge-list">
                         {convention?.panelists?.map((p: any) => {
                             const userId = typeof p._id === 'object' && p._id?.$oid
                                 ? p._id.$oid
                                 : p._id?.toString?.() ?? '';
 
                             return (
-                                <Badge key={userId} className="flex items-center gap-2">
-                                    <Link to={`/user/${userId}`} className="hover:underline text-blue-600">
+                                <Badge key={userId} >
+                                    <Link to={`/user/${userId}`}  >
                                         {p.username}
                                     </Link>
                                     <Button
@@ -326,9 +325,9 @@ const ManageConventionPanel = () => {
                 </Card>
 
                 {/* Attendees */}
-                <Card className="p-4">
-                    <h3 className="text-lg font-semibold">Manage Attendees</h3>
-                    <div className="flex gap-2 mt-2">
+                <Card>
+                    <h3 className="section-subtitle">Manage Attendees</h3>
+                    <div className="input-row">
                         <Input
                             value={attendeeUsername}
                             onChange={(e) => setAttendeeUsername(e.target.value)}
@@ -336,15 +335,15 @@ const ManageConventionPanel = () => {
                         />
                         <Button onClick={handleAddAttendee}>Add Attendee</Button>
                     </div>
-                    <div className="mt-2 flex gap-2 flex-wrap">
+                    <div className="user-badge-list">
                         {attendees.map((a) => {
                             const userId = typeof a._id === 'object' && a._id?.$oid
                                 ? a._id.$oid
                                 : a._id?.toString?.() ?? '';
 
                             return (
-                                <Badge key={userId} className="flex items-center gap-2">
-                                    <Link to={`/user/${userId}`} className="hover:underline text-blue-600">
+                                <Badge key={userId} >
+                                    <Link to={`/user/${userId}`}  >
                                         {a.username}
                                     </Link>
                                     <Button
