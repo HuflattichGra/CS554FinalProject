@@ -19,3 +19,13 @@
     transition: 0.3s;
     margin-top: 6px;
 }
+
+.balance-display {
+    background-color: #f0f4f8;
+    padding: 10px 15px;
+    border-radius: 4px;
+    color: #333;
+    display: inline-block;
+    margin: 10px 0;
+    font-weight: bold;
+}

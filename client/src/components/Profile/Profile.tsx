@@ -23,7 +23,8 @@ interface user {
     likes: string[],
     conventionsFollowing: string[],
     following: string[],
-    followers: string[]
+    followers: string[],
+    balance?: number
 }
 
 interface Post {
@@ -157,11 +158,13 @@ const Profile: React.FC = () => {
     else {
         return(
             <div>
-                <h1>{profile?.username}</h1>
-                <h3>{profile?.firstname} {profile?.lastname}</h3>
-                <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
+                <h1>{profile?.username}</h1>                <h3>{profile?.firstname} {profile?.lastname}</h3>                <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
                 <p>Following: {profile?.following.length}</p>
                 <p>Followers: {profile?.followers.length}</p>
+                <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p>
+                {user?._id === profile._id && 
+                    <a href="/add-funds" className="add-funds-button">Add Funds</a>
+                }
                 {user?._id !== profile._id && user !== null ? 
                 (user?.following.includes(profile._id) ? <button onClick={onFollow}>Unfollow</button> : <button onClick={onFollow}>Follow</button>) 
                 :  null}

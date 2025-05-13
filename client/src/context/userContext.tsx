@@ -8,6 +8,7 @@ export interface User {
   lastname: string;
   following: string[];
   followers: string[];
+  balance: number;
 }
 
 interface userContextType {

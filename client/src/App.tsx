@@ -14,6 +14,7 @@ import ConventionsPage from "./pages/ConventionsPage";
 import ConventionDetailPage from "./pages/ConventionDetailPage";
 import Profile from './components/Profile/Profile';
 import DetailPostView from "./components/Posts/DetailPostView";
+import AddFundsPage from "./components/Payment/AddFundsPage";
 import { API_BASE } from './api';
 
 function App() {
@@ -58,7 +59,8 @@ function App() {
                 <Route path="/posts/:id" element={<DetailPostView />} />
                 <Route path="/conventions" element={<ConventionsPage />} />
                 <Route path="/conventions/:id" element={<ConventionDetailPage />} />
-                <Route path="/user/:id" element={< Profile/>} />
+                <Route path="/user/:id" element={<Profile/>} />
+                <Route path="/add-funds" element={<AddFundsPage />} />
             </Routes>
         </div>
       </userContext.Provider>
