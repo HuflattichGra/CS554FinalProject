@@ -26,6 +26,7 @@ const PostView: React.FC<Post> = (props: any) => {
     const [bookmarked, setBookmarked] = useState(false);
     const [liked, setLiked] = useState(false);
     const [postImages, setPostImages] = useState<string[]>([]);
+    const [convention, setConvention] = useState<any>(null);
     const { user } = React.useContext(userContext);
     useEffect(() => {
         async function fetchData() {
@@ -41,6 +42,19 @@ const PostView: React.FC<Post> = (props: any) => {
                 }
                 
                 setPoster(userData.data);
+                
+                // Fetch convention data if conventionID exists
+                if (props.conventionID) {
+                    try {
+                        const conventionData = await axios.get(
+                            `${API_BASE}/conventions/${props.conventionID}`
+                        );
+                        setConvention(conventionData.data);
+                    } catch (err) {
+                        console.log("Error fetching convention data:", err);
+                    }
+                }
+                
                 setLoading(false);
                 
                 // Check if user is logged in
@@ -58,9 +72,10 @@ const PostView: React.FC<Post> = (props: any) => {
                 console.log(e)
                 setPoster("Not Found");
                 setLoading(false);
-            }        }
+            }        
+        }
         fetchData();
-    }, [props.userID, user, post.likes, props._id, props.images]);
+    }, [props.userID, user, post.likes, props._id, props.images, props.conventionID]);
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
         if (post.likes.includes(user?._id)) {
@@ -168,7 +183,8 @@ const PostView: React.FC<Post> = (props: any) => {
     } else if (poster === "Not Found") {
         return <p>Error: 404 Not Found</p>;
     } else {
-        return (            <div className={`Post ${styles.container}`}>
+        return (
+            <div className={`Post ${styles.container}`}>
                 <div className={styles.topOfPost}>
                     <Link to={`/user/${post.userID}`}>
                         <div className={styles.userInfo}>
@@ -176,6 +192,11 @@ const PostView: React.FC<Post> = (props: any) => {
                             <p>{poster.username}</p>
                         </div>
                     </Link>
+                    {convention && (
+                        <Link to={`/conventions/${post.conventionID}`} className={styles.conventionLink}>
+                            <p>#{convention.name}</p>
+                        </Link>
+                    )}
                     <form id="bookmark" onSubmit={onSubmitBookmark}>
                         <button onClick={onSubmitBookmark} className={styles.actionButton}>
                             {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} />}
