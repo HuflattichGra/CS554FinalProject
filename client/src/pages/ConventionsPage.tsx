@@ -12,7 +12,9 @@ import userContext from '../context/userContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../components/ui/conventionPage.css'
 import { Button } from '../components/ui/button.tsx';
-const TABS = ['Created', 'Attending', 'Following', 'Picked for you'];
+import { Input } from '../components/ui/input.tsx';
+
+const TABS = ['Created', 'Attending', 'Following', 'Picked for you', 'Search'];
 
 const ConventionsPage: React.FC = () => {
   const { user } = useContext(userContext);
@@ -24,9 +26,31 @@ const ConventionsPage: React.FC = () => {
   });
 
   const [showModal, setShowModal] = useState(false);
-  const [conventions, setConventions] = useState([]);
+  const [conventions, setConventions] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchText, setSearchText] = useState('');
+  const [allConventions, setAllConventions] = useState<any[]>([]);
+
+  // Effect to handle search text changes
+  useEffect(() => {
+    if (tab === 'Search' && user && allConventions.length > 0) {
+      const pageSize = 10;
+      
+      // Filter the already fetched conventions based on search text
+      const filtered = searchText.trim()
+        ? allConventions.filter((c: any) =>
+            c.name.toLowerCase().includes(searchText.toLowerCase())
+          )
+        : allConventions;
+
+      const startIdx = (page - 1) * pageSize;
+      const endIdx = startIdx + pageSize;
+      
+      setConventions(filtered.slice(startIdx, endIdx));
+      setTotalPages(Math.max(1, Math.ceil(filtered.length / pageSize)));
+    }
+  }, [searchText, page, tab, allConventions, user]);
 
   const fetchConventions = async () => {
     if (!user) return;
@@ -75,7 +99,30 @@ const ConventionsPage: React.FC = () => {
         totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
       }
       
-
+      else if (tab === 'Search') {
+        const res = await getAllConventions(1, 9999);
+        setAllConventions(res.conventions || []);
+        
+        // If search text already exists, filter immediately
+        if (searchText.trim()) {
+          const filtered = res.conventions.filter((c: any) =>
+            c.name.toLowerCase().includes(searchText.toLowerCase())
+          );
+          
+          const startIdx = (page - 1) * pageSize;
+          const endIdx = startIdx + pageSize;
+          
+          conventions = filtered.slice(startIdx, endIdx);
+          totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        } else {
+          // No search text, show all conventions with pagination
+          const startIdx = (page - 1) * pageSize;
+          const endIdx = startIdx + pageSize;
+          
+          conventions = res.conventions.slice(startIdx, endIdx);
+          totalPages = Math.max(1, Math.ceil(res.conventions.length / pageSize));
+        }
+      }
 
       else if (tab === 'Following') {
         const res = await getUserFollowingConventions(user._id, page, pageSize);
@@ -142,16 +189,34 @@ const ConventionsPage: React.FC = () => {
           + Create Convention
         </Button>
       </div>
-
+      
       <UserConventionsTabs
         activeTab={tab}
         onTabChange={(t) => {
           setTab(t);
           setPage(1);
           sessionStorage.setItem('conventionTab', t);
+          // Reset search text when changing tabs
+          if (t !== 'Search') {
+            setSearchText('');
+          }
         }}
       />
-
+      
+      {tab === 'Search' && (
+        <div className="search-container" style={{ margin: '16px 0', width: '100%', maxWidth: '400px' }}>
+          <Input
+            type="text"
+            placeholder="Search conventions by name..."
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setPage(1);
+            }}
+            style={{ width: '100%' }}
+          />
+        </div>
+      )}
 
       <div className="conventions-grid">
         {conventions.length === 0 ? (
@@ -175,16 +240,13 @@ const ConventionsPage: React.FC = () => {
               currentTab={tab}
               isOnline={con.isOnline}
             />
-
           ))
         )}
       </div>
 
-      {['Created', 'Attending', 'Picked for you', 'Following'].includes(tab) && (
+      {['Created', 'Attending', 'Picked for you', 'Following', 'Search'].includes(tab) && (
         <Pagination current={page} total={totalPages} onPageChange={setPage} />
       )}
-
-
 
       {showModal && (
         <CreateConventionModal
@@ -193,7 +255,6 @@ const ConventionsPage: React.FC = () => {
           onSuccess={fetchConventions}
         />
       )}
-
     </div>
   );
 };
