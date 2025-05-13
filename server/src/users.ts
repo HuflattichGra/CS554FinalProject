@@ -552,6 +552,11 @@ export const updateUser = async (id: string, user: updateUser) => {
 
     let conId = ObjectId.createFromHexString(user.conventionsFollowing);
 
+    // Check if the convention exists
+    let conventionCollection = await conventions();
+    const convention = await conventionCollection.findOne({ _id: conId });
+    if (convention === null) throw "Convention to follow does not exist";
+
     let consFollowingStr = newUser.conventionsFollowing.map((id) =>
       id.toString()
     );
