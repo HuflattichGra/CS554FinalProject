@@ -50,7 +50,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://server:3000
-      - DOCKER=true
+      - VITE_DOCKER=true
     depends_on:
       - server
     networks:
