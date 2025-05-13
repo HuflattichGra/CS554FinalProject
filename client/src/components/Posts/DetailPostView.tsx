@@ -146,11 +146,10 @@ const DetailPostView: React.FC = () => {
                                                     }
                                                 }}>
                                                 {x.likes.includes(user?._id) ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} />}
-                                            </button> : <Heart size={20} />}
+                                            </button> : <Heart color="#383a61" size={20} />}
                                         <p className='likeCount'>{x.likes.length}</p>
                                     </div>
                                 </div>
-
                             )}
                         </div>
                     </div>

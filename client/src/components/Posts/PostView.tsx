@@ -224,7 +224,7 @@ const PostView: React.FC<Post> = (props: any) => {
                         </button>
                         <button className={styles.likeCount}>{post.likes?.length || 0}</button>
                     </div>
-                ) : null}
+                ) :  <div className={styles.flexContainer}><Heart color="#383a61" size={20}></Heart> <button className={styles.likeCount}>{post.likes?.length || 0}</button> </div>}
             </div>
         );
     }
