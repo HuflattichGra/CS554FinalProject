@@ -41,10 +41,10 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
   const { user } = useContext(userContext);
   const [isFollowing, setIsFollowing] = useState<boolean | undefined>(undefined);
 
-const isNotOnline = !isOnline
+  const isNotOnline = !isOnline
   // const con = { _id, name, tags, startDate, endDate, address, imageUrl, countdownDays, productCount, groupCount };
   const isEnded = new Date(endDate) < new Date();
-  const isAdmin = Array.isArray(owners) && owners.includes(user._id);
+  const isAdmin = user ? Array.isArray(owners) && owners.includes(user._id) : false;
   const cantFollow = isAdmin || isEnded
 
   const isClickable = isAdmin || !isEnded;
@@ -107,7 +107,7 @@ const isNotOnline = !isOnline
       <div className="convention-card-content">
         <div>
           <h2 className="convention-card-title">{name}</h2>
-          {!cantFollow && (
+          {user && !cantFollow ? (
             <Button
               className="btn"
               onClick={handleToggleFollow}
@@ -119,7 +119,9 @@ const isNotOnline = !isOnline
                   ? 'Unfollow'
                   : 'Follow'}
             </Button>
-          )}
+          )
+        : 
+        <></>}
 
 
           <div className="convention-card-detail">

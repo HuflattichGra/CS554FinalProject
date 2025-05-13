@@ -1,9 +1,10 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState,useContext } from 'react';
 import axios from 'axios';
 
 import PostView from '../Posts/PostView';
 import PostModal from '../Posts/PostModal';
+import userContext from "../../context/userContext";
 import { API_BASE } from '../../api';
 
 interface Post {
@@ -31,6 +32,7 @@ const PostList: React.FC = () => {
     const [hasMore, setHasMore] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchType, setSearchType] = useState<SearchType>('poster');
+    const { user } = React.useContext(userContext);
 
     const fetchData = async (pageNum: number = 1) => {
         try {
@@ -120,7 +122,7 @@ const PostList: React.FC = () => {
     }
 
     return (
-        <>
+        <>{user?
         <div style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -185,7 +187,7 @@ const PostList: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> : <></>}
             <br />
             {posts.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '16px' }}>

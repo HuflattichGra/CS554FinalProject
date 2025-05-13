@@ -30,30 +30,34 @@ const ConventionsPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState(false);
   const [allConventions, setAllConventions] = useState<any[]>([]);
 
   // Effect to handle search text changes
   useEffect(() => {
-    if (tab === 'Search' && user && allConventions.length > 0) {
+    setLoading(true);
+    console.log(allConventions.length);
+    if (!user) { setTab('Search'); }
+    if (tab === 'Search' && allConventions.length > 0) {
       const pageSize = 10;
-      
+
       // Filter the already fetched conventions based on search text
       const filtered = searchText.trim()
         ? allConventions.filter((c: any) =>
-            c.name.toLowerCase().includes(searchText.toLowerCase())
-          )
+          c.name.toLowerCase().includes(searchText.toLowerCase())
+        )
         : allConventions;
 
       const startIdx = (page - 1) * pageSize;
       const endIdx = startIdx + pageSize;
-      
+
       setConventions(filtered.slice(startIdx, endIdx));
       setTotalPages(Math.max(1, Math.ceil(filtered.length / pageSize)));
     }
+    setLoading(false);
   }, [searchText, page, tab, allConventions, user]);
 
   const fetchConventions = async () => {
-    if (!user) return;
     const pageSize = 10;
 
     try {
@@ -61,6 +65,7 @@ const ConventionsPage: React.FC = () => {
       let totalPages = 1;
 
       if (tab === 'Created') {
+        if (!user) return;
         const res = await getAllConventions(1, 9999);
         const filtered = res.conventions.filter((c: any) =>
           c.owners.includes(user._id)
@@ -73,6 +78,7 @@ const ConventionsPage: React.FC = () => {
       }
 
       else if (tab === 'Attending') {
+        if (!user) return;
         const res = await getAllConventions(1, 9999);
         const filtered = res.conventions.filter((c: any) =>
           c.attendees.includes(user._id)
@@ -85,46 +91,48 @@ const ConventionsPage: React.FC = () => {
       }
 
       else if (tab === 'Picked for you') {
-        const res = await getRecommendedConventions(user._id, 1, 9999);  
+        if (!user) return;
+        const res = await getRecommendedConventions(user._id, 1, 9999);
         const now = new Date();
-      
+
         const filtered = (res.conventions || []).filter((c: any) =>
           new Date(c.endDate) >= now && !c.owners.includes(user._id)
         );
-      
+
         const startIdx = (page - 1) * pageSize;
         const endIdx = startIdx + pageSize;
-      
+
         conventions = filtered.slice(startIdx, endIdx);
         totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
       }
-      
+
       else if (tab === 'Search') {
         const res = await getAllConventions(1, 9999);
         setAllConventions(res.conventions || []);
-        
+
         // If search text already exists, filter immediately
         if (searchText.trim()) {
           const filtered = res.conventions.filter((c: any) =>
             c.name.toLowerCase().includes(searchText.toLowerCase())
           );
-          
+
           const startIdx = (page - 1) * pageSize;
           const endIdx = startIdx + pageSize;
-          
+
           conventions = filtered.slice(startIdx, endIdx);
           totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
         } else {
           // No search text, show all conventions with pagination
           const startIdx = (page - 1) * pageSize;
           const endIdx = startIdx + pageSize;
-          
+
           conventions = res.conventions.slice(startIdx, endIdx);
           totalPages = Math.max(1, Math.ceil(res.conventions.length / pageSize));
         }
       }
 
       else if (tab === 'Following') {
+        if (!user) return;
         const res = await getUserFollowingConventions(user._id, page, pageSize);
         conventions = res.conventions || [];
         totalPages = res.totalPages || 1;
@@ -164,9 +172,7 @@ const ConventionsPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (user) {
-      fetchConventions();
-    }
+    fetchConventions();
     const fromTab = location.state?.fromTab;
     if (fromTab && TABS.includes(fromTab)) {
       setTab(fromTab);
@@ -175,7 +181,7 @@ const ConventionsPage: React.FC = () => {
     window.scrollTo(0, 0);
   }, [user, tab, page, location]);
 
-  if (!user) {
+  if (loading) {
     return <div className="text-center mt-10 text-gray-500">Loading user session...</div>;
   }
 
@@ -183,13 +189,15 @@ const ConventionsPage: React.FC = () => {
     <div className="conventions-page">
       <div className="conventions-header">
         <h1 className="conventions-title">My Conventions</h1>
-        <Button
-          onClick={() => setShowModal(true)}
-        >
-          + Create Convention
-        </Button>
+        {user ?
+          <Button
+            onClick={() => setShowModal(true)}
+          >
+            + Create Convention
+          </Button> : <></>
+        }
       </div>
-      
+
       <UserConventionsTabs
         activeTab={tab}
         onTabChange={(t) => {
@@ -202,7 +210,7 @@ const ConventionsPage: React.FC = () => {
           }
         }}
       />
-      
+
       {tab === 'Search' && (
         <div className="search-container" style={{ margin: '16px 0', width: '100%', maxWidth: '400px' }}>
           <Input
