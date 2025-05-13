@@ -111,6 +111,7 @@ const ConventionsPage: React.FC = () => {
         onDeleted={fetchConventions}
         isClickable={isClickable}
         currentTab={tab}
+        isOnline={con.isOnline}
       />
     );
   });
@@ -172,6 +173,7 @@ const ConventionsPage: React.FC = () => {
               onDeleted={fetchConventions}
               owners={con.owners}
               currentTab={tab}
+              isOnline={con.isOnline}
             />
 
           ))
