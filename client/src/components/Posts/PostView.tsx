@@ -34,11 +34,11 @@ const PostView: React.FC<Post> = (props: any) => {
                     `${API_BASE}/user/${props.userID}`
                 );
 
-                let images : any = [];
+                // let images : any = [];
 
-                for(let x:number=0;x<props.images.length;x++){
-                    images.push(await axios.get(`${API_BASE}/image/download/${props.images[0]}`));
-                }
+                // for(let x:number=0;x<props.images.length;x++){
+                //     images.push(await axios.get(`${API_BASE}/image/download/${props.images[0]}`));
+                // }
                 
                 setPoster(JSON.parse(userData.data));
                 setLoading(false);
