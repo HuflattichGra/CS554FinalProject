@@ -53,7 +53,7 @@ const EditModal: React.FC<EditModalProps> = ({
     onUserEdited,
     editUser
 }) => {
-    const { user, setUser } = useContext(userContext);
+    const { user } = useContext(userContext);
     const [username, setUsername] = useState(editUser.username);
     const [firstname, setFirstname] = useState(editUser.firstname);
     const [lastname, setLastname] = useState(editUser.lastname);
@@ -115,7 +115,7 @@ const EditModal: React.FC<EditModalProps> = ({
             onUserEdited(newUser.data); // Send Editted user to parent
         } catch (err: any) {
             onClose();
-            alert("Failed to post: " + err.message);
+            alert("Failed to Edit Profile: " + err.response?.data?.error || err.message);
         }
     };
 

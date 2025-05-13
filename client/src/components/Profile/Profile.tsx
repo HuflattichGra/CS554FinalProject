@@ -109,8 +109,9 @@ const Profile: React.FC = () => {
                     followers: [...profile.followers, user?._id]
                 }); 
             }
-        } catch (error) {
-            console.error("Error Following User:", error);
+        } catch (error: any) {
+            alert('Failed to Follow User: ' + error.response?.data?.error || error.message)
+            console.error("Failed to Follow User: ", error.response?.data?.error || error.message);
         }
     }
 
