@@ -6,6 +6,8 @@ export interface User {
   username: string;
   firstname: string;
   lastname: string;
+  bookmarks: string[];
+  likes: string[];
   following: string[];
   followers: string[];
   balance: number;

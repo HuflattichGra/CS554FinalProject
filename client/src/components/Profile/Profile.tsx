@@ -148,6 +148,13 @@ const Profile: React.FC = () => {
             setLoading(false)
         }
     }
+
+    const notifyParent = async () => {
+        if(id === user?._id){
+            fetchData();
+        }
+    }
+
     useEffect(()=>{
         fetchData()
     }, [])
@@ -181,36 +188,24 @@ const Profile: React.FC = () => {
                     {showPosts && (posts.length !== 0 ? posts.map((post: Post) => (
                         <PostView
                             key={post._id}
-                            _id={post._id}
-                            conventionID={post.conventionID}
-                            userID={post.userID}
-                            text={post.text}
-                            images={post.images}
-                            likes={post.likes}
-                        />)) : <p>User has not posted yet...</p>)
+                            props={post}
+                            notifyParent={notifyParent}
+                    />)) : <p>User has not posted yet...</p>)
                     }
 
                     {showLikes && (likes.length !== 0 ? likes.map((post: Post) => (
                         <PostView
                             key={post._id}
-                            _id={post._id}
-                            conventionID={post.conventionID}
-                            userID={post.userID}
-                            text={post.text}
-                            images={post.images}
-                            likes={post.likes}
+                            props={post}
+                            notifyParent={notifyParent}
                         />)) : <p>User has not liked anything yet...</p>)
                     }
 
                     {showBookmarks && (bookmarks.length !== 0 ? bookmarks.map((post: Post) => (
                         <PostView
                             key={post._id}
-                            _id={post._id}
-                            conventionID={post.conventionID}
-                            userID={post.userID}
-                            text={post.text}
-                            images={post.images}
-                            likes={post.likes}
+                            props={post}
+                            notifyParent={notifyParent}
                         />)) : <p>User has not bookmarked anything yet...</p>)
                     }
                 </div>

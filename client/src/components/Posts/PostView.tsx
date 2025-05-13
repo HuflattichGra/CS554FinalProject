@@ -17,9 +17,15 @@ interface Post {
     likes: Array<string>;
 }
 
+interface PostViewProps {
+    props: Post;
+    notifyParent?: () => void;
+}
+
+
 //Reusable component for anytime a post needs to be displayed on a page
 //Props should accept an object with the following fields
-const PostView: React.FC<Post> = (props: any) => {
+const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => {
     const [post, setPost] = useState(props);
     const [loading, setLoading] = useState(true);
     const [poster, setPoster] = useState<any>(undefined);
@@ -27,7 +33,7 @@ const PostView: React.FC<Post> = (props: any) => {
     const [liked, setLiked] = useState(false);
     const [postImages, setPostImages] = useState<string[]>([]);
     const [convention, setConvention] = useState<any>(null);
-    const { user } = React.useContext(userContext);
+    const { user, setUser } = React.useContext(userContext);
     useEffect(() => {
         async function fetchData() {
             try {
@@ -63,9 +69,7 @@ const PostView: React.FC<Post> = (props: any) => {
                     setLiked(post.likes?.includes(user._id) || false);
                     
                     // Check if post is bookmarked by current user
-                    const currentUserData = await axios.get(`${API_BASE}/user/${user._id}`);
-                    const userBookmarks = currentUserData.data.bookmarks || [];
-                    setBookmarked(userBookmarks.includes(props._id) || false);
+                    setBookmarked(user.bookmarks.includes(props._id) || false);
                 }
                 
             } catch (e) {
@@ -79,96 +83,57 @@ const PostView: React.FC<Post> = (props: any) => {
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
         if (post.likes.includes(user?._id)) {
-            let newLikes: Array<string> = post.likes.filter(
-                (like: string) => like !== user?._id
-            );
 
-            const newPost = await axios.patch(
-                `${API_BASE}/posts/${props._id}`,
+            const newUser = await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
                 {
-                    likes: newLikes,
+                    likes: post._id,
+                }, 
+                {
+                    withCredentials: true,
                 }
             );
 
-            // Right now the patch will return a 401 because the admin file is set to false
-            /*
-            // Get user's current likes array
-            const userResponse = await axios.get(
-                `${API_BASE}/user/${user?._id}`
-            );
-            const currentUserLikes = userResponse.data.likes || [];
-
-            // Remove this post from user's likes
-            const updatedUserLikes = currentUserLikes.filter(
-                (like: string) => like !== props._id
-            );
-
-            // Update user's likes array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                likes: updatedUserLikes,
-            });
-            */
-
-            setPost(newPost.data);
+            setUser(newUser.data)
+            setPost({...post, likes: post.likes.filter((userId: string) => userId !== user?._id)});
             setLiked(false);
+            notifyParent();
         } else {
             let newLikes: Array<string> = [...post.likes, user?._id!];
 
-            const newPost = await axios.patch(
-                `${API_BASE}/posts/${props._id}`,
+            const newUser = await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
                 {
-                    likes: newLikes,
+                    likes: post._id,
+                }, 
+                {
+                    withCredentials: true,
                 }
             );
-            // Right now the patch will return a 401 because the admin file is set to false
-            /*
-            // Get user's current likes array
-            const userResponse = await axios.get(
-                `${API_BASE}/user/${user?._id}`
-            );
-            const currentUserLikes = userResponse.data.likes || [];
 
-            // Add this post to user's likes
-            const updatedUserLikes = [...currentUserLikes, props._id];
-
-            // Update user's likes array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                likes: updatedUserLikes,
-            });
-            */
-
-            setPost(newPost.data);
+            setUser(newUser.data)
+            setPost({...post, likes: newLikes});
             setLiked(true);
+            notifyParent()
         }
     };
     const onSubmitBookmark: any = async (e: any) => {
         e.preventDefault();
         try {
-            // Get user's current bookmarks array
-            const userResponse = await axios.get(`${API_BASE}/user/${user?._id}`);
-            const currentBookmarks = userResponse.data.bookmarks || [];
-
-            let updatedBookmarks;
-            if (currentBookmarks.includes(props._id)) {
-                // Remove this post from bookmarks if it's already bookmarked
-                updatedBookmarks = currentBookmarks.filter(
-                    (bookmark: string) => bookmark !== props._id
-                );
-            } else {
-                // Add this post to bookmarks if it's not bookmarked
-                updatedBookmarks = [...currentBookmarks, props._id];
-            }
-
             // Update user's bookmarks array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                bookmarks: updatedBookmarks,
-            }, {
+            let newUser = await axios.patch(`${API_BASE}/user/${user?._id}`, {
+                bookmarks: post._id,
+            }, 
+            {
                 withCredentials: true,
             });
 
+            //Update User context
+            setUser(newUser.data);
+
             // Toggle the bookmarked state
             setBookmarked(!bookmarked);
-            
+            notifyParent();
             //alert(currentBookmarks.includes(props._id) ? "Post unbookmarked!" : "Post bookmarked!");
         } catch (error) {
             console.error("Error updating bookmarks:", error);

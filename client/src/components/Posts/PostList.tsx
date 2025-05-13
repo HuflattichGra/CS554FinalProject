@@ -196,12 +196,7 @@ const PostList: React.FC = () => {
                     {posts.map((post: Post) => (
                         <PostView
                             key={post._id}
-                            _id={post._id}
-                            conventionID={post.conventionID}
-                            userID={post.userID}
-                            text={post.text}
-                            images={post.images}
-                            likes={post.likes}
+                            props={post}
                         />
                     ))}
 

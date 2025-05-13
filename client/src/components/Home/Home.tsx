@@ -126,13 +126,7 @@ const Home: React.FC = () => {
                             bookmarkedPosts.map((post: Post) => (
                                 <PostView
                                     key={post._id}
-                                    _id={post._id}
-                                    conventionID={post.conventionID}
-                                    userID={post.userID}
-                                    text={post.text}
-                                    images={post.images}
-                                    likes={post.likes}
-                                    onBookmarkChange={fetchData}
+                                    props={post}
                                 />
                             ))
                         )}
