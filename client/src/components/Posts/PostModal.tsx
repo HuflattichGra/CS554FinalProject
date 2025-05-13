@@ -94,7 +94,9 @@ const PostModal: React.FC<PostModalProps> = ({
             await axios.post(`${API_BASE}/posts`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
-                }
+                },
+                withCredentials: true
+                
             });
             onClose();
             onPostCreated(); // Notify parent component to refresh posts
