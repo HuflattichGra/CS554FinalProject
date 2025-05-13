@@ -4,8 +4,9 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import userContext from "../../context/userContext";
 import "../../App.css";
+import styles from "./PostView.module.css";
 import { API_BASE } from "../../api";
-import { Images } from "lucide-react";
+import { Heart, Bookmark, BookmarkCheck, User } from "lucide-react";
 
 interface Post {
     _id: string;
@@ -26,7 +27,6 @@ const PostView: React.FC<Post> = (props: any) => {
     const [liked, setLiked] = useState(false);
     const [images, setImages] = useState<any>([]);
     const { user } = React.useContext(userContext);
-
     useEffect(() => {
         async function fetchData() {
             try {
@@ -42,6 +42,18 @@ const PostView: React.FC<Post> = (props: any) => {
                 
                 setPoster(userData.data);
                 setLoading(false);
+                
+                // Check if user is logged in
+                if (user && user._id) {
+                    // Check if post is liked by current user
+                    setLiked(post.likes?.includes(user._id) || false);
+                    
+                    // Check if post is bookmarked by current user
+                    const currentUserData = await axios.get(`${API_BASE}/user/${user._id}`);
+                    const userBookmarks = currentUserData.data.bookmarks || [];
+                    setBookmarked(userBookmarks.includes(props._id) || false);
+                }
+                
             } catch (e) {
                 console.log(e)
                 setPoster("Not Found");
@@ -49,8 +61,7 @@ const PostView: React.FC<Post> = (props: any) => {
             }
         }
         fetchData();
-    }, [props.userID]);
-
+    }, [props.userID, user, post.likes, props._id]);
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
         if (post.likes.includes(user?._id)) {
@@ -85,6 +96,7 @@ const PostView: React.FC<Post> = (props: any) => {
             */
 
             setPost(newPost.data);
+            setLiked(false);
         } else {
             let newLikes: Array<string> = [...post.likes, user?._id!];
 
@@ -112,13 +124,11 @@ const PostView: React.FC<Post> = (props: any) => {
             */
 
             setPost(newPost.data);
+            setLiked(true);
         }
-        setLiked(!post.likes.includes(user?._id));
     };
-
     const onSubmitBookmark: any = async (e: any) => {
         e.preventDefault();
-        setBookmarked(bookmarked!);
         try {
             // Get user's current bookmarks array
             const userResponse = await axios.get(`${API_BASE}/user/${user?._id}`);
@@ -140,6 +150,9 @@ const PostView: React.FC<Post> = (props: any) => {
                 bookmarks: updatedBookmarks,
             });
 
+            // Toggle the bookmarked state
+            setBookmarked(!bookmarked);
+            
             //alert(currentBookmarks.includes(props._id) ? "Post unbookmarked!" : "Post bookmarked!");
         } catch (error) {
             console.error("Error updating bookmarks:", error);
@@ -156,27 +169,29 @@ const PostView: React.FC<Post> = (props: any) => {
     } else if (poster === "Not Found") {
         return <p>Error: 404 Not Found</p>;
     } else {
-        return (
-            <div className="Post">
-                <div className="TopOfPost">
+        return (            <div className={`Post ${styles.container}`}>
+                <div className={styles.topOfPost}>
                     <Link to={`/user/${post.userID}`}>
-                        <p>{poster.username}</p>
+                        <div className={styles.userInfo}>
+                            <User size={18} className={styles.userIcon} />
+                            <p>{poster.username}</p>
+                        </div>
                     </Link>
                     <form id="bookmark" onSubmit={onSubmitBookmark}>
-                        <button onClick={onSubmitBookmark} className="post-element">
-                            {bookmarked ? <img src="/src/assets/bookmark_filled.png" className="bookmark" /> : <img className="bookmark" src="/src/assets/bookmark.png" />}
+                        <button onClick={onSubmitBookmark} className={styles.actionButton}>
+                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} />}
                         </button>
                     </form>
                 </div>
-                <Link to={`/posts/${post._id}`}>
-                <p>{post.text}</p>
+                <Link to={`/posts/${post._id}`} className={styles.postContent}>
+                    <p>{post.text}</p>
                 </Link>
                 {user ? (
-                    <div className="flex">
-                        <button onClick={onSubmitLikes} name="likeButton" className="">
-                            {liked ? <img src="/src/assets/heart.png" className="like_on" /> : <img className="like_off" src="/src/assets/heart.png" />}
+                    <div className={styles.flexContainer}>
+                        <button onClick={onSubmitLikes} name="likeButton" className={styles.actionButton}>
+                            {liked ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} />}
                         </button>
-                        <button className="likeCount">{post.likes?.length || 0}</button>
+                        <button className={styles.likeCount}>{post.likes?.length || 0}</button>
                     </div>
                 ) : null}
             </div>

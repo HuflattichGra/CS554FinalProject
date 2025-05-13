@@ -1,0 +1,93 @@
+/* Component-specific styles for PostView */
+.container {
+  border-width: 0.1em;
+  border-color: #e0e0e0;
+  border-style: solid;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
+}
+
+.topOfPost {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.topOfPost p {
+  font-weight: 600;
+  margin: 0;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease;
+}
+
+.userInfo:hover {
+  background-color: #f0f0f0;
+}
+
+.userIcon {
+  color: #6366F1;
+}
+
+.postContent {
+  display: block;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+}
+
+.postContent p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.actionButton {
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.1);
+}
+
+.flexContainer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 0.8rem;
+}
+
+.likeCount {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem;
+  font-weight: 500;
+  color: #666;
+}
