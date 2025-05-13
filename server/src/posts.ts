@@ -64,6 +64,9 @@ function checkPost(
 }
 
 async function addPost(obj: any) {
+  obj.userID = obj.userID.toHexString();
+  obj.conventionID = obj.conventionID.toHexString();
+  console.log(obj);
   obj = checkPost(obj, false, true);
 
   obj.userID = ObjectId.createFromHexString(obj.userID);
