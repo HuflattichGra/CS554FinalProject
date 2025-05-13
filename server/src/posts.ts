@@ -5,7 +5,7 @@ import * as typecheck from "../typechecker.js";
 
 export type Post = {
   _id: string;
-  conventionID: string;
+  conventionID?: string; // Make conventionID optional
   userID: string;
   text: string;
   images: Array<string>;
@@ -39,7 +39,7 @@ function checkPost(
   if (obj._id != undefined || needsID) {
     typecheck.checkId(obj._id, "post.id");
   }
-  if (obj.conventionID != undefined || noEmpty) {
+  if (obj.conventionID != undefined && obj.conventionID !== null) {
     if (obj.conventionID.length > 0) {
       typecheck.checkId(obj.conventionID, "post.conventionID");
     }
@@ -65,7 +65,10 @@ function checkPost(
 
 async function addPost(obj: any) {
   obj.userID = obj.userID.toHexString();
-  obj.conventionID = obj.conventionID.toHexString();
+  // Only convert conventionID to hex string if it exists
+  if (obj.conventionID) {
+    obj.conventionID = obj.conventionID.toHexString();
+  }
   console.log(obj);
   obj = checkPost(obj, false, true);
 
@@ -126,7 +129,6 @@ async function updatePost(id: string, obj: any) {
   if (obj.conventionID) {
     obj.conventionID = ObjectId.createFromHexString(obj.conventionID);
   }
-
 
   const db = await posts();
   var updateRes: Post = await db.updateOne(
