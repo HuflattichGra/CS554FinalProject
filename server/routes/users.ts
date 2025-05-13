@@ -99,7 +99,7 @@ router
 
 router
     .route('/user/:id')
-    .patch(imageUpload.array("images"), async (req: Request, res: Response) => {
+    .patch(imageUpload.single("image"), async (req: Request, res: Response) => {
         let id = req.params.id
 
         if(!req.session.user) return res.status(401).json({error: "Error: Not authorized"}) 
@@ -113,7 +113,7 @@ router
 
         try{
             let imageId: string;
-            if (Array.isArray(req.files) && req.files.length > 0) {
+            if (req.file) {
                 const objId = await extractOne(req);
                 imageId = objId.toString()
                 req.body = {...req.body, pfp: imageId }
