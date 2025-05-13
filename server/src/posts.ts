@@ -119,6 +119,12 @@ async function updatePost(id: string, obj: any) {
   checkPost(obj, false, false);
   delete obj._id;
 
+  obj.userID = ObjectId.createFromHexString(obj.userID);
+  if (obj.conventionID) {
+    obj.conventionID = ObjectId.createFromHexString(obj.conventionID);
+  }
+
+
   const db = await posts();
   var updateRes: Post = await db.updateOne(
     { _id: ObjectId.createFromHexString(id) },
