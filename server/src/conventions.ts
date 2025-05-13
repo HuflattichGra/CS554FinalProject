@@ -119,6 +119,16 @@ if (Array.isArray(convention.attendees) && convention.attendees.length > 0) {
     attendees: convention.attendees
   };
 };
+//Get Every Convention with id and name
+export const getEveryConvention = async () => {
+  const conventionCollection = await conventions();
+  const conventionList = await conventionCollection.find({}).toArray();
+
+  return conventionList.map((c: any) => ({
+    _id: c._id.toString(),
+    name: c.name || ''
+  }));
+}
 //Get All Convention
 export const getAllConventions = async (page: number, pageSize: number) => {
   const conventionCollection = await conventions();
@@ -656,6 +666,7 @@ export default {
   createConvention,
   getConventionById,
   getAllConventions,
+  getEveryConvention,
   updateConvention,
   deleteConvention,
   addOwner,

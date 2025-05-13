@@ -45,7 +45,15 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
-
+// Get Every Conventions
+router.get("/every", async (req: Request, res: Response) => {
+  try {
+    const conventions = await conventionFunctions.getEveryConvention();
+    res.status(200).json(conventions);
+  } catch (e) {
+    res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+  }
+})
 // Get Convention by ID
 router.get('/:id', async (req: Request, res: Response): Promise<any> => {
   try {

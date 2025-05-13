@@ -23,65 +23,86 @@ export const getAllConventions = async (page = 1, pageSize = 10) => {
   return data;
 };
 
-// update Convention
-export const updateConvention = async (id: string, updateData: any) => {
-  const { data } = await axios.put(`${API_URL}/${id}`, updateData, {
-    withCredentials: true
-  });
+// get Every Convention (simplified list with just id and name)
+export const getEveryConvention = async () => {
+  const { data } = await axios.get(`${API_URL}/every`);
   return data;
 };
 
+// update Convention
+export const updateConvention = async (id: string, updateData: any) => {
+  const { data } = await axios.put(`${API_URL}/${id}`, updateData, {
+    withCredentials: true,
+  });
+  return data;
+};
 
 // delete Convention
 export const deleteConvention = async (id: string) => {
   const { data } = await axios.delete(`${API_URL}/${id}`, {
-    withCredentials: true
+    withCredentials: true,
   });
   return data;
 };
 
-
 // add Owner
 export const addOwner = async (conventionId: string, ownerId: string) => {
-  const { data } = await axios.patch(`${API_URL}/${conventionId}/addOwner`, {
-    ownerId,
-  }, {
-    withCredentials: true
-  });
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/addOwner`,
+    {
+      ownerId,
+    },
+    {
+      withCredentials: true,
+    }
+  );
   return data;
 };
 
 // remove Owner
 export const removeOwner = async (conventionId: string, ownerId: string) => {
-  const { data } = await axios.patch(`${API_URL}/${conventionId}/removeOwner`, {
-    ownerId,
-  }, {
-    withCredentials: true
-  });
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/removeOwner`,
+    {
+      ownerId,
+    },
+    {
+      withCredentials: true,
+    }
+  );
   return data;
 };
 
 // add Panelist by auth
 export const addPanelist = async (conventionId: string, panelistId: string) => {
-  const { data } = await axios.patch(`${API_URL}/${conventionId}/addPanelist`, {
-    panelistId,
-  }, {
-    withCredentials: true
-  });
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/addPanelist`,
+    {
+      panelistId,
+    },
+    {
+      withCredentials: true,
+    }
+  );
   return data;
 };
-
 
 // remove Panelist
-export const removePanelist = async (conventionId: string, panelistId: string) => {
-  const { data } = await axios.patch(`${API_URL}/${conventionId}/removePanelist`, {
-    panelistId
-  }, {
-    withCredentials: true
-  });
+export const removePanelist = async (
+  conventionId: string,
+  panelistId: string
+) => {
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/removePanelist`,
+    {
+      panelistId,
+    },
+    {
+      withCredentials: true,
+    }
+  );
   return data;
 };
-
 
 // apply Panelist
 export const applyPanelist = async (conventionId: string) => {
@@ -92,7 +113,6 @@ export const applyPanelist = async (conventionId: string) => {
   );
   return data;
 };
-
 
 // approve Panelist Application
 export const approvePanelistApplication = async (
@@ -120,28 +140,28 @@ export const rejectPanelistApplication = async (
   return data;
 };
 
-
 // apply Attendee
 export const applyAttendee = async (conventionId: string) => {
   const { data } = await axios.patch(
     `${API_URL}/${conventionId}/applyAttendee`,
     {},
-    { withCredentials: true }  
+    { withCredentials: true }
   );
   return data;
 };
 
-
 // remove Attendee
-export const removeAttendee = async (conventionId: string, attendeeId: string) => {
+export const removeAttendee = async (
+  conventionId: string,
+  attendeeId: string
+) => {
   const { data } = await axios.patch(
     `${API_URL}/${conventionId}/removeAttendee`,
     { attendeeId },
-    { withCredentials: true }  
+    { withCredentials: true }
   );
   return data;
 };
-
 
 // approve Attendee Application
 export const approveAttendeeApplication = async (
@@ -209,13 +229,16 @@ export const getUserBookmarkedConventions = async (userId: string) => {
 };
 
 // get rec conventions
-export const getRecommendedConventions = async (userId: string, page = 1, pageSize = 8) => {
+export const getRecommendedConventions = async (
+  userId: string,
+  page = 1,
+  pageSize = 8
+) => {
   const { data } = await axios.get(
     `${API_URL}/user/${userId}/recommended?page=${page}&pageSize=${pageSize}`
   );
   return data;
 };
-
 
 export const listPanelistApplications = async (conventionId: string) => {
   const { data } = await axios.get(
@@ -225,19 +248,34 @@ export const listPanelistApplications = async (conventionId: string) => {
   return data;
 };
 export const followConvention = async (conventionId: string) => {
-  const { data } = await axios.patch(`${API_URL}/${conventionId}/follow`, {}, { withCredentials: true });
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/follow`,
+    {},
+    { withCredentials: true }
+  );
   return data;
 };
 
 export const unfollowConvention = async (conventionId: string) => {
-  const { data } = await axios.patch(`${API_URL}/${conventionId}/unfollow`, {}, { withCredentials: true });
+  const { data } = await axios.patch(
+    `${API_URL}/${conventionId}/unfollow`,
+    {},
+    { withCredentials: true }
+  );
   return data;
 };
 
-export const getUserFollowingConventions = async (userId: string, page: number, pageSize: number) => {
-  const { data } = await axios.get(`${API_URL}/user/${userId}/following?page=${page}&pageSize=${pageSize}`, {
-    withCredentials: true
-  });
+export const getUserFollowingConventions = async (
+  userId: string,
+  page: number,
+  pageSize: number
+) => {
+  const { data } = await axios.get(
+    `${API_URL}/user/${userId}/following?page=${page}&pageSize=${pageSize}`,
+    {
+      withCredentials: true,
+    }
+  );
   return data;
 };
 
@@ -245,6 +283,7 @@ export default {
   createConvention,
   getConventionById,
   getAllConventions,
+  getEveryConvention,
   updateConvention,
   deleteConvention,
   addOwner,
@@ -266,5 +305,5 @@ export default {
   listPanelistApplications,
   followConvention,
   unfollowConvention,
-  getUserFollowingConventions
+  getUserFollowingConventions,
 };

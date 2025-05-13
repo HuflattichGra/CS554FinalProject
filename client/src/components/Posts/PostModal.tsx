@@ -4,6 +4,7 @@ import { useContext } from "react";
 import userContext from "../../context/userContext";
 import axios from "axios";
 import { API_BASE } from "../../api";
+import { getEveryConvention } from "../../api/conventions";
 
 ReactModal.setAppElement("#root");
 
@@ -37,6 +38,24 @@ const PostModal: React.FC<PostModalProps> = ({
     const [text, setText] = useState("");
     const [conventionID, setConventionID] = useState("");
     const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [conventions, setConventions] = useState<{ _id: string, name: string }[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchConventions = async () => {
+            setIsLoading(true);
+            try {
+                const data = await getEveryConvention();
+                setConventions(data);
+            } catch (error) {
+                console.error("Failed to fetch conventions:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchConventions();
+    }, []);
 
     const handleAddImage = () => {
         const input = document.createElement('input');
@@ -95,12 +114,23 @@ const PostModal: React.FC<PostModalProps> = ({
             <form onSubmit={handleSubmit}>
                 <label>
                     Convention ID:
-                    <input
-                        type="text"
+                    <select
                         value={conventionID}
                         onChange={(e) => setConventionID(e.target.value)}
-                        style={{ width: "100%", marginBottom: "1rem" }}
-                    />
+                        style={{ width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
+                        required
+                    >
+                        <option value="">Select a convention</option>
+                        {isLoading ? (
+                            <option disabled>Loading conventions...</option>
+                        ) : (
+                            conventions.map((convention) => (
+                                <option key={convention._id} value={convention._id}>
+                                    {convention.name}
+                                </option>
+                            ))
+                        )}
+                    </select>
                 </label>
                 <label>
                     Text:
