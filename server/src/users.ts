@@ -157,7 +157,7 @@ export const signUpUser = async (
     username: username,
     password: hashedPassword,
     admin: false,
-    bio: "",
+    bio: "No Information Provided",
     pfp: undefined,
     conventionsAttending: [],
     bookmarks: [],
@@ -180,7 +180,7 @@ export const signUpUser = async (
     lastname: lastname,
     username: username,
     admin: false,
-    bio: "",
+    bio: "No Information Provided",
     pfp: undefined,
     conventionsAttending: [],
     bookmarks: [],
@@ -433,7 +433,10 @@ export const updateUser = async (id: string, user: updateUser) => {
   }
 
   if (user.bio !== undefined) {
-    let bio = checkStringTrimmed(user.bio, "Bio");
+    checkString(user.bio, "bio");
+    let bio : string = user.bio.trim();
+
+    if(bio.length === 0) bio = "No Information Provided"
 
     if (bio.length > 256) throw "Error: Bio is too long!";
 
