@@ -496,6 +496,11 @@ export const updateUser = async (id: string, user: updateUser) => {
 
     let postId = ObjectId.createFromHexString(user.bookmarks);
 
+    // Check if the post exists
+    let postCollection = await posts();
+    const post = await postCollection.findOne({ _id: postId });
+    if (post === null) throw "Bookmarked Post does not exist";
+
     let bookmarksStr = newUser.bookmarks.map((id) => id.toString());
     let index = bookmarksStr.indexOf(user.bookmarks);
 
