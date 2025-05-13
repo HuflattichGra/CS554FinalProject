@@ -40,7 +40,6 @@ services:
       - ./server/uploads:/app/uploads
     networks:
       - ducknight
-
   client:
     build:
       context: ./client
@@ -51,6 +50,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://server:3000
+      - DOCKER=true
     depends_on:
       - server
     networks:
