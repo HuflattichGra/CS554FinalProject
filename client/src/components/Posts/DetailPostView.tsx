@@ -233,6 +233,7 @@ const DetailPostView: React.FC = () => {
                                         <p>#{convention.name}</p>
                                     </Link>
                                 )}
+                                <p style={{color:"gray"}}>{post.createdAt.substring(0,10)}</p>
                                 <div className={styles.actionButtons}>
                                     {/* Show edit button if user is the post owner */}
                                     {isUserPostOwner && (
@@ -269,10 +270,7 @@ const DetailPostView: React.FC = () => {
                                             />
                                         ))}
                                     </div>
-                                ) : (
-                                    <div className={styles.postImagesContainer}>
-                                        <p>No images</p>
-                                    </div>
+                                ) : (<></>
                                 )}
                             </div>
                             {user ? (
@@ -283,7 +281,7 @@ const DetailPostView: React.FC = () => {
                                     <button className={styles.likeCount}>{post.likes?.length || 0}</button>
                                 </div>
                             ) : <div className={styles.flexContainer}><Heart color="#333333" size={20}></Heart> <button className={styles.likeCount}>{post.likes?.length || 0}</button> </div>}
-                        </div>
+                        </div>   
                         <div id="CommentGroup">
                             {comments.map((x: any) =>
                                 <div key={x._id} className={`Post ${styles.container}`}>
