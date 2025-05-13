@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { posts, users } from "../config/mongoCollections";
+import comments from "./comments";
 // @ts-ignore
 import * as typecheck from "../typechecker.js";
 
@@ -69,7 +70,6 @@ async function addPost(obj: any) {
   if (obj.conventionID) {
     obj.conventionID = obj.conventionID.toHexString();
   }
-  console.log(obj);
   obj = checkPost(obj, false, true);
 
   obj.userID = ObjectId.createFromHexString(obj.userID);
@@ -147,6 +147,12 @@ async function updatePost(id: string, obj: any) {
 
 async function deletePost(id: string) {
   typecheck.checkId(id, "id");
+
+  var postComments = await comments.getCommmentFromPost(id);
+
+  for(let i=0;i<postComments.length;i++){
+    await comments.deleteComment(postComments[i]._id);
+  }
 
   const db = await posts();
   var retVal: Post = await getPost(id);
