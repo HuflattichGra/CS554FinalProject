@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { comments } from '../config/mongoCollections';
-import * as typecheck from '../typechecker.js';
+//@ts-ignore
+import * as typecheck from "../typechecker.js";
 
 export type Comment = {
     _id: string
@@ -35,13 +36,16 @@ function checkComment(obj: any, needsID: boolean = false, noEmpty: boolean = tru
     if (obj.postID != undefined || noEmpty) { typecheck.checkId(obj.postID, "comment.postID"); }
     if (obj.userID != undefined || noEmpty) { typecheck.checkId(obj.userID, "comment.userID"); }
     if (obj.text != undefined || noEmpty) { comObj.text = typecheck.checkStringTrimmed(obj.text, "comment.text"); }
-    if (obj.createdAt != undefined || noEmpty) { typecheck.checkDate(obj.createdAt,"comment.createdAt");}
+    if (obj.createdAt != undefined || noEmpty) { if(obj.createdAt instanceof Date){}else{typecheck.checkDate(obj.createdAt,"comment.createdAt");}}
     if (obj.likes != undefined || noEmpty) { obj.likes.map(checkIDS, "comment.likes"); }
     return comObj;
 }
 
-async function addComment(obj: Comment) {
+async function addComment(obj: any) {
     obj = checkComment(obj, false, true);
+
+    if(obj.postID){obj.postID = ObjectId.createFromHexString(obj.postID);}
+    if(obj.userID){obj.userID = ObjectId.createFromHexString(obj.userID);}
 
     const db = await comments();
     var dbOut = await db.insertOne(obj);
@@ -85,6 +89,9 @@ async function updateComment(id: string, obj: any) {
     checkComment(obj, false, false);
     delete obj._id;
 
+    if(obj.postID){obj.postID = ObjectId.createFromHexString(obj.postID);}
+    if(obj.userID){obj.postID = ObjectId.createFromHexString(obj.userID);}
+
     const db = await comments();
     var updateRes: Comment = await db.updateOne({ _id: ObjectId.createFromHexString(id) }, [{ $set: obj }]);
 
@@ -111,4 +118,17 @@ async function deleteComment(id: string) {
     return retVal;
 }
 
-export default { checkComment, addComment, getComments, getComment, updateComment, deleteComment, DEBUG_generateComment };
+async function getCommmentFromPost(id:string) {
+    typecheck.checkId(id);
+
+    const db = await comments();
+    var retVal : Comment = await db.findOne({ postID: ObjectId.createFromHexString(id) });
+
+    if(retVal == null){
+        throw new Error("GetCommentFromPost " + id + " failed");
+    }
+
+    return retVal;
+}
+
+export default { checkComment, addComment, getComments, getComment, updateComment, deleteComment, DEBUG_generateComment,getCommmentFromPost };

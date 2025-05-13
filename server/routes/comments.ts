@@ -26,13 +26,16 @@ router.route('/').get(async (req, res) => {
         try {
             var body = req.body;
 
+            body.createdAt = new Date(Date.now());
+            body.likes = [];
+
             var ret = await comments.addComment(body);
 
             await client.set(apistring + ret._id, JSON.stringify(ret));
 
             res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: e });
+        } catch (e:any) {
+            res.status(400).send({ error: e.message});
         }
     });
 
@@ -82,10 +85,23 @@ router.route('/:id')
             deletePostCache();
 
             res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: e });
+        } catch (e:any) {
+            res.status(400).send({ error: e.message });
         }
     })
     ;
+
+router.route("/posts/:id").get(async (req,res) => {
+    try {
+        var id = req.params.id;
+        var ret = await comments.getCommmentFromPost(id);
+
+        await client.set(apistring + ret._id, JSON.stringify(ret));
+
+        res.status(200).send(ret);
+    }catch(e:any){
+        res.status(400).send({ error: e.message });
+    }
+})
 
 export default router;

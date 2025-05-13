@@ -13,6 +13,7 @@ import PostList from "./components/Posts/PostList";
 import ConventionsPage from "./pages/ConventionsPage";
 import ConventionDetailPage from "./pages/ConventionDetailPage";
 import Profile from './components/Profile/Profile';
+import DetailPostView from "./components/Posts/DetailPostView";
 import { API_BASE } from './api';
 import DetailPostView from "./components/Posts/DetailPostView";
 
@@ -55,7 +56,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<GuestOnly><AuthPage /></GuestOnly>} />
                 <Route path="/posts" element={<PostList />} />
-                <Route path="/posts/:id" element={<DetailPostView/>}/>
+                <Route path="/posts/:id" element={<DetailPostView />} />
                 <Route path="/conventions" element={<ConventionsPage />} />
                 <Route path="/conventions/:id" element={<ConventionDetailPage />} />
                 <Route path="/user/:id" element={< Profile/>} />
