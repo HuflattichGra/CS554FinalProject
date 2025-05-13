@@ -36,7 +36,7 @@ interface Post {
 }
 
 const Profile: React.FC = () => {
-    const { user } = useContext(userContext);
+    const { user, setUser } = useContext(userContext);
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<user>()
     const [posts, setPosts] = useState<Post[]>([]);
@@ -48,6 +48,7 @@ const Profile: React.FC = () => {
     const [showBookmarks, setShowBookmarks] = useState(false)
     const [error, setError] = useState<any>("")
     let id = useParams().id
+    if(id === undefined) id = ""
 
     const onShowPosts: any = async () => {
         document.getElementById("postButton").className = "active"
@@ -74,6 +75,40 @@ const Profile: React.FC = () => {
         setShowPosts(false)
         setShowLikes(false)
         setShowBookmarks(true)
+    }
+
+    const onFollow: any = async (e : any) => {
+        e.preventDefault();
+
+        try {
+            // Send the post ID to toggle in user's bookmarks
+            let newUser = await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
+                {
+                    following: id
+                },
+                {
+                    withCredentials: true
+                }
+            );
+
+
+            if(user?.following.includes(id) && profile !== undefined){
+                setUser(newUser.data);
+                setProfile({
+                    ...profile,
+                    followers: profile.followers.filter((follower: string) => follower !== user?._id)
+                }); 
+            } else if (profile !== undefined && user?._id !== undefined){
+                setUser(newUser.data);
+                setProfile({
+                    ...profile,
+                    followers: [...profile.followers, user?._id]
+                }); 
+            }
+        } catch (error) {
+            console.error("Error Following User:", error);
+        }
     }
 
     const fetchData = async () => {
@@ -123,9 +158,13 @@ const Profile: React.FC = () => {
         return(
             <div>
                 <h1>{profile?.username}</h1>
+                <h3>{profile?.firstname} {profile?.lastname}</h3>
                 <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
                 <p>Following: {profile?.following.length}</p>
                 <p>Followers: {profile?.followers.length}</p>
+                {user?._id !== profile._id && user !== null ? 
+                (user?.following.includes(profile._id) ? <button onClick={onFollow}>Unfollow</button> : <button onClick={onFollow}>Follow</button>) 
+                :  null}
                 <div className="tab">
                     <button onClick={onShowPosts} id="postButton" className='active'>Posts</button>
                     <button onClick={onShowLikes} id="likeButton" className=''>Likes</button>

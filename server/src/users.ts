@@ -501,9 +501,10 @@ export const updateUser = async (id: string, user: updateUser) => {
             userFollowing.followers.push(newUser._id);
             newUser.following.push(FollowId)
         } else {
-            let followers = userFollowing.followers.map((id : ObjectId) => id.toString())
-            userFollowing.followers = userFollowing.followers.splice(followers.indexOf(id))
-            newUser.following = newUser.following.splice(index, 1);
+            let followers = userFollowing.followers.map((userId : ObjectId) => userId.toString())
+            //console.log(followers.indexOf(id))
+            userFollowing.followers.splice(followers.indexOf(id), 1)
+            newUser.following.splice(index, 1);
         }
 
         const updatedConvention = await userCollection.updateOne({_id: FollowId}, {$set: userFollowing})
@@ -526,9 +527,9 @@ export const updateUser = async (id: string, user: updateUser) => {
             follower.following.push(newUser._id);
             newUser.followers.push(FollowerId)
         } else {
-            let following = follower.following.map((id : ObjectId) => id.toString())
-            follower.following = follower.following.splice(following.indexOf(id))
-            newUser.followers = newUser.followers.splice(index, 1);
+            let following = follower.following.map((userId : ObjectId) => userId.toString())
+            follower.following.splice(following.indexOf(id), 1)
+            newUser.followers.splice(index, 1);
         }
 
         const updatedConvention = await userCollection.updateOne({_id: FollowerId}, {$set: follower})

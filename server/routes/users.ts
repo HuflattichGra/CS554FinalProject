@@ -138,7 +138,6 @@ router
             client.del("user:" + req.body.followers)
         }
 
-        console.log(user);
         return res.status(200).json(user)
     })
 
