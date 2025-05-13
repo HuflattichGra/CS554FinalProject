@@ -35,6 +35,24 @@
    docker-compose up --force-recreate --detach server client
    ```
 
+#### Seeding the Database
+
+To initialize the database with sample data when using Docker:
+
+1. Modify the docker-compose.yml file to include the SEED_DB environment variable:
+   ```
+   server:
+     ...
+     environment:
+       - SEED_DB=true
+   ```
+2. Restart the containers:
+   ```
+   docker-compose up --force-recreate --detach server
+   ```
+3. Once the database is seeded, you can set SEED_DB back to false or remove it to prevent reseeding on future restarts
+4. All seeded user's passwords are "Password123!"
+
 ### Option 2: Manual Setup
 
 Make sure node.js and imagemagick is installed
@@ -50,6 +68,30 @@ Make sure node.js and imagemagick is installed
    npm start
    ```
    The server will run on http://localhost:3000
+
+#### Seeding the Database
+
+To initialize the database with sample data when running locally:
+
+1. Set the SEED_DB environment variable to true when starting the server:
+   ```
+   # For Windows PowerShell
+   $env:SEED_DB="true" ; npm start
+   
+   # For Windows Command Prompt
+   set SEED_DB=true && npm start
+   
+   # For Linux/Mac
+   SEED_DB=true npm start
+   ```
+2. The seed script will:
+   - Truncate all MongoDB collections
+   - Empty the uploads folder (while preserving subdirectories)
+   - Create accounts for team members
+   - Generate sample posts, comments, and conventions
+   - Establish following relationships between users
+3. After seeding, restart the server normally (without the SEED_DB variable) to prevent reseeding
+4. All seeded user's passwords are "Password123!"
 
 #### Client Setup
 1. Open another terminal in the client directory
