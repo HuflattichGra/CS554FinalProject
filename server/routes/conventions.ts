@@ -49,6 +49,11 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
 router.get("/every", async (req: Request, res: Response) => {
   try {
     const conventions = await conventionFunctions.getEveryConvention();
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     res.status(200).json(conventions);
   } catch (e) {
     res.status(400).json({ error: e?.toString() || 'Unknown Error' });
@@ -63,6 +68,11 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     const cached = await client.get(cacheKey);
     if (cached) {
       // console.log(`[Cache Hit] Convention ${id}`);
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
       return res.status(200).json(JSON.parse(cached));
     }
 
@@ -91,7 +101,11 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     const result = await conventionFunctions.getAllConventions(page, pageSize);
 
     await client.set(cacheKey, JSON.stringify(result), { EX: 300 });
-
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     return res.status(200).json(result);
   } catch (e) {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
@@ -230,7 +244,11 @@ router.get('/:id/panelists', async (req: Request, res: Response) => {
     const conventionId = checkId(req.params.id, 'Convention ID');
 
     const convention = await conventionFunctions.getConventionById(conventionId);
-
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     return res.status(200).json({ panelists: convention.panelists || [] });
   } catch (e) {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
@@ -460,7 +478,11 @@ router.get('/:id/panelistApplications', async (req: Request, res: Response) => {
     if (!ownerIds.includes(user._id.toString()) && !user.admin) {
       return res.status(403).json({ error: 'Only owners or admins can view panelist applications' });
     }
-
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     return res.status(200).json({ panelistApplications: convention.panelistApplications || [] });
   } catch (e) {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
@@ -499,6 +521,11 @@ router.get('/:id/attendeeApplications', async (req: Request, res: Response) => {
     }
 
     const applications = await conventionFunctions.getAllAttendeeApplication(conventionId);
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     return res.status(200).json(applications);
   } catch (e) {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
@@ -620,7 +647,11 @@ router.get('/:id/attendees', async (req: Request, res: Response) => {
     const conventionId = checkId(req.params.id, 'Convention ID');
 
     const attendees = await conventionFunctions.listAttendees(conventionId);
-
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     return res.status(200).json({ attendees });
   } catch (e) {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
@@ -654,7 +685,11 @@ router.get('/user/:userId/recommended', async (req: Request, res: Response) => {
     const pageSize = parseInt(req.query.pageSize as string) || 10;
 
     const result = await conventionFunctions.getRecommendedConventions(userId, page, pageSize);
-
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     return res.status(200).json(result);
   } catch (e) {
     return res.status(400).json({ error: e.toString() });
@@ -711,7 +746,11 @@ router.get('/user/:userId/following', async (req: Request, res: Response) => {
     const pageSize = parseInt(req.query.pageSize as string) || 10;
 
     const result = await conventionFunctions.getUserFollowingConventions(userId, page, pageSize);
-
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
     return res.status(200).json(result);
   } catch (e) {
     return res.status(400).json({ error: e.toString() });

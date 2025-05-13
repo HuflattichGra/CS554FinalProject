@@ -164,7 +164,7 @@ const ConventionDetailPage: React.FC = () => {
         )} */}
 
 
-        {Array.isArray(convention.panelists) && convention.panelists.length > 0 && !(isOwner || isAdmin) && (
+        {Array.isArray(convention.panelists) && convention.panelists.length >= 0 && !(isOwner || isAdmin) && (
           <div className="panelist-list-container">
             <div className="panelist-label"> <span>Panelists:
               {convention.panelists.length < 1 ? ' Stay Tune!' : ''}</span></div>

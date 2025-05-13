@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
 
 
         <div className="right-section">
-          <input type="text" placeholder="Search..." className="search-input" />
+          {/* <input type="text" placeholder="Search..." className="search-input" /> */}
           
           {user ? (
             <div className="auth-buttons">
