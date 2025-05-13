@@ -7,6 +7,65 @@
   text-align: center;
 }
 
+.Post {
+  border-width: 0.1em;
+  border-color: black;
+  border-style: solid;
+}
+
+.post-element {
+  padding: 1vw 4vw 4vw 1vw;
+  border-width: 0.1vw;
+  width: 0.1vw;
+  height: 0.1vw;
+  border-color: white;
+  border-style: solid;
+
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+.like_on{
+  border-style: solid transparent;
+  width:3vw;
+  border-radius: 100%;
+  background-color: palevioletred;
+  border-width: 1px;
+}
+
+.like_off{
+  border-style: solid transparent;
+  border-radius: 100%;
+  width:3vw;
+  background-color: rgba(0, 0, 0, 0);
+  border-width: 1px;
+}
+
+
+.TopOfPost{
+  display:flex;
+  justify-content: space-between;
+}
+
+.likeCount{
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.bookmark {
+  max-width: 3vw;
+  max-height: 3vw;
+}
+
+.flex {
+  justify-content: right;
+  display:flex;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -48,4 +107,34 @@
   min-height: 100vh;
   margin: 0;
   padding: 120px;
+}
+
+.likeCount {
+  padding: 0.5em;
+}
+
+.invisButton {
+  display:flex;
+  padding:5px;
+}
+
+.post-element:hover {
+  border-color: #646cff;
+}
+.post-element:focus,
+.post-element:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
 }
