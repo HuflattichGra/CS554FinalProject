@@ -131,7 +131,7 @@ const PostList: React.FC = () => {
                             onClick={() => setShowModal(true)}
                             style={{
                                 padding: '8px 16px',
-                                backgroundColor: '#1a1a1a',
+                                backgroundColor: '#646cff',
                                 color: 'whitesmoke',
                                 border: 'none',
                                 borderRadius: '4px',
@@ -177,7 +177,7 @@ const PostList: React.FC = () => {
                                 onClick={handleSearch}
                                 style={{
                                     padding: '8px 16px',
-                                    backgroundColor: '#1a1a1a',
+                                    backgroundColor: '#646cff',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '4px',

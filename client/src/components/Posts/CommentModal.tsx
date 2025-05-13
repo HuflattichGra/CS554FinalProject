@@ -69,7 +69,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
             onRequestClose={onClose}
             style={customStyles}
         >
-            <h2>New Post</h2>
+            <h2>New Comment</h2>
             <form onSubmit={handleSubmit}>
                 <label>
                     Text:

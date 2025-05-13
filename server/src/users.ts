@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
 import { checkString, checkStringTrimmed, checkId } from "../typechecker.js";
 
-interface user {
+export interface user {
   _id: ObjectId;
   firstname: string;
   lastname: string;

@@ -149,8 +149,8 @@ const Profile: React.FC = () => {
             }
 
             setProfile(userData.data);
-            setPosts(userPosts.data)
-            setLikes(userLikes)
+            setPosts(userPosts.data);
+            setLikes(userLikes);
             setBookmarks(userBookmarks);
             setLoading(false)
         } catch (e: any) {

@@ -372,7 +372,7 @@ const DetailPostView: React.FC = () => {
                     onClick={() => setShowModal(true)}
                     style={{
                         padding: '8px 16px',
-                        backgroundColor: 'black',
+                        backgroundColor: '#646cff',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',

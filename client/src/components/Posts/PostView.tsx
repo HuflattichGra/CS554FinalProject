@@ -83,6 +83,7 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
     
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
+        if(!user){return;}
         if (post.likes.includes(user?._id)) {
 
             const newUser = await axios.patch(
@@ -168,7 +169,7 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
                     { user ? 
                     <form id="bookmark" onSubmit={onSubmitBookmark}>
                         <button onClick={onSubmitBookmark} className={styles.actionButton}>
-                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} color="#333333" />}
+                            {bookmarked ? <BookmarkCheck size={20} color="#646cff" /> : <Bookmark size={20} color="#1F1F1F" />}
                         </button>
                     </form> : <></>}
                 </div>
