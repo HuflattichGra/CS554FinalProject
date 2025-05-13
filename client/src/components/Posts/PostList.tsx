@@ -1,11 +1,12 @@
 import React from 'react';
-import { useEffect, useState,useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 
 import PostView from '../Posts/PostView';
 import PostModal from '../Posts/PostModal';
 import userContext from "../../context/userContext";
 import { API_BASE } from '../../api';
+import styles from 'PostView.modal.css';
 
 interface Post {
     _id: string;
@@ -55,9 +56,9 @@ const PostList: React.FC = () => {
                     }
                 })
             );
-            
+
             // Sort posts by createdAt date (most recent first)
-            const sortedPosts = postsWithDetails.sort((a: Post, b: Post) => 
+            const sortedPosts = postsWithDetails.sort((a: Post, b: Post) =>
                 new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
 
@@ -95,7 +96,7 @@ const PostList: React.FC = () => {
         setPosts(postsForPage);
         setHasMore(endIndex < filteredPosts.length);
     };
-    
+
     const handleSearch = () => {
         setPage(1);
         filterAndSetPosts(allPosts, searchQuery, searchType, 1);
@@ -122,16 +123,16 @@ const PostList: React.FC = () => {
     }
 
     return (
-        <>{user?
-        <div style={{ marginBottom: '20px' }}>
+        <>{user ?
+            <div style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                        <button 
+                        <button
                             onClick={() => setShowModal(true)}
-                            style={{ 
-                                padding: '8px 16px', 
-                                backgroundColor: 'black', 
-                                color: 'white', 
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#1a1a1a',
+                                color: 'whitesmoke',
                                 border: 'none',
                                 borderRadius: '4px',
                                 cursor: 'pointer'
@@ -139,30 +140,31 @@ const PostList: React.FC = () => {
                         >
                             Make a Post
                         </button>
-                        
+
                         <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
                             <input
                                 type="text"
                                 placeholder={searchType ? `Search by ${searchType}...` : "Search..."}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{ 
-                                    flex: 1, 
-                                    padding: '8px 16px', 
+                                style={{
+                                    flex: 1,
+                                    padding: '8px 16px',
                                     border: '1px solid #ccc',
                                     borderRadius: '4px',
                                     fontSize: '14px'
                                 }}
                             />
-                            
-                            <select 
+
+                            <select
                                 value={searchType || ''}
                                 onChange={(e) => handleSearchTypeChange(e.target.value as SearchType)}
-                                style={{ 
-                                    padding: '8px 12px', 
+                                style={{
+                                    padding: '8px 12px',
                                     border: '1px solid #ccc',
                                     borderRadius: '4px',
-                                    backgroundColor: 'white'
+                                    backgroundColor: 'white',
+                                    color: 'black'
                                 }}
                             >
                                 <option value="" disabled>Select search type</option>
@@ -170,13 +172,13 @@ const PostList: React.FC = () => {
                                 <option value="content">By Content</option>
                                 <option value="convention">By Convention</option>
                             </select>
-                            
+
                             <button
                                 onClick={handleSearch}
-                                style={{ 
-                                    padding: '8px 16px', 
-                                    backgroundColor: 'black', 
-                                    color: 'white', 
+                                style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: '#1a1a1a',
+                                    color: 'white',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: 'pointer'
@@ -211,10 +213,10 @@ const PostList: React.FC = () => {
                         <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
                             <button
                                 onClick={loadMore}
-                                style={{ 
-                                    padding: '8px 16px', 
-                                    backgroundColor: 'black', 
-                                    color: 'white', 
+                                style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: 'black',
+                                    color: 'white',
                                     border: 'none',
                                     borderRadius: '4px',
                                     cursor: 'pointer'

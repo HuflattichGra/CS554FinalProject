@@ -202,8 +202,8 @@ const Profile: React.FC = () => {
                 </div>
                 <div className="tab">
                     <button onClick={onShowPosts} id="postButton" className='active'>Posts</button>
-                    {user?._id === profile._id ? <button onClick={onShowLikes} id="likeButton" className=''>Likes</button> : <></>}
-                    {user?._id === profile._id ? <button onClick={onShowBookmarks} id="bookmarkButton" className=''>Bookmarks</button> : <></>}
+                    {user?._id === profile._id ? <button onClick={onShowLikes} id="likeButton" className='tab'>Likes</button> : <></>}
+                    {user?._id === profile._id ? <button onClick={onShowBookmarks} id="bookmarkButton" className='tab'>Bookmarks</button> : <></>}
                 </div>
 
                 <div className='content'>

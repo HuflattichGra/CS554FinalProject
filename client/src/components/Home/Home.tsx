@@ -95,7 +95,7 @@ const Home: React.FC = () => {
             ) : (
                 <>
                     <div>
-                        <button onClick={() => setShowModal(true)}> Make a Post</button>
+                        <button style={{backgroundColor: '#1a1a1a',color:'whitesmoke'}} onClick={() => setShowModal(true)}> Make a Post</button>
                     </div>
                     <div className="mt-8">
                         <h2 className="text-2xl font-bold mb-4">Followed Conventions</h2>

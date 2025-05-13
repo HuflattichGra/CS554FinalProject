@@ -5,6 +5,7 @@
 .tab button{
     background-color: inherit;
     padding: 14px 16px;
+    color:whitesmoke;
 }
 .tab button:hover {
   background-color: #1a1a1a;
@@ -12,7 +13,6 @@
 .tab button.active {
   border-color: #ccc;
 }
-
 
 .content{
     border-bottom: 1px solid #ccc;

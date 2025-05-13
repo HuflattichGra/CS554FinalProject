@@ -16,6 +16,10 @@
   border-radius: 20px;
 }
 
+.convention-card-title{
+  color:#1a1a1a;
+}
+
 .post-element {
   padding: 1vw 4vw 4vw 1vw;
   border-width: 0.1vw;

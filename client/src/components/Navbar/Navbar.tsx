@@ -83,7 +83,7 @@ const Navbar: React.FC = () => {
                   className="profile-icon"
                 />
               </Link>
-              <button  onClick={logout}>Logout</button>
+              <button className="Logout_button" onClick={logout}>Logout</button>
             </div>
           ) : (
             <div className="auth-buttons">
