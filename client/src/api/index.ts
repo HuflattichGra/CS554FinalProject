@@ -1,3 +1,3 @@
-export const API_BASE = import.meta.env.DEV
+export const API_BASE = import.meta.env.DOCKER
   ? "/api"
   : import.meta.env.VITE_API_URL || "http://localhost:3000";
