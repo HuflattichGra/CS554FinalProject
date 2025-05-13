@@ -40,7 +40,7 @@ const PostView: React.FC<Post> = (props: any) => {
                 //     images.push(await axios.get(`${API_BASE}/image/download/${props.images[0]}`));
                 // }
                 
-                setPoster(JSON.parse(userData.data));
+                setPoster(userData.data);
                 setLoading(false);
             } catch (e) {
                 console.log(e);
