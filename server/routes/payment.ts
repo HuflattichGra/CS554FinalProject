@@ -44,14 +44,16 @@ router.post("/addBalance", async (req: Request, res: Response) => {
         .status(400)
         .json({ error: "Invalid expiry date format (MM/YY)" });
     }
-
     // Validate expiry date is in the future
     const [month, year] = expiryDate.split("/");
-    const expiryDateObj = new Date(
-      2000 + parseInt(year),
-      parseInt(month) - 1,
-      1
-    );
+    const monthNum = parseInt(month);
+
+    // Validate month is between 01 and 12
+    if (monthNum < 1 || monthNum > 12) {
+      return res.status(400).json({ error: "Month must be between 01 and 12" });
+    }
+
+    const expiryDateObj = new Date(2000 + parseInt(year), monthNum - 1, 1);
     const today = new Date();
     if (expiryDateObj < today) {
       return res.status(400).json({ error: "Card has expired" });
