@@ -15,7 +15,6 @@ import ConventionDetailPage from "./pages/ConventionDetailPage";
 import Profile from './components/Profile/Profile';
 import DetailPostView from "./components/Posts/DetailPostView";
 import { API_BASE } from './api';
-import DetailPostView from "./components/Posts/DetailPostView";
 
 function App() {
   const location = useLocation();
