@@ -170,7 +170,7 @@ const PostView: React.FC<Post> = (props: any) => {
                         </button>
                     </form>
                 </div>
-                <Link to={`post/view/${post._id}`}>
+                <Link to={`post/${post._id}`}>
                 <p>{post.text}</p>
                 </Link>
                 {user ? (
