@@ -43,7 +43,7 @@ const DetailPostView: React.FC = () => {
         try {
             // Clear existing post images to prevent showing stale data
             setPostImages([]);
-            
+
             // Fetch post data with a cache-busting parameter to ensure fresh data
             const timestamp = new Date().getTime();
             const postData: any = await axios.get(`${API_BASE}/posts/${id}?_t=${timestamp}`);
@@ -55,7 +55,7 @@ const DetailPostView: React.FC = () => {
                 // Process all images if they exist in the post
                 if (newPost.images && newPost.images.length > 0) {
                     // Create image URLs for all images
-                    const imageUrls = newPost.images.map((imageId: string) => 
+                    const imageUrls = newPost.images.map((imageId: string) =>
                         `${API_BASE}/image/download/${imageId}?_t=${timestamp}`
                     );
                     setPostImages(imageUrls);
@@ -127,10 +127,10 @@ const DetailPostView: React.FC = () => {
             // Update user's bookmarks array
             let newUser = await axios.patch(`${API_BASE}/user/${user?._id}`, {
                 bookmarks: post?._id,
-            }, 
-            {
-                withCredentials: true,
-            });
+            },
+                {
+                    withCredentials: true,
+                });
 
             //Update User context
             setUser(newUser.data);
@@ -152,14 +152,14 @@ const DetailPostView: React.FC = () => {
                 `${API_BASE}/user/${user._id}`,
                 {
                     likes: post._id,
-                }, 
+                },
                 {
                     withCredentials: true,
                 }
             );
 
             setUser(newUser.data);
-            setPost({...post, likes: post.likes.filter((userId: string) => userId !== user._id)});
+            setPost({ ...post, likes: post.likes.filter((userId: string) => userId !== user._id) });
             setLiked(false);
         } else {
             let newLikes: Array<string> = [...post.likes, user._id];
@@ -168,14 +168,14 @@ const DetailPostView: React.FC = () => {
                 `${API_BASE}/user/${user._id}`,
                 {
                     likes: post._id,
-                }, 
+                },
                 {
                     withCredentials: true,
                 }
             );
 
             setUser(newUser.data);
-            setPost({...post, likes: newLikes});
+            setPost({ ...post, likes: newLikes });
             setLiked(true);
         }
     };
@@ -220,32 +220,33 @@ const DetailPostView: React.FC = () => {
             <div className="mb-4">
                 {post ?
                     <div>
-                        <div className={`Post ${styles.container}`}>                            <div className={styles.topOfPost}>
-                                { poster ? 
+                        <div className={`Post ${styles.container}`}>
+                            <div className={styles.topOfPost}>
+                                {poster ?
                                     <Link to={`/user/${post.userID}`}>
                                         <div className={styles.userInfo}>
                                             <User size={18} className={styles.userIcon} />
                                             <p>{poster.username}</p>
                                         </div>
-                                    </Link> : <></> }
+                                    </Link> : <></>}
                                 {convention && (
                                     <Link to={`/conventions/${post.conventionID}`} className={styles.conventionLink}>
                                         <p>#{convention.name}</p>
                                     </Link>
                                 )}
-                                <p style={{color:"gray"}}>{post.createdAt.substring(0,10)}</p>
+                                <p style={{ color: "gray" }}>{post.createdAt.substring(0, 10)}</p>
                                 <div className={styles.actionButtons}>
                                     {/* Show edit button if user is the post owner */}
                                     {isUserPostOwner && (
-                                        <button 
-                                            onClick={() => setShowEditModal(true)} 
+                                        <button
+                                            onClick={() => setShowEditModal(true)}
                                             className={styles.actionButton}
                                             aria-label="Edit post"
                                         >
                                             <Pencil size={20} color="#4F46E5" />
                                         </button>
                                     )}
-                                    
+
                                     {/* Show bookmark button if user is logged in */}
                                     {user && (
                                         <form id="bookmark" onSubmit={onSubmitBookmark}>
@@ -281,7 +282,7 @@ const DetailPostView: React.FC = () => {
                                     <button className={styles.likeCount}>{post.likes?.length || 0}</button>
                                 </div>
                             ) : <div className={styles.flexContainer}><Heart color="#333333" size={20}></Heart> <button className={styles.likeCount}>{post.likes?.length || 0}</button> </div>}
-                        </div>   
+                        </div>
                         <div id="CommentGroup">
                             {comments.map((x: any) =>
                                 <div key={x._id} className={`Post ${styles.container}`}>
@@ -398,7 +399,7 @@ const DetailPostView: React.FC = () => {
                             console.log("Post updated, refreshing data...");
                             // Clear existing data first
                             setPostImages([]);
-                            setPost(undefined); 
+                            setPost(undefined);
                             // Then refetch everything
                             fetchData();
                         }}
