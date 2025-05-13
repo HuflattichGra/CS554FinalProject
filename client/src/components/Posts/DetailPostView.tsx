@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import { API_BASE } from '../../api';
 import { Heart } from 'lucide-react';
 import styles from "./PostView.module.css";
+import CommentModal from './CommentModal';
 
 interface Post {
     _id: string;
@@ -27,9 +28,11 @@ const DetailPostView: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [post, setPost] = useState<Post>();
     const [comments, setComments] = useState<any>([]);
+    const [showModal, setShowModal] = useState(false);
     let id = useParams().id;
 
     const fetchData = async () => {
+        setLoading(true);
         try {
             const userData: any = await axios.get(`${API_BASE}/posts/${id}`);
 
@@ -46,6 +49,7 @@ const DetailPostView: React.FC = () => {
             console.log(e);
             setLoading(false);
         }
+        setLoading(false);
     };
 
 
@@ -77,73 +81,73 @@ const DetailPostView: React.FC = () => {
                                 <div key={x._id} className={`Post ${styles.container}`}>
                                     <p>{x.text}</p>
                                     <div className={styles.flexContainer}>
-                                    {user? 
-                                    <button
-                                    name="likeButton"
-                                    className={styles.actionButton}
-                                    onClick={async (e: any) => {
-                                        e.preventDefault();
-                                        if (x.likes.includes(user?._id)) {
-                                            let newLikes: Array<string> = x.likes.filter(
-                                                (like: string) => like !== user?._id
-                                            );
+                                        {user ?
+                                            <button
+                                                name="likeButton"
+                                                className={styles.actionButton}
+                                                onClick={async (e: any) => {
+                                                    e.preventDefault();
+                                                    if (x.likes.includes(user?._id)) {
+                                                        let newLikes: Array<string> = x.likes.filter(
+                                                            (like: string) => like !== user?._id
+                                                        );
 
-                                            const newComment = await axios.patch(
-                                                `${API_BASE}/comments/${x._id}`,
-                                                {
-                                                    likes: newLikes,
-                                                }
-                                            );
+                                                        const newComment = await axios.patch(
+                                                            `${API_BASE}/comments/${x._id}`,
+                                                            {
+                                                                likes: newLikes,
+                                                            }
+                                                        );
 
-                                            var newComments = [...comments]
+                                                        var newComments = [...comments]
 
-                                            for (let i = 0; i < comments.length; i++) {
-                                                if (comments[i]._id == x._id) {
-                                                    newComments[i] = newComment.data;
-                                                }
-                                            }
+                                                        for (let i = 0; i < comments.length; i++) {
+                                                            if (comments[i]._id == x._id) {
+                                                                newComments[i] = newComment.data;
+                                                            }
+                                                        }
 
-                                            setComments(newComments);
-                                        } else {
-                                            let newLikes: Array<string> = [...x.likes, user?._id!];
+                                                        setComments(newComments);
+                                                    } else {
+                                                        let newLikes: Array<string> = [...x.likes, user?._id!];
 
-                                            const newComment = await axios.patch(
-                                                `${API_BASE}/comments/` + x._id,
-                                                {
-                                                    likes: newLikes,
-                                                }
-                                            );
-                                            // Right now the patch will return a 401 because the admin file is set to false
-                                            /*
-                                            // Get user's current likes array
-                                            const userResponse = await axios.get(
-                                                `${API_BASE}/user/${user?._id}`
-                                            );
-                                            const currentUserLikes = userResponse.data.likes || [];
-                                
-                                            // Add this post to user's likes
-                                            const updatedUserLikes = [...currentUserLikes, props._id];
-                                
-                                            // Update user's likes array
-                                            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                                                likes: updatedUserLikes,
-                                            });
-                                            */
-                                            var newComments = [...comments]
+                                                        const newComment = await axios.patch(
+                                                            `${API_BASE}/comments/` + x._id,
+                                                            {
+                                                                likes: newLikes,
+                                                            }
+                                                        );
+                                                        // Right now the patch will return a 401 because the admin file is set to false
+                                                        /*
+                                                        // Get user's current likes array
+                                                        const userResponse = await axios.get(
+                                                            `${API_BASE}/user/${user?._id}`
+                                                        );
+                                                        const currentUserLikes = userResponse.data.likes || [];
+                                            
+                                                        // Add this post to user's likes
+                                                        const updatedUserLikes = [...currentUserLikes, props._id];
+                                            
+                                                        // Update user's likes array
+                                                        await axios.patch(`${API_BASE}/user/${user?._id}`, {
+                                                            likes: updatedUserLikes,
+                                                        });
+                                                        */
+                                                        var newComments = [...comments]
 
 
-                                            for (let i = 0; i < comments.length; i++) {
-                                                if (comments[i]._id == x._id) {
-                                                    newComments[i] = newComment.data;
-                                                }
-                                            }
+                                                        for (let i = 0; i < comments.length; i++) {
+                                                            if (comments[i]._id == x._id) {
+                                                                newComments[i] = newComment.data;
+                                                            }
+                                                        }
 
-                                            setComments(newComments);
-                                        }
-                                    }}>
-                                        {x.likes.includes(user?._id) ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} />}
-                                    </button> : <Heart size={20} /> }
-                                    <p className='likeCount'>{x.likes.length}</p>
+                                                        setComments(newComments);
+                                                    }
+                                                }}>
+                                                {x.likes.includes(user?._id) ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} />}
+                                            </button> : <Heart size={20} />}
+                                        <p className='likeCount'>{x.likes.length}</p>
                                     </div>
                                 </div>
 
@@ -153,6 +157,30 @@ const DetailPostView: React.FC = () => {
                     :
                     <p>Failed to load post</p>
                 }
+
+                <button
+                    onClick={() => setShowModal(true)}
+                    style={{
+                        padding: '8px 16px',
+                        backgroundColor: 'black',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Make a Comment
+                </button>
+
+                {showModal && (
+                    <CommentModal
+                        isOpen={showModal}
+                        onClose={() => setShowModal(false)}
+                        onPostCreated={() => {
+                            fetchData();
+                        }}
+                    />
+                )}
             </div>
         </>
     );

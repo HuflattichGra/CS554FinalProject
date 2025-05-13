@@ -42,6 +42,9 @@ function checkComment(obj: any, needsID: boolean = false, noEmpty: boolean = tru
 }
 
 async function addComment(obj: any) {
+    obj.likes=[];
+    obj.createdAt = new Date(Date.now());
+
     obj = checkComment(obj, false, true);
 
     if(obj.postID){obj.postID = ObjectId.createFromHexString(obj.postID);}

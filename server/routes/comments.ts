@@ -24,8 +24,8 @@ router.route('/').get(async (req, res) => {
 })
     .post(async (req, res) => {
         try {
-            var body = req.body;
-
+            var body : any = req.body;
+            
             body.createdAt = new Date(Date.now());
             body.likes = [];
 
