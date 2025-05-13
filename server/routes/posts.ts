@@ -151,16 +151,6 @@ router
         body.images = [];
       }
 
-      // Convert conventionID and userID to ObjectID before updating
-      if (body.conventionID) {
-        body.conventionID = ObjectId.createFromHexString(body.conventionID);
-      }
-
-      // Always convert userID to ObjectID since it's required for authorization
-      if (body.userID) {
-        body.userID = ObjectId.createFromHexString(body.userID);
-      }
-
       const ret = await posts.updatePost(id, body);
 
       // Update the cache with the new post data
