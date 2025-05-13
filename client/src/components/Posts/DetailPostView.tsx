@@ -3,12 +3,11 @@ import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 
 import userContext from "../../context/userContext";
-import PostView from '../Posts/PostView';
 import { useParams, Link } from 'react-router-dom';
 import { API_BASE } from '../../api';
 import styles from "./PostView.module.css";
 import CommentModal from './CommentModal';
-import { Heart, User } from "lucide-react";
+import { Heart, Bookmark, BookmarkCheck, User } from "lucide-react";
 
 interface Post {
     _id: string;
@@ -22,45 +21,200 @@ interface Post {
     posterName?: string;
 }
 
+
+
 const DetailPostView: React.FC = () => {
     const { user } = useContext(userContext);
-    const [dataType, setDataType] = useState("posts");
     const [loading, setLoading] = useState(true);
     const [post, setPost] = useState<Post>();
     const [comments, setComments] = useState<any>([]);
     const [commenters, setCommenters] = useState<any>([]);
     const [showModal, setShowModal] = useState(false);
+    const [poster, setPoster] = useState<any>(undefined);
+    const [bookmarked, setBookmarked] = useState(false);
+    const [liked, setLiked] = useState(false);
+    const [postImages, setPostImages] = useState<string[]>([]);
+    const [convention, setConvention] = useState<any>(null);
     let id = useParams().id;
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const userData: any = await axios.get(`${API_BASE}/posts/${id}`);
+            const postData: any = await axios.get(`${API_BASE}/posts/${id}`);
+            var newPost = postData.data;
 
-            setPost(userData.data);
-
-            if (userData.data) {
-                var commentFetch = await axios.get(`${API_BASE}/comments/posts/${id}`);
-
-                setComments(commentFetch.data);
+            setPost(postData.data);
 
 
-                var commenters: any[] = [];
-                for (let i = 0; i < commentFetch.data.length; i++) {
-                    var userfetch = await axios.get(`${API_BASE}/user/${commentFetch.data[i].userID}`);
+            if (newPost) {
 
-                    commenters = [...commenters, userfetch.data];
+                // Process only the first image if any exist in the post
+                if (newPost.images && newPost.images.length > 0) {
+                    // Create image URL for the first image only
+                    const firstImageId = newPost.images[0];
+                    setPostImages([`${API_BASE}/image/download/${firstImageId}`]);
                 }
 
-                setCommenters(commenters);
+                const userData = await axios.get(
+                    `${API_BASE}/user/${newPost.userID}`
+                );
+
+                setPoster(userData.data);
+
+                // Fetch convention data if conventionID exists
+                if (newPost.conventionID) {
+                    try {
+                        const conventionData = await axios.get(
+                            `${API_BASE}/conventions/${newPost.conventionID}`
+                        );
+                        setConvention(conventionData.data);
+                    } catch (err) {
+                        console.log("Error fetching convention data:", err);
+                    }
+                }
+
+                // Check if user is logged in
+                if (user && user._id) {
+                    // Check if post is liked by current user
+                    setLiked(newPost.likes?.includes(user._id) || false);
+
+                    // Check if post is bookmarked by current user
+                    const currentUserData = await axios.get(`${API_BASE}/user/${user._id}`);
+                    const userBookmarks = currentUserData.data.bookmarks || [];
+                    setBookmarked(userBookmarks.includes(newPost._id) || false);
+                }
+
+                if (postData.data) {
+                    var commentFetch = await axios.get(`${API_BASE}/comments/posts/${id}`);
+
+                    setComments(commentFetch.data);
+
+
+                    var commenters: any[] = [];
+                    for (let i = 0; i < commentFetch.data.length; i++) {
+                        var userfetch = await axios.get(`${API_BASE}/user/${commentFetch.data[i].userID}`);
+
+                        commenters = [...commenters, userfetch.data];
+                    }
+
+                    setCommenters(commenters);
+                }
             }
 
             setLoading(false);
         } catch (e) {
             console.log(e);
+            setPoster("Not Found");
             setLoading(false);
         }
         setLoading(false);
+    };
+
+    const onSubmitBookmark: any = async (e: any) => {
+        e.preventDefault();
+        try {
+            if (!post) {
+                return
+            }
+            // Get user's current bookmarks array
+            const userResponse = await axios.get(`${API_BASE}/user/${user?._id}`);
+            const currentBookmarks = userResponse.data.bookmarks || [];
+
+            let updatedBookmarks;
+            if (currentBookmarks.includes(post._id)) {
+                // Remove this post from bookmarks if it's already bookmarked
+                updatedBookmarks = currentBookmarks.filter(
+                    (bookmark: string) => bookmark !== post._id
+                );
+            } else {
+                // Add this post to bookmarks if it's not bookmarked
+                updatedBookmarks = [...currentBookmarks, post._id];
+            }
+
+            // Update user's bookmarks array
+            await axios.patch(`${API_BASE}/user/${user?._id}`, {
+                bookmarks: updatedBookmarks,
+            }, {
+                withCredentials: true,
+            });
+
+            // Toggle the bookmarked state
+            setBookmarked(!bookmarked);
+
+            //alert(currentBookmarks.includes(props._id) ? "Post unbookmarked!" : "Post bookmarked!");
+        } catch (error) {
+            console.error("Error updating bookmarks:", error);
+            alert("Failed to update bookmarks");
+        }
+    };
+
+    const onSubmitLikes: any = async (e: any) => {
+        e.preventDefault();
+        if (!post || !user) {
+            return;
+        }
+        if (post.likes.includes(user?._id)) {
+            let newLikes: Array<string> = post.likes.filter(
+                (like: string) => like !== user?._id
+            );
+
+            const newPost = await axios.patch(
+                `${API_BASE}/posts/${post._id}`,
+                {
+                    likes: newLikes,
+                }
+            );
+
+            // Right now the patch will return a 401 because the admin file is set to false
+            /*
+            // Get user's current likes array
+            const userResponse = await axios.get(
+                `${API_BASE}/user/${user?._id}`
+            );
+            const currentUserLikes = userResponse.data.likes || [];
+    
+            // Remove this post from user's likes
+            const updatedUserLikes = currentUserLikes.filter(
+                (like: string) => like !== props._id
+            );
+    
+            // Update user's likes array
+            await axios.patch(`${API_BASE}/user/${user?._id}`, {
+                likes: updatedUserLikes,
+            });
+            */
+
+            setPost(newPost.data);
+            setLiked(false);
+        } else {
+            let newLikes: Array<string> = [...post.likes, user?._id!];
+
+            const newPost = await axios.patch(
+                `${API_BASE}/posts/${post._id}`,
+                {
+                    likes: newLikes,
+                }
+            );
+            // Right now the patch will return a 401 because the admin file is set to false
+            /*
+            // Get user's current likes array
+            const userResponse = await axios.get(
+                `${API_BASE}/user/${user?._id}`
+            );
+            const currentUserLikes = userResponse.data.likes || [];
+    
+            // Add this post to user's likes
+            const updatedUserLikes = [...currentUserLikes, props._id];
+    
+            // Update user's likes array
+            await axios.patch(`${API_BASE}/user/${user?._id}`, {
+                likes: updatedUserLikes,
+            });
+            */
+
+            setPost(newPost.data);
+            setLiked(true);
+        }
     };
 
 
@@ -86,7 +240,13 @@ const DetailPostView: React.FC = () => {
     });
 
     if (loading) {
-        return (<div>Loading...</div>);
+        return (
+            <div>
+                <p>loading...</p>
+            </div>
+        );
+    } else if (poster === "Not Found") {
+        return <p>Error: 404 Not Found</p>;
     }
 
     return (
@@ -94,15 +254,49 @@ const DetailPostView: React.FC = () => {
             <div className="mb-4">
                 {post ?
                     <div>
-                        <PostView
-                            key={post._id}
-                            _id={post._id}
-                            conventionID={post.conventionID}
-                            userID={post.userID}
-                            text={post.text}
-                            images={post.images}
-                            likes={post.likes}
-                        />
+                        <div className={`Post ${styles.container}`}>
+                            <div className={styles.topOfPost}>
+                                { poster ? 
+                                    <Link to={`/user/${post.userID}`}>
+                                        <div className={styles.userInfo}>
+                                            <User size={18} className={styles.userIcon} />
+                                            <p>{poster.username}</p>
+                                        </div>
+                                    </Link> : <></> }
+                                {convention && (
+                                    <Link to={`/conventions/${post.conventionID}`} className={styles.conventionLink}>
+                                        <p>#{convention.name}</p>
+                                    </Link>
+                                )}
+                                {user ?
+                                    <form id="bookmark" onSubmit={onSubmitBookmark}>
+                                        <button onClick={onSubmitBookmark} className={styles.actionButton}>
+                                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} color="whitesmoke" />}
+                                        </button>
+                                    </form> : <></>}
+                            </div>
+                            <Link to={`/posts/${post._id}`} className={styles.postContent}>
+                                <p>{post.text}</p>
+                                {postImages.length > 0 && (
+                                    <div className={styles.postImagesContainer}>
+                                        <img
+                                            src={postImages[0]}
+                                            alt="Post image"
+                                            className={styles.postImage}
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                )}
+                            </Link>
+                            {user ? (
+                                <div className={styles.flexContainer}>
+                                    <button onClick={onSubmitLikes} name="likeButton" className={styles.actionButton}>
+                                        {liked ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} color="whitesmoke" />}
+                                    </button>
+                                    <button className={styles.likeCount}>{post.likes?.length || 0}</button>
+                                </div>
+                            ) : <div className={styles.flexContainer}><Heart color="#383a61" size={20}></Heart> <button className={styles.likeCount}>{post.likes?.length || 0}</button> </div>}
+                        </div>
                         <div id="CommentGroup">
                             {comments.map((x: any) =>
                                 <div key={x._id} className={`Post ${styles.container}`}>
