@@ -24,6 +24,17 @@
 5. Wait for all containers to start (client, server, Redis, MongoDB)
 6. Access the application at http://localhost:5173
 
+#### How to Rebuild After updating code
+
+1. Rebuild the server and client containers:
+   ```
+   docker-compose build --no-cache server client
+   ```
+2. Restart the containers:
+   ```
+   docker-compose up --force-recreate --detach server client
+   ```
+
 ### Option 2: Manual Setup
 
 Make sure node.js and imagemagick is installed
