@@ -59,6 +59,7 @@ const EditModal: React.FC<EditModalProps> = ({
     const [lastname, setLastname] = useState(editUser.lastname);
     const [bio, setBio] = useState(editUser.bio);
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const hasPfp = !!editUser.pfp;
 
 
     const handleAddImage = () => {
@@ -128,7 +129,7 @@ const EditModal: React.FC<EditModalProps> = ({
                         height: "80px",
                         marginTop: "8px",
                     }}/>
-                </label>  
+                </label>
                 <div>
                     <p>Profile Picture: </p>
                     {imageFile ? (
@@ -136,11 +137,11 @@ const EditModal: React.FC<EditModalProps> = ({
                             <span style={{ marginRight: '1rem' }}>{imageFile.name}</span>
                             <button type="button" onClick={handleRemoveImage}>Remove</button>
                         </div>
-                    ) : (
+                    ) : !hasPfp && (
                         <p>No profile picture selected</p>
                     )}
                     <button type="button" onClick={handleAddImage}>
-                        {imageFile ? 'Change Profile Picture' : 'Add Profile Picture'}
+                        {imageFile || hasPfp ? 'Change Profile Picture' : 'Add Profile Picture'}
                     </button>
                 </div>
                 <div style={{ marginTop: "1rem" }}>
