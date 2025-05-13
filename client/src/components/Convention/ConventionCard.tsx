@@ -20,7 +20,8 @@ export interface ConventionCardProps {
   owners?: string[];
   onDeleted?: () => void;
   isClickable?: boolean;
-  currentTab?: string
+  currentTab?: string;
+  isOnline?: boolean;
 }
 
 const ConventionCard: React.FC<ConventionCardProps> = ({
@@ -33,14 +34,14 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
   owners,
   imageUrl = '/default-convention-banner.png',
   countdownDays,
-  currentTab
-
+  currentTab,
+  isOnline
 }) => {
   const navigate = useNavigate();
   const { user } = useContext(userContext);
   const [isFollowing, setIsFollowing] = useState<boolean | undefined>(undefined);
 
-
+const isNotOnline = !isOnline
   // const con = { _id, name, tags, startDate, endDate, address, imageUrl, countdownDays, productCount, groupCount };
   const isEnded = new Date(endDate) < new Date();
   const isAdmin = Array.isArray(owners) && owners.includes(user._id);
@@ -145,8 +146,9 @@ const ConventionCard: React.FC<ConventionCardProps> = ({
 
           <div className="convention-card-detail">
             <MapPinIcon size={16} />
-            <span>{address}</span>
+            <span>{isOnline ? 'Online' : address}</span>
           </div>
+
 
           <div className="tag-container">
             {tags?.map((tag, index) => (

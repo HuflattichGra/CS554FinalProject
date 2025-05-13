@@ -224,7 +224,7 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Optional description"
+            placeholder="Description has to be more than 10 charactersand less than 100 characters"
           />
         </div>
 

@@ -40,7 +40,9 @@ export const createConvention = async (
   endDate = checkDate(endDate, 'End Date');
 
   description = checkStringTrimmed(description, 'Description');
-  address = checkStringTrimmed(address, 'Address');
+  if(!isOnline){
+    address = checkStringTrimmed(address, 'Address');
+  }
 
   if (ownerIds.length === 0) throw 'At least one owner is required';
   
