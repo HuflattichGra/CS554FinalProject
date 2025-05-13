@@ -3,6 +3,7 @@ import posts from "../src/posts";
 import client from "../redis/client";
 import { imageUpload } from "../images/upload";
 import { extractMultiple } from "../images/extract";
+import { ObjectId } from "mongodb";
 // @ts-ignore
 import { checkStringTrimmed, checkId } from "../typechecker";
 const router = Router();
@@ -42,11 +43,21 @@ router
         throw new Error("Missing required fields: text, userID");
       }
       const validatedText = checkStringTrimmed(text, "text");
+
+      // Validate IDs first
       const validatedUserID = checkId(userID, "userID");
-      let validatedConventionID = conventionID;
-      if (conventionID) {
-        validatedConventionID = checkId(conventionID, "conventionID");
-      }
+      let validatedConventionID = conventionID
+        ? checkId(conventionID, "conventionID")
+        : null;
+
+      // Import ObjectId for direct conversion
+      const { ObjectId } = await import("mongodb");
+
+      // Convert to ObjectId
+      const userObjectId = ObjectId.createFromHexString(validatedUserID);
+      const conventionObjectId = validatedConventionID
+        ? ObjectId.createFromHexString(validatedConventionID)
+        : null;
 
       let imageIds: string[] = [];
       if (Array.isArray(req.files) && req.files.length > 0) {
@@ -56,8 +67,8 @@ router
 
       const postData = {
         text: validatedText,
-        conventionID: validatedConventionID,
-        userID: validatedUserID,
+        conventionID: conventionObjectId,
+        userID: userObjectId,
         images: imageIds,
         likes: [],
       };
@@ -78,7 +89,8 @@ router
       var id = req.params.id;
       var cache = await client.get(apistring + id);
 
-      if (cache == null) {
+      if (cache == null || req.query._t) {
+        // Skip cache if _t query param exists (force refresh)
         var ret = await posts.getPost(id);
 
         await client.set(apistring + ret._id, JSON.stringify(ret));
@@ -87,22 +99,85 @@ router
         return;
       }
 
-      res.status(200).send(cache);
+      res.status(200).send(JSON.parse(cache));
     } catch (e) {
       res.status(400).send({ error: (e as Error).message });
     }
   })
-  .patch(async (req, res) => {
+  .patch(imageUpload.array("images"), async (req: Request, res: Response) => {
     try {
-      var id = req.params.id;
-      var body = req.body;
+      const id = req.params.id;
+      const body = req.body;
 
-      var ret = await posts.updatePost(id, body);
+      // Get the user ID from the request body (should be sent by the client)
+      const userId = body.userID;
 
+      // Check if user ID is provided
+      if (!userId) {
+        res
+          .status(401)
+          .send({ error: "You must provide a user ID to edit a post" });
+        return;
+      }
+
+      // Retrieve the post to check ownership
+      const existingPost = await posts.getPost(id);
+
+      // Check if the current user is the owner of the post
+      if (existingPost.userID.toString() !== userId.toString()) {
+        res.status(403).send({ error: "You can only edit your own posts" });
+        return;
+      } // Handle image uploads if there are any new images
+      console.log("Update post request:", {
+        keepImages: body.keepImages,
+        newFiles: req.files?.length || 0,
+      });
+
+      if (Array.isArray(req.files) && req.files.length > 0) {
+        const ids = await extractMultiple(req);
+        const imageIds = ids.map((id) => id.toString());
+
+        // If there are existing images to keep, merge them with the new ones
+        if (body.keepImages && Array.isArray(body.keepImages)) {
+          body.images = [...body.keepImages, ...imageIds];
+        } else {
+          body.images = imageIds;
+        }
+      } else if (body.keepImages && Array.isArray(body.keepImages)) {
+        // No new images, but we have existing images to keep
+        body.images = [...body.keepImages];
+      } else if (body.images === "[]") {
+        // Explicitly set empty images array
+        body.images = [];
+      }
+
+      // Convert conventionID and userID to ObjectID before updating
+      if (body.conventionID) {
+        body.conventionID = ObjectId.createFromHexString(body.conventionID);
+      }
+
+      // Always convert userID to ObjectID since it's required for authorization
+      if (body.userID) {
+        body.userID = ObjectId.createFromHexString(body.userID);
+      }
+
+      const ret = await posts.updatePost(id, body);
+
+      // Update the cache with the new post data
       await client.set(apistring + ret._id, JSON.stringify(ret));
+
+      // Also update the recent posts cache to reflect the change
+      await deletePostCache();
+
+      console.log("Updated post:", {
+        postId: ret._id,
+        images: ret.images,
+        text: ret.text,
+      });
 
       res.status(200).send(ret);
     } catch (e) {
+      console.log(e);
       console.log({ error: (e as Error).message });
       res.status(400).send({ error: (e as Error).message });
     }

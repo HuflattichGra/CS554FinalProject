@@ -7,7 +7,8 @@ import { useParams, Link } from 'react-router-dom';
 import { API_BASE } from '../../api';
 import styles from "./PostView.module.css";
 import CommentModal from './CommentModal';
-import { Heart, Bookmark, BookmarkCheck, User } from "lucide-react";
+import EditPostModal from './EditPostModal';
+import { Heart, Bookmark, BookmarkCheck, User, Pencil } from "lucide-react";
 
 interface Post {
     _id: string;
@@ -30,29 +31,37 @@ const DetailPostView: React.FC = () => {
     const [comments, setComments] = useState<any>([]);
     const [commenters, setCommenters] = useState<any>([]);
     const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [poster, setPoster] = useState<any>(undefined);
     const [bookmarked, setBookmarked] = useState(false);
     const [liked, setLiked] = useState(false);
     const [postImages, setPostImages] = useState<string[]>([]);
     const [convention, setConvention] = useState<any>(null);
     let id = useParams().id;
-
     const fetchData = async () => {
         setLoading(true);
         try {
-            const postData: any = await axios.get(`${API_BASE}/posts/${id}`);
+            // Clear existing post images to prevent showing stale data
+            setPostImages([]);
+            
+            // Fetch post data with a cache-busting parameter to ensure fresh data
+            const timestamp = new Date().getTime();
+            const postData: any = await axios.get(`${API_BASE}/posts/${id}?_t=${timestamp}`);
             var newPost = postData.data;
 
             setPost(postData.data);
 
-
             if (newPost) {
-
-                // Process only the first image if any exist in the post
+                // Process all images if they exist in the post
                 if (newPost.images && newPost.images.length > 0) {
-                    // Create image URL for the first image only
-                    const firstImageId = newPost.images[0];
-                    setPostImages([`${API_BASE}/image/download/${firstImageId}`]);
+                    // Create image URLs for all images
+                    const imageUrls = newPost.images.map((imageId: string) => 
+                        `${API_BASE}/image/download/${imageId}?_t=${timestamp}`
+                    );
+                    setPostImages(imageUrls);
+                } else {
+                    // Make sure to clear images if there are none
+                    setPostImages([]);
                 }
 
                 const userData = await axios.get(
@@ -134,14 +143,13 @@ const DetailPostView: React.FC = () => {
             alert("Failed to update bookmarks");
         }
     };
-
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
+        if (!post || !user) return;
 
-        if (post?.likes.includes(user._id)) {
-
+        if (post.likes.includes(user._id)) {
             const newUser = await axios.patch(
-                `${API_BASE}/user/${user?._id}`,
+                `${API_BASE}/user/${user._id}`,
                 {
                     likes: post._id,
                 }, 
@@ -150,14 +158,14 @@ const DetailPostView: React.FC = () => {
                 }
             );
 
-            setUser(newUser.data)
-            setPost({...post, likes: post.likes.filter((userId: string) => userId !== user?._id)});
+            setUser(newUser.data);
+            setPost({...post, likes: post.likes.filter((userId: string) => userId !== user._id)});
             setLiked(false);
         } else {
-            let newLikes: Array<string> = [...post.likes, user?._id!];
+            let newLikes: Array<string> = [...post.likes, user._id];
 
             const newUser = await axios.patch(
-                `${API_BASE}/user/${user?._id}`,
+                `${API_BASE}/user/${user._id}`,
                 {
                     likes: post._id,
                 }, 
@@ -166,10 +174,9 @@ const DetailPostView: React.FC = () => {
                 }
             );
 
-            setUser(newUser.data)
+            setUser(newUser.data);
             setPost({...post, likes: newLikes});
             setLiked(true);
-            notifyParent()
         }
     };
 
@@ -178,6 +185,9 @@ const DetailPostView: React.FC = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Check if current user is the owner of the post
+    const isUserPostOwner = user && post && user._id === post.userID;
 
     const getCommenter = ((comment: any) => {
         var commenter = null;
@@ -210,8 +220,7 @@ const DetailPostView: React.FC = () => {
             <div className="mb-4">
                 {post ?
                     <div>
-                        <div className={`Post ${styles.container}`}>
-                            <div className={styles.topOfPost}>
+                        <div className={`Post ${styles.container}`}>                            <div className={styles.topOfPost}>
                                 { poster ? 
                                     <Link to={`/user/${post.userID}`}>
                                         <div className={styles.userInfo}>
@@ -224,26 +233,48 @@ const DetailPostView: React.FC = () => {
                                         <p>#{convention.name}</p>
                                     </Link>
                                 )}
-                                {user ?
-                                    <form id="bookmark" onSubmit={onSubmitBookmark}>
-                                        <button onClick={onSubmitBookmark} className={styles.actionButton}>
-                                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} color="#333333" />}
+                                <div className={styles.actionButtons}>
+                                    {/* Show edit button if user is the post owner */}
+                                    {isUserPostOwner && (
+                                        <button 
+                                            onClick={() => setShowEditModal(true)} 
+                                            className={styles.actionButton}
+                                            aria-label="Edit post"
+                                        >
+                                            <Pencil size={20} color="#4F46E5" />
                                         </button>
-                                    </form> : <></>}
+                                    )}
+                                    
+                                    {/* Show bookmark button if user is logged in */}
+                                    {user && (
+                                        <form id="bookmark" onSubmit={onSubmitBookmark}>
+                                            <button onClick={onSubmitBookmark} className={styles.actionButton}>
+                                                {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} color="#333333" />}
+                                            </button>
+                                        </form>
+                                    )}
+                                </div>
                             </div>
-                            <Link to={`/posts/${post._id}`} className={styles.postContent}>
+                            <div className={styles.postContent}>
                                 <p>{post.text}</p>
-                                {postImages.length > 0 && (
+                                {postImages.length > 0 ? (
                                     <div className={styles.postImagesContainer}>
-                                        <img
-                                            src={postImages[0]}
-                                            alt="Post image"
-                                            className={styles.postImage}
-                                            loading="lazy"
-                                        />
+                                        {postImages.map((imageUrl, index) => (
+                                            <img
+                                                key={`img-${post._id}-${index}-${Date.now()}`}
+                                                src={imageUrl}
+                                                alt={`Post image ${index + 1}`}
+                                                className={styles.postImage}
+                                                loading="lazy"
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className={styles.postImagesContainer}>
+                                        <p>No images</p>
                                     </div>
                                 )}
-                            </Link>
+                            </div>
                             {user ? (
                                 <div className={styles.flexContainer}>
                                     <button onClick={onSubmitLikes} name="likeButton" className={styles.actionButton}>
@@ -358,6 +389,22 @@ const DetailPostView: React.FC = () => {
                         onPostCreated={() => {
                             fetchData();
                         }}
+                    />
+                )}
+                {/* Edit Post Modal */}
+                {showEditModal && post && (
+                    <EditPostModal
+                        isOpen={showEditModal}
+                        onClose={() => setShowEditModal(false)}
+                        onPostUpdated={() => {
+                            console.log("Post updated, refreshing data...");
+                            // Clear existing data first
+                            setPostImages([]);
+                            setPost(undefined); 
+                            // Then refetch everything
+                            fetchData();
+                        }}
+                        post={post}
                     />
                 )}
             </div>
