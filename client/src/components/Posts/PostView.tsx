@@ -162,6 +162,8 @@ const PostView: React.FC<Post> = (props: any) => {
             // Update user's bookmarks array
             await axios.patch(`${API_BASE}/user/${user?._id}`, {
                 bookmarks: updatedBookmarks,
+            }, {
+                withCredentials: true,
             });
 
             // Toggle the bookmarked state
