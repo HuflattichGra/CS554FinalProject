@@ -1,6 +1,6 @@
 .tab{
     border-bottom: 1px solid #ccc;
-    transition: 0.3;
+    transition: 0.3s;
 }
 .tab button{
     background-color: inherit;
@@ -16,6 +16,6 @@
 
 .content{
     border-bottom: 1px solid #ccc;
-    transition: 0.3;
+    transition: 0.3s;
     margin-top: 6px;
 }
