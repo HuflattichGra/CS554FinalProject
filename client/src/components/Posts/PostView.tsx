@@ -197,11 +197,12 @@ const PostView: React.FC<Post> = (props: any) => {
                             <p>#{convention.name}</p>
                         </Link>
                     )}
+                    { user ? 
                     <form id="bookmark" onSubmit={onSubmitBookmark}>
                         <button onClick={onSubmitBookmark} className={styles.actionButton}>
                             {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} />}
                         </button>
-                    </form>
+                    </form> : <></>}
                 </div>
                 <Link to={`/posts/${post._id}`} className={styles.postContent}>
                     <p>{post.text}</p>

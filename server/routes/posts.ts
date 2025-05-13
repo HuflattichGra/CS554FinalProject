@@ -103,7 +103,7 @@ router
 
       res.status(200).send(ret);
     } catch (e) {
-      console.log({ error: (e as Error).message })
+      console.log({ error: (e as Error).message });
       res.status(400).send({ error: (e as Error).message });
     }
   })
