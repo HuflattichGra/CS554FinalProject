@@ -198,12 +198,16 @@ router
   })
   .delete(async (req, res) => {
     try {
+      if (!req.session.user) {
+        res.status(401).send({ error: "You must be logged in to delete a post" });
+        return;
+      }
       var id = req.params.id;
 
-      var ret = await posts.deletePost(id);
+      var ret = await posts.deletePost(id, req.session.user._id);
 
       deletePostCache();
-
+      
       res.status(200).send(ret);
     } catch (e) {
       res.status(400).send({ error: (e as Error).message });

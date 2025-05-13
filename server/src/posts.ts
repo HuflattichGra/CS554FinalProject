@@ -3,6 +3,7 @@ import { posts, users, conventions } from "../config/mongoCollections";
 import comments from "./comments";
 // @ts-ignore
 import * as typecheck from "../typechecker.js";
+import { Request } from 'express';
 
 export type Post = {
   _id: string;
@@ -177,8 +178,21 @@ async function updatePost(id: string, obj: any) {
   return retVal;
 }
 
-async function deletePost(id: string) {
+async function deletePost(id: string, userId: string) {
   typecheck.checkId(id, "id");
+  typecheck.checkId(userId, "id");
+  const db = await posts();
+  var retVal: Post = await getPost(id);
+
+  // Check if post exists
+  if (!retVal) {
+    throw new Error("Post not found");
+  }
+
+  // Check if current user is the creator of the post
+  if (retVal.userID.toString() !== userId) {
+    throw new Error("You can only delete your own posts");
+  }
 
   var postComments = await comments.getCommmentFromPost(id);
 
@@ -186,8 +200,7 @@ async function deletePost(id: string) {
     await comments.deleteComment(postComments[i]._id);
   }
 
-  const db = await posts();
-  var retVal: Post = await getPost(id);
+
   var deleteRes: Post = await db.deleteOne({
     _id: ObjectId.createFromHexString(id),
   });
