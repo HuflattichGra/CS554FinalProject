@@ -80,6 +80,7 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
         }
         fetchData();
     }, [props.userID, user, post.likes, props._id, props.images, props.conventionID]);
+    
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
         if (post.likes.includes(user?._id)) {

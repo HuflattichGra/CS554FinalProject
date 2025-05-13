@@ -24,7 +24,7 @@ interface Post {
 
 
 const DetailPostView: React.FC = () => {
-    const { user } = useContext(userContext);
+    const { user, setUser } = useContext(userContext);
     const [loading, setLoading] = useState(true);
     const [post, setPost] = useState<Post>();
     const [comments, setComments] = useState<any>([]);
@@ -110,37 +110,24 @@ const DetailPostView: React.FC = () => {
         setLoading(false);
     };
 
+
+
     const onSubmitBookmark: any = async (e: any) => {
         e.preventDefault();
         try {
-            if (!post) {
-                return
-            }
-            // Get user's current bookmarks array
-            const userResponse = await axios.get(`${API_BASE}/user/${user?._id}`);
-            const currentBookmarks = userResponse.data.bookmarks || [];
-
-            let updatedBookmarks;
-            if (currentBookmarks.includes(post._id)) {
-                // Remove this post from bookmarks if it's already bookmarked
-                updatedBookmarks = currentBookmarks.filter(
-                    (bookmark: string) => bookmark !== post._id
-                );
-            } else {
-                // Add this post to bookmarks if it's not bookmarked
-                updatedBookmarks = [...currentBookmarks, post._id];
-            }
-
             // Update user's bookmarks array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                bookmarks: updatedBookmarks,
-            }, {
+            let newUser = await axios.patch(`${API_BASE}/user/${user?._id}`, {
+                bookmarks: post?._id,
+            }, 
+            {
                 withCredentials: true,
             });
 
+            //Update User context
+            setUser(newUser.data);
+
             // Toggle the bookmarked state
             setBookmarked(!bookmarked);
-
             //alert(currentBookmarks.includes(props._id) ? "Post unbookmarked!" : "Post bookmarked!");
         } catch (error) {
             console.error("Error updating bookmarks:", error);
@@ -150,70 +137,39 @@ const DetailPostView: React.FC = () => {
 
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
-        if (!post || !user) {
-            return;
-        }
-        if (post.likes.includes(user?._id)) {
-            let newLikes: Array<string> = post.likes.filter(
-                (like: string) => like !== user?._id
-            );
 
-            const newPost = await axios.patch(
-                `${API_BASE}/posts/${post._id}`,
+        if (post?.likes.includes(user._id)) {
+
+            const newUser = await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
                 {
-                    likes: newLikes,
+                    likes: post._id,
+                }, 
+                {
+                    withCredentials: true,
                 }
             );
 
-            // Right now the patch will return a 401 because the admin file is set to false
-            /*
-            // Get user's current likes array
-            const userResponse = await axios.get(
-                `${API_BASE}/user/${user?._id}`
-            );
-            const currentUserLikes = userResponse.data.likes || [];
-    
-            // Remove this post from user's likes
-            const updatedUserLikes = currentUserLikes.filter(
-                (like: string) => like !== props._id
-            );
-    
-            // Update user's likes array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                likes: updatedUserLikes,
-            });
-            */
-
-            setPost(newPost.data);
+            setUser(newUser.data)
+            setPost({...post, likes: post.likes.filter((userId: string) => userId !== user?._id)});
             setLiked(false);
         } else {
             let newLikes: Array<string> = [...post.likes, user?._id!];
 
-            const newPost = await axios.patch(
-                `${API_BASE}/posts/${post._id}`,
+            const newUser = await axios.patch(
+                `${API_BASE}/user/${user?._id}`,
                 {
-                    likes: newLikes,
+                    likes: post._id,
+                }, 
+                {
+                    withCredentials: true,
                 }
             );
-            // Right now the patch will return a 401 because the admin file is set to false
-            /*
-            // Get user's current likes array
-            const userResponse = await axios.get(
-                `${API_BASE}/user/${user?._id}`
-            );
-            const currentUserLikes = userResponse.data.likes || [];
-    
-            // Add this post to user's likes
-            const updatedUserLikes = [...currentUserLikes, props._id];
-    
-            // Update user's likes array
-            await axios.patch(`${API_BASE}/user/${user?._id}`, {
-                likes: updatedUserLikes,
-            });
-            */
 
-            setPost(newPost.data);
+            setUser(newUser.data)
+            setPost({...post, likes: newLikes});
             setLiked(true);
+            notifyParent()
         }
     };
 
