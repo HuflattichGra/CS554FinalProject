@@ -50,34 +50,48 @@ const Profile: React.FC = () => {
     const [showLikes, setShowLikes] = useState(false);
     const [showBookmarks, setShowBookmarks] = useState(false)
     const [error, setError] = useState<any>("")
-    let id = useParams().id
-    if(id === undefined) id = ""
+    const { id = "" } = useParams();
 
-    const onShowPosts: any = async () => {
-        document.getElementById("postButton").className = "active"
-        document.getElementById("likeButton").className = ""
-        document.getElementById("bookmarkButton").className = ""
-        setShowPosts(true)
-        setShowLikes(false)
-        setShowBookmarks(false)
+    const onShowPosts = () => {
+        const postButton = document.getElementById("postButton");
+        const likeButton = document.getElementById("likeButton");
+        const bookmarkButton = document.getElementById("bookmarkButton");
+        
+        if (postButton) postButton.className = "active";
+        if (likeButton) likeButton.className = "";
+        if (bookmarkButton) bookmarkButton.className = "";
+        
+        setShowPosts(true);
+        setShowLikes(false);
+        setShowBookmarks(false);
     }
 
-    const onShowLikes: any = async () => {
-        document.getElementById("postButton").className = ""
-        document.getElementById("likeButton").className = "active"
-        document.getElementById("bookmarkButton").className = ""
-        setShowPosts(false)
-        setShowLikes(true)
-        setShowBookmarks(false)
+    const onShowLikes = () => {
+        const postButton = document.getElementById("postButton");
+        const likeButton = document.getElementById("likeButton");
+        const bookmarkButton = document.getElementById("bookmarkButton");
+        
+        if (postButton) postButton.className = "";
+        if (likeButton) likeButton.className = "active";
+        if (bookmarkButton) bookmarkButton.className = "";
+        
+        setShowPosts(false);
+        setShowLikes(true);
+        setShowBookmarks(false);
     }
 
-    const onShowBookmarks: any = async () => {
-        document.getElementById("postButton").className = ""
-        document.getElementById("likeButton").className = ""
-        document.getElementById("bookmarkButton").className = "active"
-        setShowPosts(false)
-        setShowLikes(false)
-        setShowBookmarks(true)
+    const onShowBookmarks = () => {
+        const postButton = document.getElementById("postButton");
+        const likeButton = document.getElementById("likeButton");
+        const bookmarkButton = document.getElementById("bookmarkButton");
+        
+        if (postButton) postButton.className = "";
+        if (likeButton) likeButton.className = "";
+        if (bookmarkButton) bookmarkButton.className = "active";
+        
+        setShowPosts(false);
+        setShowLikes(false);
+        setShowBookmarks(true);
     }
 
     const onFollow: any = async (e : any) => {
@@ -116,6 +130,7 @@ const Profile: React.FC = () => {
     }
 
     const fetchData = async () => {
+        setLoading(true);
         try{
             const userData = await axios.get(`${API_BASE}/user/${id}`)
             const userPosts = await axios.get(`${API_BASE}/posts/user/${id}`)
@@ -138,7 +153,7 @@ const Profile: React.FC = () => {
             setLikes(userLikes)
             setBookmarks(userBookmarks);
             setLoading(false)
-        } catch (e){
+        } catch (e: any) {
             console.log(e);
             setError(e.message);
             setProfile(undefined)
@@ -148,9 +163,10 @@ const Profile: React.FC = () => {
             setLoading(false)
         }
     }
-    useEffect(()=>{
+    
+    useEffect(() => {
         fetchData()
-    }, [])
+    }, [id])
 
     if(loading){
         return(<div>Loading...</div>)
