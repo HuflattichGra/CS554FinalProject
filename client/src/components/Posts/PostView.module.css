@@ -60,6 +60,22 @@
   line-height: 1.5;
 }
 
+.postImage {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  max-height: 300px;
+  object-fit: cover;
+}
+
+.postImagesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 .actionButton {
   background-color: transparent;
   border: none;

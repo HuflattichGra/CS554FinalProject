@@ -25,7 +25,7 @@ const PostView: React.FC<Post> = (props: any) => {
     const [poster, setPoster] = useState<any>(undefined);
     const [bookmarked, setBookmarked] = useState(false);
     const [liked, setLiked] = useState(false);
-    const [images, setImages] = useState<any>([]);
+    const [postImages, setPostImages] = useState<string[]>([]);
     const { user } = React.useContext(userContext);
     useEffect(() => {
         async function fetchData() {
@@ -33,12 +33,12 @@ const PostView: React.FC<Post> = (props: any) => {
                 const userData = await axios.get(
                     `${API_BASE}/user/${props.userID}`
                 );
-
-                // let images : any = [];
-
-                // for(let x:number=0;x<props.images.length;x++){
-                //     images.push(await axios.get(`${API_BASE}/image/download/${props.images[0]}`));
-                // }
+                  // Process only the first image if any exist in the post
+                if (props.images && props.images.length > 0) {
+                    // Create image URL for the first image only
+                    const firstImageId = props.images[0];
+                    setPostImages([`${API_BASE}/image/download/${firstImageId}`]);
+                }
                 
                 setPoster(userData.data);
                 setLoading(false);
@@ -58,10 +58,9 @@ const PostView: React.FC<Post> = (props: any) => {
                 console.log(e)
                 setPoster("Not Found");
                 setLoading(false);
-            }
-        }
+            }        }
         fetchData();
-    }, [props.userID, user, post.likes, props._id]);
+    }, [props.userID, user, post.likes, props._id, props.images]);
     const onSubmitLikes: any = async (e: any) => {
         e.preventDefault();
         if (post.likes.includes(user?._id)) {
@@ -185,6 +184,16 @@ const PostView: React.FC<Post> = (props: any) => {
                 </div>
                 <Link to={`/posts/${post._id}`} className={styles.postContent}>
                     <p>{post.text}</p>
+                    {postImages.length > 0 && (
+                        <div className={styles.postImagesContainer}>
+                            <img 
+                                src={postImages[0]} 
+                                alt="Post image" 
+                                className={styles.postImage}
+                                loading="lazy"
+                            />
+                        </div>
+                    )}
                 </Link>
                 {user ? (
                     <div className={styles.flexContainer}>
