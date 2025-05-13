@@ -5,27 +5,36 @@ const API_URL = `${API_BASE}/conventions`;
 
 // create Convention
 export const createConvention = async (conventionData: any) => {
-  const { data } = await axios.post(API_URL, conventionData);
+  const { data } = await axios.post(API_URL, conventionData, {
+    withCredentials: true,
+  });
   return data;
 };
 
 // get Convention By Id
 export const getConventionById = async (id: string) => {
-  const { data } = await axios.get(`${API_URL}/${id}`);
+  const { data } = await axios.get(`${API_URL}/${id}`, {
+    withCredentials: true,
+  });
   return data;
 };
 
 // get All Conventions
 export const getAllConventions = async (page = 1, pageSize = 10) => {
   const { data } = await axios.get(
-    `${API_URL}?page=${page}&pageSize=${pageSize}`
+    `${API_URL}?page=${page}&pageSize=${pageSize}`,
+    {
+      withCredentials: true,
+    }
   );
   return data;
 };
 
 // get Every Convention (simplified list with just id and name)
 export const getEveryConvention = async () => {
-  const { data } = await axios.get(`${API_URL}/every`);
+  const { data } = await axios.get(`${API_URL}/every`, {
+    withCredentials: true,
+  });
   return data;
 };
 
@@ -209,7 +218,9 @@ export const cancelAttendeeApplication = async (conventionId: string) => {
 
 // Query all attendees
 export const listAttendees = async (conventionId: string) => {
-  const { data } = await axios.get(`${API_URL}/${conventionId}/attendees`);
+  const { data } = await axios.get(`${API_URL}/${conventionId}/attendees`, {
+    withCredentials: true,
+  });
   return data;
 };
 
@@ -224,7 +235,9 @@ export const listAttendeeApplications = async (conventionId: string) => {
 
 // get bookmarked conventions
 export const getUserBookmarkedConventions = async (userId: string) => {
-  const { data } = await axios.get(`${API_URL}/user/${userId}/bookmarked`);
+  const { data } = await axios.get(`${API_URL}/user/${userId}/bookmarked`, {
+    withCredentials: true,
+  });
   return data;
 };
 
@@ -235,7 +248,10 @@ export const getRecommendedConventions = async (
   pageSize = 8
 ) => {
   const { data } = await axios.get(
-    `${API_URL}/user/${userId}/recommended?page=${page}&pageSize=${pageSize}`
+    `${API_URL}/user/${userId}/recommended?page=${page}&pageSize=${pageSize}`,
+    {
+      withCredentials: true,
+    }
   );
   return data;
 };
