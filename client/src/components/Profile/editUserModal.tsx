@@ -58,7 +58,7 @@ const EditModal: React.FC<EditModalProps> = ({
     const [firstname, setFirstname] = useState(editUser.firstname);
     const [lastname, setLastname] = useState(editUser.lastname);
     const [bio, setBio] = useState(editUser.bio);
-    const [imageFile, setImageFile] = useState<File>();
+    const [imageFile, setImageFile] = useState<File | null>(null);
 
 
     const handleAddImage = () => {
@@ -74,11 +74,9 @@ const EditModal: React.FC<EditModalProps> = ({
         input.click();
     };
 
-    /*const handleRemoveImage = (index: number) => {
-        const newFiles = [...imageFiles];
-        newFiles.splice(index, 1);
-        setImageFiles(newFiles);
-    };*/
+    const handleRemoveImage = () => {
+        setImageFile(null);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,25 +85,18 @@ const EditModal: React.FC<EditModalProps> = ({
             return;
         }
         try {
-            let usernameInput = document.getElementById("username") as HTMLInputElement | null
-            let username = usernameInput?.value
-            let firstnameInput = document.getElementById("firstname") as HTMLInputElement | null
-            let firstname = firstnameInput?.value
-            let lastnameInput = document.getElementById("lastname") as HTMLInputElement | null
-            let lastname = lastnameInput?.value
-            let bioInput = document.getElementById("bio") as HTMLInputElement | null
-            let bio = bioInput?.value
-
-            let body = {
-                "username": username,
-                "firstname": firstname,
-                "lastname": lastname,
-                "bio": bio,
-                "images": imageFile,
-                "imageType": "post"
+            const formData = new FormData();
+            formData.append("username", username);
+            formData.append("firstname", firstname);
+            formData.append("lastname", lastname);
+            formData.append("bio", bio);
+            
+            if (imageFile) {
+                formData.append("image", imageFile);
             }
+            formData.append("imageType", "profile");
 
-            let newUser = await axios.patch(`${API_BASE}/user/${editUser._id}`, body, {
+            let newUser = await axios.patch(`${API_BASE}/user/${editUser._id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
@@ -138,11 +129,24 @@ const EditModal: React.FC<EditModalProps> = ({
                         marginTop: "8px",
                     }}/>
                 </label>  
-                <p>Profile Picture: </p>
-                <button type="button" onClick={handleAddImage}>Add</button>
-                <br/>
-                <button type="submit">Submit</button>
-                <button type="button" onClick={onClose}>Cancel</button>
+                <div>
+                    <p>Profile Picture: </p>
+                    {imageFile ? (
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                            <span style={{ marginRight: '1rem' }}>{imageFile.name}</span>
+                            <button type="button" onClick={handleRemoveImage}>Remove</button>
+                        </div>
+                    ) : (
+                        <p>No profile picture selected</p>
+                    )}
+                    <button type="button" onClick={handleAddImage}>
+                        {imageFile ? 'Change Profile Picture' : 'Add Profile Picture'}
+                    </button>
+                </div>
+                <div style={{ marginTop: "1rem" }}>
+                    <button type="submit">Submit</button>
+                    <button type="button" onClick={onClose} style={{ marginLeft: "1rem" }}>Cancel</button>
+                </div>
             </form>
         </ReactModal>
     )

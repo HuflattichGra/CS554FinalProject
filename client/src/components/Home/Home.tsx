@@ -8,6 +8,7 @@ import PostView from '../Posts/PostView';
 import PostModal from '../Posts/PostModal';
 import ConventionCard from '../Convention/ConventionCard';
 import { API_BASE } from '../../api';
+import PostList from '../Posts/PostList';
 
 interface Post {
     _id: string;
@@ -57,7 +58,7 @@ const Home: React.FC = () => {
             } else {
                 // Get all posts and filter bookmarked ones
                 const postsData = await axios.get(`${API_BASE}/posts`);
-                const filteredPosts = postsData.data.filter((post: Post) => 
+                const filteredPosts = postsData.data.filter((post: Post) =>
                     bookmarks.includes(post._id)
                 );
                 setBookmarkedPosts(filteredPosts);
@@ -85,14 +86,17 @@ const Home: React.FC = () => {
 
     return (
         <>
-            <div>
-                <button onClick={() => setShowModal(true)}> Make a Post</button>
-            </div>
 
             {!user ? (
-                <div>Please log in to see your bookmarked posts and followed conventions</div>
+                <div><h3>Please log in to see your bookmarked posts and followed conventions</h3>
+                    <div><PostList></PostList></div>
+                </div>
+                
             ) : (
                 <>
+                    <div>
+                        <button style={{backgroundColor: '#1a1a1a',color:'whitesmoke'}} onClick={() => setShowModal(true)}> Make a Post</button>
+                    </div>
                     <div className="mt-8">
                         <h2 className="text-2xl font-bold mb-4">Followed Conventions</h2>
                         {followedConventions.length === 0 ? (

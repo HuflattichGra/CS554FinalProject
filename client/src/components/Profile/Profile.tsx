@@ -50,34 +50,48 @@ const Profile: React.FC = () => {
     const [showLikes, setShowLikes] = useState(false);
     const [showBookmarks, setShowBookmarks] = useState(false)
     const [error, setError] = useState<any>("")
-    let id = useParams().id
-    if(id === undefined) id = ""
+    const { id = "" } = useParams();
 
-    const onShowPosts: any = async () => {
-        document.getElementById("postButton").className = "active"
-        document.getElementById("likeButton").className = ""
-        document.getElementById("bookmarkButton").className = ""
-        setShowPosts(true)
-        setShowLikes(false)
-        setShowBookmarks(false)
+    const onShowPosts = () => {
+        const postButton = document.getElementById("postButton");
+        const likeButton = document.getElementById("likeButton");
+        const bookmarkButton = document.getElementById("bookmarkButton");
+        
+        if (postButton) postButton.className = "active";
+        if (likeButton) likeButton.className = "";
+        if (bookmarkButton) bookmarkButton.className = "";
+        
+        setShowPosts(true);
+        setShowLikes(false);
+        setShowBookmarks(false);
     }
 
-    const onShowLikes: any = async () => {
-        document.getElementById("postButton").className = ""
-        document.getElementById("likeButton").className = "active"
-        document.getElementById("bookmarkButton").className = ""
-        setShowPosts(false)
-        setShowLikes(true)
-        setShowBookmarks(false)
+    const onShowLikes = () => {
+        const postButton = document.getElementById("postButton");
+        const likeButton = document.getElementById("likeButton");
+        const bookmarkButton = document.getElementById("bookmarkButton");
+        
+        if (postButton) postButton.className = "";
+        if (likeButton) likeButton.className = "active";
+        if (bookmarkButton) bookmarkButton.className = "";
+        
+        setShowPosts(false);
+        setShowLikes(true);
+        setShowBookmarks(false);
     }
 
-    const onShowBookmarks: any = async () => {
-        document.getElementById("postButton").className = ""
-        document.getElementById("likeButton").className = ""
-        document.getElementById("bookmarkButton").className = "active"
-        setShowPosts(false)
-        setShowLikes(false)
-        setShowBookmarks(true)
+    const onShowBookmarks = () => {
+        const postButton = document.getElementById("postButton");
+        const likeButton = document.getElementById("likeButton");
+        const bookmarkButton = document.getElementById("bookmarkButton");
+        
+        if (postButton) postButton.className = "";
+        if (likeButton) likeButton.className = "";
+        if (bookmarkButton) bookmarkButton.className = "active";
+        
+        setShowPosts(false);
+        setShowLikes(false);
+        setShowBookmarks(true);
     }
 
     const onFollow: any = async (e : any) => {
@@ -116,6 +130,7 @@ const Profile: React.FC = () => {
     }
 
     const fetchData = async () => {
+        setLoading(true);
         try{
             const userData = await axios.get(`${API_BASE}/user/${id}`)
             const userPosts = await axios.get(`${API_BASE}/posts/user/${id}`)
@@ -138,7 +153,7 @@ const Profile: React.FC = () => {
             setLikes(userLikes)
             setBookmarks(userBookmarks);
             setLoading(false)
-        } catch (e){
+        } catch (e: any) {
             console.log(e);
             setError(e.message);
             setProfile(undefined)
@@ -157,7 +172,7 @@ const Profile: React.FC = () => {
 
     useEffect(()=>{
         fetchData()
-    }, [])
+    }, [id])
 
     if(loading){
         return(<div>Loading...</div>)
@@ -168,20 +183,49 @@ const Profile: React.FC = () => {
     else {
         return(
             <div>
-                <h1>{profile?.username}</h1>                <h3>{profile?.firstname} {profile?.lastname}</h3>                <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
-                <p>Following: {profile?.following.length}</p>
-                <p>Followers: {profile?.followers.length}</p>
-                <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p>
-                {user?._id === profile._id && 
-                    <a href="/add-funds" className="add-funds-button">Add Funds</a>
-                }
-                {user?._id !== profile._id && user !== null ? 
-                (user?.following.includes(profile._id) ? <button onClick={onFollow}>Unfollow</button> : <button onClick={onFollow}>Follow</button>) 
-                :  <button onClick={() => setShowEditModal(true)}>Edit Profile</button>}
+                <div className="profile-container">
+                    <div className="username-section">
+                        <h1>{profile?.username}</h1>
+                    </div>
+                    <div className="profile-image-section">
+                        {profile?.pfp ? (
+                            <img 
+                                src={`${API_BASE}/image/download/${profile.pfp}`} 
+                                alt={`${profile.username}'s profile picture`} 
+                                className="profile-image" 
+                            />
+                        ) : (
+                            <div className="default-profile-image">
+                                {profile.username.charAt(0).toUpperCase()}
+                            </div>
+                        )}
+                    </div>
+                    <div className="profile-info">              
+                        <h3>{profile?.firstname} {profile?.lastname}</h3>                
+                        <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
+                        <p>Following: {profile?.following.length}</p>
+                        <p>Followers: {profile?.followers.length}</p>
+                        {user?._id === profile._id ? <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p> : <></>}
+                    </div>
+                </div>
+                <div className="profile-actions">
+                    {user?._id === profile._id && (
+                        <>
+                            <a href="/add-funds" className="add-funds-button">Add Funds</a>
+                            <button className="edit-profile-button" onClick={() => setShowEditModal(true)}>Edit Profile</button>
+                        </>
+                    )}
+                    
+                    {user?._id !== profile._id && user !== null && (
+                        user?.following.includes(profile._id) ? 
+                            <button className="follow-button unfollow" onClick={onFollow}>Unfollow</button> : 
+                            <button className="follow-button" onClick={onFollow}>Follow</button>
+                    )}
+                </div>
                 <div className="tab">
                     <button onClick={onShowPosts} id="postButton" className='active'>Posts</button>
-                    <button onClick={onShowLikes} id="likeButton" className=''>Likes</button>
-                    <button onClick={onShowBookmarks} id="bookmarkButton" className=''>Bookmarks</button>
+                    {user?._id === profile._id ? <button onClick={onShowLikes} id="likeButton" className='tab'>Likes</button> : <></>}
+                    {user?._id === profile._id ? <button onClick={onShowBookmarks} id="bookmarkButton" className='tab'>Bookmarks</button> : <></>}
                 </div>
 
                 <div className='content'>

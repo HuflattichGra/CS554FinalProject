@@ -167,7 +167,7 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
                     { user ? 
                     <form id="bookmark" onSubmit={onSubmitBookmark}>
                         <button onClick={onSubmitBookmark} className={styles.actionButton}>
-                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} />}
+                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} color="whitesmoke" />}
                         </button>
                     </form> : <></>}
                 </div>
@@ -187,7 +187,7 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
                 {user ? (
                     <div className={styles.flexContainer}>
                         <button onClick={onSubmitLikes} name="likeButton" className={styles.actionButton}>
-                            {liked ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} />}
+                            {liked ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} color="whitesmoke" />}
                         </button>
                         <button className={styles.likeCount}>{post.likes?.length || 0}</button>
                     </div>

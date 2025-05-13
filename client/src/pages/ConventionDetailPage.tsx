@@ -30,6 +30,7 @@ const ConventionDetailPage: React.FC = () => {
   }, [id]);
 
   const handleApply = async () => {
+
     if (!user || !user._id) {
       alert('Please log in to apply.');
       return;
@@ -232,7 +233,7 @@ const ConventionDetailPage: React.FC = () => {
                     className="btn-apply"
                     onClick={handleApply}
                   >
-                    Apply to Attend
+                    {user ? "Apply to Attend" : "Login To Attend!"} 
                   </button>}
                 </div>
               )}

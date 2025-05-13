@@ -1,16 +1,21 @@
 import React from 'react';
+import userContext from '../../context/userContext';
+import { useContext } from 'react';
+
+
 import '../ui/Tab.css'
 interface UserConventionsTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-const TABS = ['Attending', 'Created', 'Following', 'Picked for you', 'Search'];
+const TABS = ['Attending', 'Created', 'Following', 'Picked for you'];
 
 const UserConventionsTabs: React.FC<UserConventionsTabsProps> = ({ activeTab, onTabChange }) => {
+  const { user } = useContext(userContext);
   return (
     <div >
-      {TABS.map((tab) => (
+      {user ?  TABS.map((tab) => (
         <button
           key={tab}
           onClick={() => onTabChange(tab)}
@@ -18,7 +23,14 @@ const UserConventionsTabs: React.FC<UserConventionsTabsProps> = ({ activeTab, on
         >
           {tab}
         </button>
-      ))}
+      )) : <></>}
+       <button
+          key={'Search'}
+          onClick={() => onTabChange('Search')}
+          className={`tab-button ${activeTab === 'Search' ? 'active-tab' : ''}`}
+        >
+          {'Search'}
+        </button>
     </div>
   );
 };
