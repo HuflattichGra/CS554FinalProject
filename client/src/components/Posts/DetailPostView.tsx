@@ -33,8 +33,10 @@ const DetailPostView: React.FC = () => {
 
             setPost(userData.data);
 
-            if (post) {
+            if (userData.data) {
                 var commentFetch = await axios.get(`${API_BASE}/comments/posts/${id}`);
+
+                console.log(commentFetch.data);
 
                 setComments(commentFetch.data);
             }
@@ -48,7 +50,6 @@ const DetailPostView: React.FC = () => {
 
     useEffect(() => {
         fetchData();
-        console.log(post)
     }, []);
 
     if (loading) {

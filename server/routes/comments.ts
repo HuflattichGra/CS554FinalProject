@@ -72,8 +72,8 @@ router.route('/:id')
             await client.set(apistring + ret._id, JSON.stringify(ret));
 
             res.status(200).send(ret);
-        } catch (e) {
-            res.status(400).send({ error: e });
+        } catch (e:any) {
+            res.status(400).send({ error: e.message });
         }
     })
     .delete(async (req, res) => {

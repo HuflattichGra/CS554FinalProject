@@ -122,7 +122,7 @@ async function getCommmentFromPost(id:string) {
     typecheck.checkId(id);
 
     const db = await comments();
-    var retVal : Comment = await db.findOne({ postID: ObjectId.createFromHexString(id) });
+    var retVal : Comment = await db.find({ postID: ObjectId.createFromHexString(id) }).toArray();
 
     if(retVal == null){
         throw new Error("GetCommentFromPost " + id + " failed");

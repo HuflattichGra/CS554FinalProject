@@ -43,7 +43,7 @@ const PostView: React.FC<Post> = (props: any) => {
                 setPoster(userData.data);
                 setLoading(false);
             } catch (e) {
-                console.log(e);
+                console.log(e)
                 setPoster("Not Found");
                 setLoading(false);
             }
@@ -124,8 +124,6 @@ const PostView: React.FC<Post> = (props: any) => {
             const userResponse = await axios.get(`${API_BASE}/user/${user?._id}`);
             const currentBookmarks = userResponse.data.bookmarks || [];
 
-            console.log(currentBookmarks);
-
             let updatedBookmarks;
             if (currentBookmarks.includes(props._id)) {
                 // Remove this post from bookmarks if it's already bookmarked
@@ -161,7 +159,7 @@ const PostView: React.FC<Post> = (props: any) => {
         return (
             <div className="Post">
                 <div className="TopOfPost">
-                    <Link to={`user/${post.userID}`}>
+                    <Link to={`/user/${post.userID}`}>
                         <p>{poster.username}</p>
                     </Link>
                     <form id="bookmark" onSubmit={onSubmitBookmark}>
@@ -170,7 +168,7 @@ const PostView: React.FC<Post> = (props: any) => {
                         </button>
                     </form>
                 </div>
-                <Link to={`post/${post._id}`}>
+                <Link to={`/posts/${post._id}`}>
                 <p>{post.text}</p>
                 </Link>
                 {user ? (
