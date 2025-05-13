@@ -7,9 +7,9 @@
   padding: 1rem;
   margin-bottom: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  background-color: #1f1f1f;
+  background-color: #ffffff;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  color: whitesmoke;
+  color: #333333;
 }
 
 .container:hover {
@@ -106,7 +106,7 @@
   border: none;
   padding: 0.5rem;
   font-weight: 500;
-  color: whitesmoke;
+  color: #333;
 }
 
 .conventionLink {

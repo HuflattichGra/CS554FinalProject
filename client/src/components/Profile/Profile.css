@@ -5,10 +5,10 @@
 .tab button{
     background-color: inherit;
     padding: 14px 16px;
-    color:whitesmoke;
+    color: #333;
 }
 .tab button:hover {
-  background-color: #1a1a1a;
+  background-color: #f0f0f0;
 }
 .tab button.active {
   border-color: #ccc;

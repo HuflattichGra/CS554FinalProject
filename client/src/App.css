@@ -7,12 +7,18 @@
   text-align: center;
 }
 
+/* Force light theme application-wide */
+body {
+  background-color: #ffffff !important;
+  color: #333333 !important;
+}
+
 .Post {
   border-width: 0.1em;
-  border-color: black;
+  border-color: #e0e0e0;
   border-style: solid;
-  color:whitesmoke;
-  background-color: #1a1a1a;
+  color: #333;
+  background-color: #ffffff;
   border-radius: 20px;
 }
 
@@ -25,14 +31,14 @@
   border-width: 0.1vw;
   width: 0.1vw;
   height: 0.1vw;
-  border-color: white;
+  border-color: #e0e0e0;
   border-style: solid;
 
   border-radius: 8px;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   cursor: pointer;
   transition: border-color 0.25s;
 }

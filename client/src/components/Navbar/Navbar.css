@@ -4,13 +4,13 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #1e1e2f;
+    background-color: #ffffff;
     z-index: 1000; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .Logout_button{
-    color:whitesmoke;
+    color: #333;
 }
 
 .navbar-container {
@@ -54,12 +54,12 @@
 
 .nav-item {
     text-decoration: none;
-    color: white;
+    color: #333;
     font-weight: 500;
 }
 
 .nav-item-active {
-    border-bottom: 2px solid #fff;
+    border-bottom: 2px solid #333;
 }
 
 .search-input {
@@ -71,7 +71,7 @@
 
 .auth-buttons{
     margin-left: 0.5rem;
-    color: white;
+    color: #333;
     text-decoration: none;
     align-items: center;
 }
