@@ -39,18 +39,33 @@ const AddFundsPage: React.FC = () => {
       return value;
     }
   };
-
   // Format expiry date
   const formatExpiryDate = (value: string) => {
     const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
     
+    // If we have more than 2 digits, format as MM/YY
     if (v.length > 2) {
-      return `${v.substring(0, 2)}/${v.substring(2, 4)}`;
+      // Extract the month part (first 2 digits)
+      let month = v.substring(0, 2);
+      
+      // Validate month (01-12)
+      const monthNum = parseInt(month);
+      if (monthNum > 12) {
+        month = '12'; // Cap at 12
+      } else if (monthNum === 0) {
+        month = '01'; // Minimum is 01
+      }
+      
+      return `${month}/${v.substring(2, 4)}`;
+    }
+    
+    // If only 1 digit entered and it's > 1, prefix with 0
+    if (v.length === 1 && parseInt(v) > 1) {
+      return `0${v}`;
     }
     
     return v;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -60,7 +75,31 @@ const AddFundsPage: React.FC = () => {
     try {
       if (!user) {
         throw new Error('You must be logged in to add funds');
-      }      const response = await axios.post(
+      }
+
+      // Validate expiry date
+      if (expiryDate.length === 5) { // Should be in format MM/YY
+        const [month, year] = expiryDate.split('/');
+        const monthNum = parseInt(month);
+        
+        if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+          throw new Error('Expiry month must be between 01 and 12');
+        }
+
+        // Also validate that the date is not in the past
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear() % 100; // Get last 2 digits
+        const currentMonth = currentDate.getMonth() + 1; // getMonth() is 0-indexed
+        const yearNum = parseInt(year);
+
+        if (yearNum < currentYear || (yearNum === currentYear && monthNum < currentMonth)) {
+          throw new Error('Card has expired');
+        }
+      } else {
+        throw new Error('Invalid expiry date format (MM/YY)');
+      }
+
+      const response = await axios.post(
         `${API_BASE}/payment/addBalance`,
         {
           cardNumber,
