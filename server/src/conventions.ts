@@ -31,7 +31,8 @@ export const createConvention = async (
   name = checkStringTrimmed(name, 'Convention Name');
   if (name.length < 3) throw 'Convention name must be at least 3 characters long';
   if (name.length > 100) throw 'Convention name must be less than 100 characters';
-
+  if (description.length < 10) throw 'Convention description must be at least 10 characters long';
+  if (description.length > 300) throw 'Convention name must be less than 300 characters';
   if (!Array.isArray(tags)) throw 'Tags must be an array of strings';
   if (tags.length === 0) throw 'At least one tag is required';
   tags = tags.map((tag) => checkStringTrimmed(tag, 'Tag'));

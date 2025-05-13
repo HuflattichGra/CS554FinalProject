@@ -107,19 +107,20 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogClose onClick={onClose} />
       <DialogTitle>Create Convention</DialogTitle>
-      <DialogContent className="space-y-4">
-        <div>
-          <Label>Convention Name</Label>
+
+      <DialogContent>
+        <div className="formGroup">
+          <Label className="label">Convention Name</Label>
           <Input
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Shanghai Sword ONLY"
+            onChange={e => setName(e.target.value)}
+            placeholder="e.g. NYC Anime ONLY"
           />
         </div>
 
-        <div>
-          <Label>Start Date - End Date</Label>
-          <div className="flex gap-2">
+        <div className="formGroup">
+          <Label>Start Date – End Date</Label>
+          <div className="radioGroup">
             <DatePicker
               selected={startDate}
               onChange={setStartDate}
@@ -127,7 +128,6 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
               timeIntervals={15}
               dateFormat="yyyy-MM-dd HH:mm"
               placeholderText="Start Date"
-              className="w-full p-2 border rounded"
             />
             <DatePicker
               selected={endDate}
@@ -136,15 +136,13 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
               timeIntervals={15}
               dateFormat="yyyy-MM-dd HH:mm"
               placeholderText="End Date"
-              className="w-full p-2 border rounded"
             />
           </div>
         </div>
 
-
-        <div>
+        <div className="formGroup">
           <Label>Is the convention online?</Label>
-          <div className="flex gap-4">
+          <div className="radioGroup">
             <label>
               <input
                 type="radio"
@@ -165,72 +163,54 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
         </div>
 
         {!isOnline && (
-          <div>
+          <div className="formGroup">
             <Label>Location</Label>
             <Input
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={e => setAddress(e.target.value)}
               placeholder="Detailed address"
             />
           </div>
         )}
 
-        <div>
+        <div className="formGroup">
           <Label>Tags</Label>
           <Input
             value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+            onChange={e => setTagInput(e.target.value)}
             onKeyDown={handleAddTag}
             placeholder="Add tag, press Enter"
           />
-          <div className="mt-1 flex flex-wrap gap-2">
+          <div className="tagList">
             {tags.map((tag, idx) => (
-              <span
-                key={idx}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: '#e5e7eb',
-                  padding: '4px 8px',
-                  borderRadius: '9999px',
-                  fontSize: '0.875rem'
-                }}
-              >
+              <span key={idx} className="tag">
                 #{tag}
                 <button
-                  onClick={() => {
-                    setTags(tags.filter((_, i) => i !== idx));
-                  }}
-                  style={{
-                    border: 'none',
-                    background: 'transparent',
-                    fontSize: '1rem',
-                    cursor: 'pointer',
-                    lineHeight: 0.5
-                  }}
+                  type="button"
                   aria-label={`Remove tag ${tag}`}
+                  className="tagButton"
+                  onClick={() => setTags(tags.filter((_, i) => i !== idx))}
                 >
                   &times;
                 </button>
               </span>
             ))}
-
           </div>
         </div>
 
-        <div>
+        <div className="formGroup">
           <Label>Description</Label>
           <Textarea
+            className="textarea"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description has to be more than 10 charactersand less than 100 characters"
+            onChange={e => setDescription(e.target.value)}
+            placeholder="10-300 characters"
           />
         </div>
 
-        <div>
+        <div className="formGroup">
           <Label>Exclusive</Label>
-          <div className="flex gap-4">
+          <div className="radioGroup">
             <label>
               <input
                 type="radio"
@@ -250,9 +230,10 @@ const CreateConventionModal: React.FC<CreateConventionModalProps> = ({
           </div>
         </div>
       </DialogContent>
+
       <DialogFooter>
         <Button onClick={handleSubmit}>Submit</Button>
-        <Button variant="ghost" onClick={onClose}>
+        <Button onClick={onClose}>
           Cancel
         </Button>
       </DialogFooter>

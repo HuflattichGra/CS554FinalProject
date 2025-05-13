@@ -6,6 +6,7 @@
     border-radius: 6px;
     resize: vertical;
     min-height: 80px;
+    max-height: 205px;
   }
   
   .custom-textarea:focus {
