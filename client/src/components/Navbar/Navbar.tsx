@@ -6,7 +6,7 @@ import axios from "axios";
 
 import { useContext } from "react";
 import userContext from "../../context/userContext";
-import userIcon from '../../assets/user.png';
+import { User } from "lucide-react";
 import { API_BASE } from "../../api";
 
 
@@ -71,17 +71,10 @@ const Navbar: React.FC = () => {
 
         <div className="right-section">
           {/* <input type="text" placeholder="Search..." className="search-input" /> */}
-          
-          {user ? (
+            {user ? (
             <div className="auth-buttons">
-              
-              {/* TO DO : Link to user profile page */}
               <Link to={`/user/${user._id}`} className="profile-icon">
-                <img
-                  src={userIcon}
-                  alt="Profile"
-                  className="profile-icon"
-                />
+                <User size={24} />
               </Link>
               <button className="Logout_button" onClick={logout}>Logout</button>
             </div>

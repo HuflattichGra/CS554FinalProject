@@ -227,7 +227,7 @@ const DetailPostView: React.FC = () => {
                                 {user ?
                                     <form id="bookmark" onSubmit={onSubmitBookmark}>
                                         <button onClick={onSubmitBookmark} className={styles.actionButton}>
-                                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} color="whitesmoke" />}
+                                            {bookmarked ? <BookmarkCheck size={20} color="#4F46E5" /> : <Bookmark size={20} color="#333333" />}
                                         </button>
                                     </form> : <></>}
                             </div>
@@ -247,11 +247,11 @@ const DetailPostView: React.FC = () => {
                             {user ? (
                                 <div className={styles.flexContainer}>
                                     <button onClick={onSubmitLikes} name="likeButton" className={styles.actionButton}>
-                                        {liked ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} color="whitesmoke" />}
+                                        {liked ? <Heart size={20} fill="#F87171" color="#F87171" /> : <Heart size={20} color="#333333" />}
                                     </button>
                                     <button className={styles.likeCount}>{post.likes?.length || 0}</button>
                                 </div>
-                            ) : <div className={styles.flexContainer}><Heart color="#383a61" size={20}></Heart> <button className={styles.likeCount}>{post.likes?.length || 0}</button> </div>}
+                            ) : <div className={styles.flexContainer}><Heart color="#333333" size={20}></Heart> <button className={styles.likeCount}>{post.likes?.length || 0}</button> </div>}
                         </div>
                         <div id="CommentGroup">
                             {comments.map((x: any) =>
