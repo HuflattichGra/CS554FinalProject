@@ -2,6 +2,8 @@ import {Router, Request, Response} from 'express';
 import userData from '../src/users';
 import {checkId} from '../typechecker.js';
 import client from "../redis/client.js";
+import { imageUpload } from "../images/upload";
+import { extractOne } from "../images/extract";
 
 const router = Router();
 
@@ -97,7 +99,7 @@ router
 
 router
     .route('/user/:id')
-    .patch(async (req: Request, res: Response) => {
+    .patch(imageUpload.array("images"), async (req: Request, res: Response) => {
         let id = req.params.id
 
         if(!req.session.user) return res.status(401).json({error: "Error: Not authorized"}) 
@@ -107,6 +109,17 @@ router
             checkId(id, "User Id");
         } catch (e){
             return res.status(404).json({error: e})
+        }
+
+        try{
+            let imageId: string;
+            if (Array.isArray(req.files) && req.files.length > 0) {
+                const objId = await extractOne(req);
+                imageId = objId.toString()
+                req.body = {...req.body, pfp: imageId }
+            } 
+        } catch (e){
+            return res.status(400).json({error: e})
         }
 
         let user = null
@@ -137,6 +150,8 @@ router
         if(req.body.followers) {
             client.del("user:" + req.body.followers)
         }
+
+        req.session.user = user;
 
         return res.status(200).json(user)
     })

@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import userContext from "../../context/userContext";
 import PostView from  "../Posts/PostView";
+import EditModal from "./editUserModal";
 import postModal from "../Posts/PostModal";
 import { API_BASE } from '../../api';
 import "./Profile.css"
@@ -44,6 +45,7 @@ const Profile: React.FC = () => {
     const [likes, setLikes] = useState<Post[]>([]);
     const [bookmarks, setBookmarks] = useState<Post[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [showPosts, setShowPosts] = useState(true);
     const [showLikes, setShowLikes] = useState(false);
     const [showBookmarks, setShowBookmarks] = useState(false)
@@ -167,7 +169,7 @@ const Profile: React.FC = () => {
                 }
                 {user?._id !== profile._id && user !== null ? 
                 (user?.following.includes(profile._id) ? <button onClick={onFollow}>Unfollow</button> : <button onClick={onFollow}>Follow</button>) 
-                :  null}
+                :  <button onClick={() => setShowEditModal(true)}>Edit Profile</button>}
                 <div className="tab">
                     <button onClick={onShowPosts} id="postButton" className='active'>Posts</button>
                     <button onClick={onShowLikes} id="likeButton" className=''>Likes</button>
@@ -211,6 +213,17 @@ const Profile: React.FC = () => {
                         />)) : <p>User has not bookmarked anything yet...</p>)
                     }
                 </div>
+
+                {showEditModal && (
+                <EditModal
+                    isOpen={showEditModal}
+                    onClose={() => setShowEditModal(false)}
+                    onUserEdited={(newUser:any ) => {
+                        setUser(newUser);
+                        setProfile(newUser);
+                    }}
+                    editUser={profile}
+                />)}
             </div>
         )
     }
