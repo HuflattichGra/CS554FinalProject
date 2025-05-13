@@ -1,11 +1,11 @@
 import { ObjectId } from "mongodb";
-import { posts, users } from "../config/mongoCollections";
+import { posts, users, conventions } from "../config/mongoCollections";
 // @ts-ignore
 import * as typecheck from "../typechecker.js";
 
 export type Post = {
   _id: string;
-  conventionID: string;
+  conventionID?: string; // Make conventionID optional
   userID: string;
   text: string;
   images: Array<string>;
@@ -39,7 +39,7 @@ function checkPost(
   if (obj._id != undefined || needsID) {
     typecheck.checkId(obj._id, "post.id");
   }
-  if (obj.conventionID != undefined || noEmpty) {
+  if (obj.conventionID != undefined && obj.conventionID !== null) {
     if (obj.conventionID.length > 0) {
       typecheck.checkId(obj.conventionID, "post.conventionID");
     }
@@ -65,9 +65,28 @@ function checkPost(
 
 async function addPost(obj: any) {
   obj.userID = obj.userID.toHexString();
-  obj.conventionID = obj.conventionID.toHexString();
+  // Only convert conventionID to hex string if it exists
+  if (obj.conventionID) {
+    obj.conventionID = obj.conventionID.toHexString();
+  }
   console.log(obj);
   obj = checkPost(obj, false, true);
+
+  // Check if user exists
+  const userCollection = await users();
+  const user = await userCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
+  if (user === null) {
+    throw new Error("User does not exist");
+  }
+
+  // Check if convention exists if conventionID is provided
+  if (obj.conventionID) {
+    const conventionCollection = await conventions();
+    const convention = await conventionCollection.findOne({ _id: ObjectId.createFromHexString(obj.conventionID) });
+    if (convention === null) {
+      throw new Error("Convention does not exist");
+    }
+  }
 
   obj.userID = ObjectId.createFromHexString(obj.userID);
   if (obj.conventionID) {
@@ -122,11 +141,26 @@ async function updatePost(id: string, obj: any) {
   checkPost(obj, false, false);
   delete obj._id;
 
+  // Check if user exists
+  const userCollection = await users();
+  const user = await userCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
+  if (user === null) {
+    throw new Error("User does not exist");
+  }
+
+  // Check if convention exists if conventionID is provided
+  if (obj.conventionID) {
+    const conventionCollection = await conventions();
+    const convention = await conventionCollection.findOne({ _id: ObjectId.createFromHexString(obj.conventionID) });
+    if (convention === null) {
+      throw new Error("Convention does not exist");
+    }
+  }
+
   obj.userID = ObjectId.createFromHexString(obj.userID);
   if (obj.conventionID) {
     obj.conventionID = ObjectId.createFromHexString(obj.conventionID);
   }
-
 
   const db = await posts();
   var updateRes: Post = await db.updateOne(

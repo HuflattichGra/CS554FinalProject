@@ -38,10 +38,24 @@ router
   })
   .post(imageUpload.array("images"), async (req: Request, res: Response) => {
     try {
+      // Check if user is logged in
+      if (!req.session.user) {
+        res.status(401).send({ error: "You must be logged in to create a post" });
+        return;
+      }
+
       const { text, conventionID, userID } = req.body;
       if (!text || !userID) {
-        throw new Error("Missing required fields: text, userID");
+        res.status(400).send({ error: "Missing required fields: text, userID" });
+        return;
       }
+
+      // Verify that the logged-in user is the same as the userID in the request
+      if (req.session.user._id !== userID) {
+        res.status(403).send({ error: "You can only create posts as yourself" });
+        return;
+      }
+
       const validatedText = checkStringTrimmed(text, "text");
 
       // Validate IDs first
@@ -106,6 +120,12 @@ router
   })
   .patch(imageUpload.array("images"), async (req: Request, res: Response) => {
     try {
+      // Check if user is logged in
+      if (!req.session.user) {
+        res.status(401).send({ error: "You must be logged in to edit a post" });
+        return;
+      }
+
       const id = req.params.id;
       const body = req.body;
 
@@ -114,9 +134,13 @@ router
 
       // Check if user ID is provided
       if (!userId) {
-        res
-          .status(401)
-          .send({ error: "You must provide a user ID to edit a post" });
+        res.status(400).send({ error: "You must provide a user ID to edit a post" });
+        return;
+      }
+
+      // Verify that the logged-in user is the same as the userID in the request
+      if (req.session.user._id !== userId) {
+        res.status(403).send({ error: "You can only edit your own posts" });
         return;
       }
 

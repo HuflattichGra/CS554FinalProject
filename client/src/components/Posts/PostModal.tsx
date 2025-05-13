@@ -113,12 +113,11 @@ const PostModal: React.FC<PostModalProps> = ({
             <h2>New Post</h2>
             <form onSubmit={handleSubmit}>
                 <label>
-                    Convention ID:
+                    Convention:
                     <select
                         value={conventionID}
                         onChange={(e) => setConventionID(e.target.value)}
                         style={{ width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
-                        required
                     >
                         <option value="">Select a convention</option>
                         {isLoading ? (
