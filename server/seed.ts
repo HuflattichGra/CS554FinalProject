@@ -404,6 +404,47 @@ const seedDB = async () => {
     const post4Id = (await postCollection.insertOne(post4)).insertedId;
     const post5Id = (await postCollection.insertOne(post5)).insertedId;
 
+    // Update users' likes arrays based on the posts they've liked
+    // Konstantinos and Haolin liked post1
+    await userCollection.updateOne(
+      { _id: konstantinosId },
+      { $push: { likes: post1Id } }
+    );
+    await userCollection.updateOne(
+      { _id: haolinId },
+      { $push: { likes: post1Id } }
+    );
+
+    // Filip, Junran, and Weiting liked post2
+    await userCollection.updateOne(
+      { _id: filipId },
+      { $push: { likes: post2Id } }
+    );
+    await userCollection.updateOne(
+      { _id: junranId },
+      { $push: { likes: post2Id } }
+    );
+    await userCollection.updateOne(
+      { _id: weitingId },
+      { $push: { likes: post2Id } }
+    );
+
+    // Filip and Konstantinos liked post3
+    await userCollection.updateOne(
+      { _id: filipId },
+      { $push: { likes: post3Id } }
+    );
+    await userCollection.updateOne(
+      { _id: konstantinosId },
+      { $push: { likes: post3Id } }
+    );
+
+    // Weiting liked post4
+    await userCollection.updateOne(
+      { _id: weitingId },
+      { $push: { likes: post4Id } }
+    );
+
     // Add bookmarks to users
     await userCollection.updateOne(
       { _id: haolinId },
