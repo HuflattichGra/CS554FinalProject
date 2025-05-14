@@ -10,6 +10,9 @@ const router: Router = express.Router();
 // Create Convention
 router.post('/', async (req: Request, res: Response): Promise<any> => {
   try {
+    const user = req.session?.user;
+    if (!user || !user._id) return res.status(401).json({ error: 'User not logged in' });
+    
     const errors = validateConventionFields(req.body);
     if (errors.length > 0) {
       return res.status(400).json({ error: errors.join('; ') });
@@ -222,6 +225,8 @@ router.patch('/:id/addOwner', async (req: Request, res: Response) => {
 router.patch('/:id/removeOwner', async (req: Request, res: Response) => {
   try {
     const conventionId = checkId(req.params.id, 'Convention ID');
+    const user = req.session?.user;
+    if (!user || !user._id) return res.status(401).json({ error: 'User not logged in' });
     const { ownerId } = req.body;
     const checkedOwnerId = checkId(ownerId, 'Owner ID');
 

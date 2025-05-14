@@ -120,39 +120,24 @@ async function updateComment(id: string, obj: any, userId: string) {
     checkComment(obj, false, false);
     delete obj._id;
 
-    // Validate postID (required)
-    if (!obj.postID) {
-        throw new Error("Post ID is required");
+    // Check if postID exists
+    if (obj.postID) {
+        const postsCollection = await posts();
+        const post = await postsCollection.findOne({ _id: ObjectId.createFromHexString(obj.postID) });
+        if (!post) {
+            throw new Error("Post ID does not exist in the database");
+        }
+        obj.postID = ObjectId.createFromHexString(obj.postID);
     }
-    const postsCollection = await posts();
-    const post = await postsCollection.findOne({ _id: ObjectId.createFromHexString(obj.postID) });
-    if (!post) {
-        throw new Error("Post does not exist");
-    }
-    obj.postID = ObjectId.createFromHexString(obj.postID);
 
-    // Validate userID (required)
-    if (!obj.userID) {
-        throw new Error("User ID is required");
-    }
-    if (!userId) {
-        throw new Error("User ID from session is required");
-    }
-    // Check if the userID in the object matches the userId from session
-    if (obj.userID !== userId) {
-        throw new Error("You can only update your own comments");
-    }
-    const usersCollection = await users();
-    const user = await usersCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
-    if (!user) {
-        throw new Error("User does not exist");
-    }
-    obj.userID = ObjectId.createFromHexString(obj.userID);
-
-    // Get the existing comment to verify ownership
-    const existingComment = await getComment(id);
-    if (existingComment.userID.toString() !== userId) {
-        throw new Error("You can only update your own comments");
+    // Check if userID exists
+    if (obj.userID) {
+        const usersCollection = await users();
+        const user = await usersCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
+        if (!user) {
+            throw new Error("User ID does not exist in the database");
+        }
+        obj.userID = ObjectId.createFromHexString(obj.userID);
     }
 
     const db = await comments();
@@ -166,7 +151,6 @@ async function updateComment(id: string, obj: any, userId: string) {
 
     return retVal;
 }
-
 async function deleteComment(id: string, userId: string) {
     typecheck.checkId(id);
     typecheck.checkId(userId, "userId");
