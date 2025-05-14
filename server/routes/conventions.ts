@@ -762,4 +762,28 @@ router.get('/user/:userId/following', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/:id/sponsor', async (req: Request, res: Response) => {
+  try {
+    const userId = req.session?.user?._id;
+    if (!userId) return res.status(401).json({ error: 'Not logged in' });
+
+    const { newBalance, fundings } = await conventionFunctions.sponsorConvention(
+      userId,
+      req.params.id,
+      10         
+    );
+    const conventionId = checkId(req.params.id, 'Convention ID');
+    await client.del(`convention:${conventionId}`);
+    await client.del('conventions:all');
+    await client.del('users:all');
+    await client.del(`user:${userId}`); 
+    res.json({ balance: newBalance, fundings });
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ error: e });
+  }
+});
+
+
+
 export default router;

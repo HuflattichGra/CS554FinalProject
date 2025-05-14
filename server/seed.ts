@@ -224,6 +224,7 @@ const seedDB = async () => {
       owners: [filipId],
       panelists: [konstantinosId, junranId],
       attendees: [haolinId, weitingId],
+      fundings:0
     };
 
     // Create an ongoing convention (happening now)
@@ -239,6 +240,7 @@ const seedDB = async () => {
       owners: [haolinId],
       panelists: [filipId],
       attendees: [konstantinosId, junranId, weitingId],
+      fundings:0
     };
 
     // Create an upcoming convention
@@ -254,6 +256,7 @@ const seedDB = async () => {
       owners: [junranId, konstantinosId],
       panelists: [],
       attendees: [],
+      fundings:0
     };
 
     // Insert conventions directly

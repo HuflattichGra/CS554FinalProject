@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 import userContext from "../../context/userContext";
-import PostView from  "../Posts/PostView";
+import PostView from "../Posts/PostView";
 import EditModal from "./editUserModal";
 import UserModal from "./viewUsersModal"
 import postModal from "../Posts/PostModal";
@@ -20,7 +20,7 @@ interface user {
     admin: boolean,
     bio: string,
     pfp?: string,
-    conventionsAttending:  string[],
+    conventionsAttending: string[],
     bookmarks: string[],
     likes: string[],
     conventionsFollowing: string[],
@@ -59,11 +59,11 @@ const Profile: React.FC = () => {
         const postButton = document.getElementById("postButton");
         const likeButton = document.getElementById("likeButton");
         const bookmarkButton = document.getElementById("bookmarkButton");
-        
+
         if (postButton) postButton.className = "active";
         if (likeButton) likeButton.className = "";
         if (bookmarkButton) bookmarkButton.className = "";
-        
+
         setShowPosts(true);
         setShowLikes(false);
         setShowBookmarks(false);
@@ -73,11 +73,11 @@ const Profile: React.FC = () => {
         const postButton = document.getElementById("postButton");
         const likeButton = document.getElementById("likeButton");
         const bookmarkButton = document.getElementById("bookmarkButton");
-        
+
         if (postButton) postButton.className = "";
         if (likeButton) likeButton.className = "active";
         if (bookmarkButton) bookmarkButton.className = "";
-        
+
         setShowPosts(false);
         setShowLikes(true);
         setShowBookmarks(false);
@@ -87,17 +87,17 @@ const Profile: React.FC = () => {
         const postButton = document.getElementById("postButton");
         const likeButton = document.getElementById("likeButton");
         const bookmarkButton = document.getElementById("bookmarkButton");
-        
+
         if (postButton) postButton.className = "";
         if (likeButton) likeButton.className = "";
         if (bookmarkButton) bookmarkButton.className = "active";
-        
+
         setShowPosts(false);
         setShowLikes(false);
         setShowBookmarks(true);
     }
 
-    const onFollow: any = async (e : any) => {
+    const onFollow: any = async (e: any) => {
         e.preventDefault();
 
         try {
@@ -113,18 +113,18 @@ const Profile: React.FC = () => {
             );
 
 
-            if(user?.following.includes(id) && profile !== undefined){
+            if (user?.following.includes(id) && profile !== undefined) {
                 setUser(newUser.data);
                 setProfile({
                     ...profile,
                     followers: profile.followers.filter((follower: string) => follower !== user?._id)
-                }); 
-            } else if (profile !== undefined && user?._id !== undefined){
+                });
+            } else if (profile !== undefined && user?._id !== undefined) {
                 setUser(newUser.data);
                 setProfile({
                     ...profile,
                     followers: [...profile.followers, user?._id]
-                }); 
+                });
             }
         } catch (error: any) {
             alert('Failed to Follow User: ' + error.response?.data?.error || error.message)
@@ -134,19 +134,19 @@ const Profile: React.FC = () => {
 
     const fetchData = async () => {
         setLoading(true);
-        try{
+        try {
             const userData = await axios.get(`${API_BASE}/user/${id}`, { withCredentials: true })
             const userPosts = await axios.get(`${API_BASE}/posts/user/${id}`, { withCredentials: true })
             let userLikes = []
 
-            for(let likeId of userData.data.likes){
+            for (let likeId of userData.data.likes) {
                 let like = await axios.get(`${API_BASE}/posts/${likeId}`, { withCredentials: true })
                 userLikes.push(like.data);
             }
 
             let userBookmarks = []
 
-            for(let bookmarkId of userData.data.bookmarks){
+            for (let bookmarkId of userData.data.bookmarks) {
                 let bookmark = await axios.get(`${API_BASE}/posts/${bookmarkId}`, { withCredentials: true })
                 userBookmarks.push(bookmark.data);
             }
@@ -168,23 +168,23 @@ const Profile: React.FC = () => {
     }
 
     const notifyParent = async () => {
-        if(id === user?._id){
+        if (id === user?._id) {
             fetchData();
         }
     }
 
-    useEffect(()=>{
-        fetchData()
+    useEffect(() => {
+        fetchData();
     }, [id])
 
-    if(loading){
-        return(<div>Loading...</div>)
+    if (loading) {
+        return (<div>Loading...</div>)
     }
-    if(profile === undefined){
-        return(<div><p>Error: {error}</p></div>)
+    if (profile === undefined) {
+        return (<div><p>Error: {error}</p></div>)
     }
     else {
-        return(
+        return (
             <div>
                 <div className="profile-container">
                     <div className="username-section">
@@ -192,10 +192,10 @@ const Profile: React.FC = () => {
                     </div>
                     <div className="profile-image-section">
                         {profile?.pfp ? (
-                            <img 
-                                src={`${API_BASE}/image/download/${profile.pfp}`} 
-                                alt={`${profile.username}'s profile picture`} 
-                                className="profile-image" 
+                            <img
+                                src={`${API_BASE}/image/download/${profile.pfp}`}
+                                alt={`${profile.username}'s profile picture`}
+                                className="profile-image"
                             />
                         ) : (
                             <div className="default-profile-image">
@@ -203,11 +203,11 @@ const Profile: React.FC = () => {
                             </div>
                         )}
                     </div>
-                    <div className="profile-info">              
-                        <h3>{profile?.firstname} {profile?.lastname}</h3>                
+                    <div className="profile-info">
+                        <h3>{profile?.firstname} {profile?.lastname}</h3>
                         <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
-                        <a href="#" onClick={(e) => {e.preventDefault(); setShowFollowing(true)}}><p>Following: {profile?.following.length}</p></a>
-                        <a href="#" onClick={(e) => {e.preventDefault(); setShowFollowers(true)}}><p>Followers: {profile?.followers.length}</p></a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); setShowFollowing(true) }}><p>Following: {profile?.following.length}</p></a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); setShowFollowers(true) }}><p>Followers: {profile?.followers.length}</p></a>
                         {user?._id === profile._id ? <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p> : <></>}
                     </div>
                 </div>
@@ -218,10 +218,10 @@ const Profile: React.FC = () => {
                             <button className="edit-profile-button" onClick={() => setShowEditModal(true)}>Edit Profile</button>
                         </>
                     )}
-                    
+
                     {user?._id !== profile._id && user !== null && (
-                        user?.following.includes(profile._id) ? 
-                            <button className="follow-button unfollow" onClick={onFollow}>Unfollow</button> : 
+                        user?.following.includes(profile._id) ?
+                            <button className="follow-button unfollow" onClick={onFollow}>Unfollow</button> :
                             <button className="follow-button" onClick={onFollow}>Follow</button>
                     )}
                 </div>
@@ -237,7 +237,7 @@ const Profile: React.FC = () => {
                             key={post._id}
                             props={post}
                             notifyParent={notifyParent}
-                    />)) : <p>User has not posted yet...</p>)
+                        />)) : <p>User has not posted yet...</p>)
                     }
 
                     {showLikes && (likes.length !== 0 ? likes.map((post: Post) => (
@@ -258,20 +258,20 @@ const Profile: React.FC = () => {
                 </div>
 
                 {showEditModal && (
-                <EditModal
-                    isOpen={showEditModal}
-                    onClose={() => setShowEditModal(false)}
-                    onUserEdited={(newUser:any ) => {
-                        setUser(newUser);
-                        setProfile(newUser);
-                    }}
-                    editUser={profile}
-                />)}
+                    <EditModal
+                        isOpen={showEditModal}
+                        onClose={() => setShowEditModal(false)}
+                        onUserEdited={(newUser: any) => {
+                            setUser(newUser);
+                            setProfile(newUser);
+                        }}
+                        editUser={profile}
+                    />)}
 
                 {showFollowing && (
                     <UserModal
                         isOpen={showFollowing}
-                        onClose={()=> setShowFollowing(false)}
+                        onClose={() => setShowFollowing(false)}
                         userList={profile.following}
                     />
                 )}
@@ -279,7 +279,7 @@ const Profile: React.FC = () => {
                 {showFollowers && (
                     <UserModal
                         isOpen={showFollowers}
-                        onClose={()=> setShowFollowers(false)}
+                        onClose={() => setShowFollowers(false)}
                         userList={profile.followers}
                     />
                 )}

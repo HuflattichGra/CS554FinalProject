@@ -2,16 +2,17 @@ import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   getConventionById, applyAttendee,
-  removeAttendee, cancelAttendeeApplication
+  removeAttendee, cancelAttendeeApplication, sponsorConvention
 } from '../api/conventions';
 import userContext from '../context/userContext';
 import ManageConventionPanel from '../components/Convention/ManageConventionPanel';
 import { Badge } from '../components/ui/badge.tsx';
 import { Link } from 'react-router-dom';
 import '../components/ui/conventionDetail.css'
+import axios from "axios";
 const ConventionDetailPage: React.FC = () => {
   const { id } = useParams();
-  const { user } = useContext(userContext);
+  const { user, setUser } = useContext(userContext);
 
   const [convention, setConvention] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -28,8 +29,21 @@ const ConventionDetailPage: React.FC = () => {
       setLoading(false);
     }
   }, [id]);
+  const handleSponsor = async () => {
+    if (!user?._id) {
+      alert('Please log in to sponsor.');
+      return;
+    }
 
-  const handleApply = async () => {
+    try {
+      const { balance, fundings } = await sponsorConvention(convention._id);
+      alert('Thank you for supporting this convention!');
+      setConvention((prev) => ({ ...prev, fundings }));
+      setUser?.((prev) => ({ ...prev, balance }));
+    } catch (e: any) {
+      alert(e);
+    }
+  }; const handleApply = async () => {
 
     if (!user || !user._id) {
       alert('Please log in to apply.');
@@ -68,6 +82,7 @@ const ConventionDetailPage: React.FC = () => {
     }
   };
 
+
   const flattenConvention = (c: any) => ({
     _id: c._id.toString(),
     name: c.name || '',
@@ -86,6 +101,7 @@ const ConventionDetailPage: React.FC = () => {
     imageUrl: c.imageUrl || '/default-convention-banner.png',
     productCount: c.productCount ?? 0,
     groupCount: c.groupCount ?? 0,
+    fundings: c.fundings ?? 0
   });
 
   useEffect(() => {
@@ -119,7 +135,7 @@ const ConventionDetailPage: React.FC = () => {
       />
 
       <h1 className="convention-title">{convention.name}</h1>
- 
+
       <p className="convention-dates">
         {new Date(convention.startDate).toLocaleString(undefined, {
           year: 'numeric',
@@ -192,10 +208,22 @@ const ConventionDetailPage: React.FC = () => {
 
 
       {(isOwner || isAdmin) ? (
-        <ManageConventionPanel convention={convention} refresh={fetchConvention} />
+        <>
+          <p className="fundings-display">
+            <strong>Total Fundings:</strong> ${convention.fundings}
+          </p>
+
+          <ManageConventionPanel convention={convention} refresh={fetchConvention} />
+        </>
       ) : (
         <div className="attendance-action">
+          {!isEnded && (
+            <button className="btn-sponsor" onClick={handleSponsor}>
+              Sponsor $10
+            </button>
+          )}
           {isAttending ? (
+
             <button
               className="btn-cancel"
               onClick={async () => {
@@ -217,6 +245,7 @@ const ConventionDetailPage: React.FC = () => {
             </button>
           ) : (
             <div>
+
               {hasUser(convention.attendeeApplications, user?._id || '') ? (
                 <div className="application-status">
                   <span className="application-status-label">Applied for attendance</span>
@@ -226,6 +255,7 @@ const ConventionDetailPage: React.FC = () => {
                   >
                     Cancel Application
                   </button>
+
                 </div>
               ) : (
                 <div>
@@ -233,11 +263,13 @@ const ConventionDetailPage: React.FC = () => {
                     className="btn-apply"
                     onClick={handleApply}
                   >
-                    {user ? "Apply to Attend" : "Login To Attend!"} 
+                    {user ? "Apply to Attend" : "Login To Attend!"}
                   </button>}
                 </div>
               )}
+
             </div>
+
           )}
         </div>
       )}
