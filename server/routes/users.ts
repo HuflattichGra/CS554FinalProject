@@ -151,7 +151,7 @@ router
             client.del("user:" + req.body.followers)
         }
 
-        req.session.user = user;
+        if(user._id === req.session.user._id) req.session.user = user;
 
         return res.status(200).json(user)
     })
