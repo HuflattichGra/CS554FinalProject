@@ -207,7 +207,7 @@ const Profile: React.FC = () => {
                         <h3>{profile?.firstname} {profile?.lastname}</h3>                
                         <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
                         <a href="#" onClick={(e) => {e.preventDefault(); setShowFollowing(true)}}><p>Following: {profile?.following.length}</p></a>
-                        <a href="#" onClick={(e) => {e.preventDefault(); setShowFollowing(true)}}><p>Followers: {profile?.followers.length}</p></a>
+                        <a href="#" onClick={(e) => {e.preventDefault(); setShowFollowers(true)}}><p>Followers: {profile?.followers.length}</p></a>
                         {user?._id === profile._id ? <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p> : <></>}
                     </div>
                 </div>
