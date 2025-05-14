@@ -56,6 +56,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     const [existingImages, setExistingImages] = useState<string[]>([]);
     const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
     const [newImageFiles, setNewImageFiles] = useState<File[]>([]);// Initialize form with post data
+    var redirect = useNavigate();
     useEffect(() => {
         if (post) {
             setText(post.text);
@@ -190,7 +191,8 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
                 await axios.delete(`${API_BASE}/comments/${commentData.data[i]._id}`, { withCredentials: true });
             }
 
-            await axios.delete(`${API_BASE}/posts/${post._id}`, { withCredentials: true });
+            await axios.delete(`${API_BASE}/posts/${post._id}`);
+            redirect('/posts');
         }catch (err: any) {
             console.error("Update post error:", err);
             onClose();
