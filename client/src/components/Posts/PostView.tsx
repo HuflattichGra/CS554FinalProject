@@ -169,7 +169,7 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
                         </Link>
                     )}
                     { user ? 
-                    <form id="bookmark" onSubmit={onSubmitBookmark}>
+                    <form  onSubmit={onSubmitBookmark}>
                         <button onClick={onSubmitBookmark} className={styles.actionButton}>
                             {bookmarked ? <BookmarkCheck size={20} color="#646cff" /> : <Bookmark size={20} color="#1F1F1F" />}
                         </button>
