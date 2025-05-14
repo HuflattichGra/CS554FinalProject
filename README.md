@@ -46,9 +46,9 @@ To initialize the database with sample data when using Docker:
      environment:
        - SEED_DB=true
    ```
-2. Restart the containers:
+2. Rebuild the containers:
    ```
-   docker-compose up --force-recreate --detach server
+   docker-compose build --no-cache server client
    ```
 3. Once the database is seeded, you can set SEED_DB back to false or remove it to prevent reseeding on future restarts
 4. All seeded user's passwords are "Password123!"
