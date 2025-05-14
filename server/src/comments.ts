@@ -2,6 +2,8 @@ import { ObjectId } from 'mongodb';
 import { comments } from '../config/mongoCollections';
 //@ts-ignore
 import * as typecheck from "../typechecker.js";
+import { posts } from '../config/mongoCollections';
+import { users } from '../config/mongoCollections';
 
 export type Comment = {
     _id: string
@@ -41,14 +43,40 @@ function checkComment(obj: any, needsID: boolean = false, noEmpty: boolean = tru
     return comObj;
 }
 
-async function addComment(obj: any) {
+async function addComment(obj: any, userId: string) {
     obj.likes=[];
     obj.createdAt = new Date(Date.now());
 
     obj = checkComment(obj, false, true);
 
-    if(obj.postID){obj.postID = ObjectId.createFromHexString(obj.postID);}
-    if(obj.userID){obj.userID = ObjectId.createFromHexString(obj.userID);}
+    // Validate postID (required)
+    if (!obj.postID) {
+        throw new Error("Post ID is required");
+    }
+    const postsCollection = await posts();
+    const post = await postsCollection.findOne({ _id: ObjectId.createFromHexString(obj.postID) });
+    if (!post) {
+        throw new Error("Post does not exist");
+    }
+    obj.postID = ObjectId.createFromHexString(obj.postID);
+
+    // Validate userID (required)
+    if (!obj.userID) {
+        throw new Error("User ID is required");
+    }
+    if (!userId) {
+        throw new Error("User ID from session is required");
+    }
+    // Check if the userID in the object matches the userId from session
+    if (obj.userID !== userId) {
+        throw new Error("You can only create comments as yourself");
+    }
+    const usersCollection = await users();
+    const user = await usersCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
+    if (!user) {
+        throw new Error("User does not exist");
+    }
+    obj.userID = ObjectId.createFromHexString(obj.userID);
 
     const db = await comments();
     var dbOut = await db.insertOne(obj);
@@ -87,13 +115,45 @@ async function getComments() {
     return retVal;
 }
 
-async function updateComment(id: string, obj: any) {
+async function updateComment(id: string, obj: any, userId: string) {
     typecheck.checkId(id);
     checkComment(obj, false, false);
     delete obj._id;
 
-    if(obj.postID){obj.postID = ObjectId.createFromHexString(obj.postID);}
-    if(obj.userID){obj.postID = ObjectId.createFromHexString(obj.userID);}
+    // Validate postID (required)
+    if (!obj.postID) {
+        throw new Error("Post ID is required");
+    }
+    const postsCollection = await posts();
+    const post = await postsCollection.findOne({ _id: ObjectId.createFromHexString(obj.postID) });
+    if (!post) {
+        throw new Error("Post does not exist");
+    }
+    obj.postID = ObjectId.createFromHexString(obj.postID);
+
+    // Validate userID (required)
+    if (!obj.userID) {
+        throw new Error("User ID is required");
+    }
+    if (!userId) {
+        throw new Error("User ID from session is required");
+    }
+    // Check if the userID in the object matches the userId from session
+    if (obj.userID !== userId) {
+        throw new Error("You can only update your own comments");
+    }
+    const usersCollection = await users();
+    const user = await usersCollection.findOne({ _id: ObjectId.createFromHexString(obj.userID) });
+    if (!user) {
+        throw new Error("User does not exist");
+    }
+    obj.userID = ObjectId.createFromHexString(obj.userID);
+
+    // Get the existing comment to verify ownership
+    const existingComment = await getComment(id);
+    if (existingComment.userID.toString() !== userId) {
+        throw new Error("You can only update your own comments");
+    }
 
     const db = await comments();
     var updateRes: Comment = await db.updateOne({ _id: ObjectId.createFromHexString(id) }, [{ $set: obj }]);
@@ -107,18 +167,29 @@ async function updateComment(id: string, obj: any) {
     return retVal;
 }
 
-async function deleteComment(id: string) {
+async function deleteComment(id: string, userId: string) {
     typecheck.checkId(id);
+    typecheck.checkId(userId, "userId");
+
+    // Get the comment first to check ownership
+    const comment = await getComment(id);
+    if (!comment) {
+        throw new Error("Comment not found");
+    }
+
+    // Verify that the user is the owner of the comment
+    if (comment.userID.toString() !== userId) {
+        throw new Error("You can only delete your own comments");
+    }
 
     const db = await comments();
-    var retVal: Comment = await getComment(id);
-    var deleteRes: Comment = await db.deleteOne({ id: ObjectId.createFromHexString(id) });
+    var deleteRes: Comment = await db.deleteOne({ _id: ObjectId.createFromHexString(id) });
 
     if (deleteRes == null) {
         throw new Error("delete of " + deleteRes + "failed");
     }
 
-    return retVal;
+    return comment;
 }
 
 async function getCommmentFromPost(id:string) {

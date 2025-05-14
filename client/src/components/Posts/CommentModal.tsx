@@ -54,7 +54,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
             'postID': postID,
             'userID': user._id,
             }            
-            await axios.post(`${API_BASE}/comments`,formData);
+            await axios.post(`${API_BASE}/comments`,formData,{withCredentials: true});
             onClose();
             onPostCreated(); // Notify parent component to refresh posts
         } catch (err: any) {

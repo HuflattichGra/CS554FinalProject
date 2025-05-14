@@ -24,12 +24,16 @@ router.route('/').get(async (req, res) => {
 })
     .post(async (req, res) => {
         try {
+            const user = req.session?.user;
+            if (!user || !user._id) {
+              return res.status(401).json({ error: 'User not logged in' });
+            }
             var body : any = req.body;
             
             body.createdAt = new Date(Date.now());
             body.likes = [];
 
-            var ret = await comments.addComment(body);
+            var ret = await comments.addComment(body, user._id);
 
             await client.set(apistring + ret._id, JSON.stringify(ret));
 
@@ -64,10 +68,14 @@ router.route('/:id')
     })
     .patch(async (req, res) => {
         try {
+            const user = req.session?.user;
+            if (!user || !user._id) {
+              return res.status(401).json({ error: 'User not logged in' });
+            }
             var id = req.params.id;
             var body = req.body;
 
-            var ret = await comments.updateComment(id, body);
+            var ret = await comments.updateComment(id, body, user._id);
 
             await client.set(apistring + ret._id, JSON.stringify(ret));
 
@@ -79,9 +87,13 @@ router.route('/:id')
     })
     .delete(async (req, res) => {
         try {
+            const user = req.session?.user;
+            if (!user || !user._id) {
+              return res.status(401).json({ error: 'User not logged in' });
+            }
             var id = req.params.id;
 
-            var ret = await comments.deleteComment(id);
+            var ret = await comments.deleteComment(id, user._id);
 
             deletePostCache();
 

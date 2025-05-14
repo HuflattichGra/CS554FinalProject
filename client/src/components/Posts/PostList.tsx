@@ -37,14 +37,14 @@ const PostList: React.FC = () => {
 
     const fetchData = async (pageNum: number = 1) => {
         try {
-            const userData = await axios.get(`${API_BASE}/posts`);
+            const userData = await axios.get(`${API_BASE}/posts`, { withCredentials: true });
             const postsWithDetails = await Promise.all(
                 userData.data.map(async (post: Post) => {
                     try {
                         // Get convention details
-                        const conventionData = await axios.get(`${API_BASE}/conventions/${post.conventionID}`);
+                        const conventionData = await axios.get(`${API_BASE}/conventions/${post.conventionID}`, { withCredentials: true });
                         // Get user details
-                        const userData = await axios.get(`${API_BASE}/user/${post.userID}`);
+                        const userData = await axios.get(`${API_BASE}/user/${post.userID}`, { withCredentials: true });
                         return {
                             ...post,
                             conventionName: conventionData.data.name,

@@ -38,7 +38,8 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
         async function fetchData() {
             try {
                 const userData = await axios.get(
-                    `${API_BASE}/user/${props.userID}`
+                    `${API_BASE}/user/${props.userID}`,
+                    { withCredentials: true }
                 );
                   // Process only the first image if any exist in the post
                 if (props.images && props.images.length > 0) {
@@ -53,7 +54,8 @@ const PostView: React.FC<PostViewProps> = ({props, notifyParent = () => {}}) => 
                 if (props.conventionID) {
                     try {
                         const conventionData = await axios.get(
-                            `${API_BASE}/conventions/${props.conventionID}`
+                            `${API_BASE}/conventions/${props.conventionID}`,
+                            { withCredentials: true }
                         );
                         setConvention(conventionData.data);
                     } catch (err) {
