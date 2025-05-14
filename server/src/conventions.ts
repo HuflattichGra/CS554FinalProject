@@ -211,8 +211,13 @@ export const updateConvention = async (
     if (typeof updates.isOnline !== 'boolean') throw 'isOnline must be a boolean';
     updateData.isOnline = updates.isOnline;
   }
+  if(updates.isOnline){
+    updateData.address = ''
+  }
   if (updates.address !== undefined) {
+    if(!updates.isOnline){
     updateData.address = checkStringTrimmed(updates.address, 'Address');
+    }
   }
   if (updates.exclusive !== undefined) {
     if (typeof updates.exclusive !== 'boolean') throw 'exclusive must be a boolean';

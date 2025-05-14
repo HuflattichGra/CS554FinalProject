@@ -64,6 +64,25 @@ const ManageConventionPanel = () => {
 
 
     const handleSave = async () => {
+        if (!form.name?.trim()) {
+            alert('Missing name');
+            return;
+        }
+
+        if (!form.startDate || !form.endDate) {
+            alert('Missing start or end date');
+            return;
+        }
+
+        if (!form.isOnline && !form.address?.trim()) {
+            alert('Address is required for offline conventions');
+            return;
+        }
+
+        if (!Array.isArray(form.tags) || form.tags.length === 0) {
+            alert('At least one tag is required');
+            return;
+        }
         try {
             await updateConvention(id, form);
             setEditMode(false);
@@ -215,7 +234,7 @@ const ManageConventionPanel = () => {
                                 <div>
                                     <Label>Location</Label>
                                     <Input
-                                        value={form.address || ''}
+                                        value={form.address || ' '}
                                         onChange={(e) => setForm({ ...form, address: e.target.value })}
                                         placeholder="Detailed address"
                                     />
