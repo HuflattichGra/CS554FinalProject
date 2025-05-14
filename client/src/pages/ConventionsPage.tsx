@@ -188,7 +188,7 @@ const ConventionsPage: React.FC = () => {
   return (
     <div className="conventions-page">
       <div className="conventions-header">
-        <h1 className="conventions-title">My Conventions</h1>
+        <h1 className="conventions-title">Conventions</h1>
         {user ?
           <Button
             onClick={() => setShowModal(true)}
