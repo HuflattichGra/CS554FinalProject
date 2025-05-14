@@ -184,13 +184,13 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
         e.preventDefault();
         setIsSaving(true);
         try{
-            var commentData = await axios.get(`${API_BASE}/comments/posts/${post._id}`);
+            var commentData = await axios.get(`${API_BASE}/comments/posts/${post._id}`, { withCredentials: true });
 
             for(let i=0;i<commentData.data.length;i++){
-                await axios.delete(`${API_BASE}/comments/${commentData.data[i]._id}`);
+                await axios.delete(`${API_BASE}/comments/${commentData.data[i]._id}`, { withCredentials: true });
             }
 
-            await axios.delete(`${API_BASE}/posts/${post._id}`);
+            await axios.delete(`${API_BASE}/posts/${post._id}`, { withCredentials: true });
         }catch (err: any) {
             console.error("Update post error:", err);
             onClose();

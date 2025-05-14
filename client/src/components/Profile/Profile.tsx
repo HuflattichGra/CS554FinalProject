@@ -135,19 +135,19 @@ const Profile: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try{
-            const userData = await axios.get(`${API_BASE}/user/${id}`)
-            const userPosts = await axios.get(`${API_BASE}/posts/user/${id}`)
+            const userData = await axios.get(`${API_BASE}/user/${id}`, { withCredentials: true })
+            const userPosts = await axios.get(`${API_BASE}/posts/user/${id}`, { withCredentials: true })
             let userLikes = []
 
             for(let likeId of userData.data.likes){
-                let like = await axios.get(`${API_BASE}/posts/${likeId}`)
+                let like = await axios.get(`${API_BASE}/posts/${likeId}`, { withCredentials: true })
                 userLikes.push(like.data);
             }
 
             let userBookmarks = []
 
             for(let bookmarkId of userData.data.bookmarks){
-                let bookmark = await axios.get(`${API_BASE}/posts/${bookmarkId}`)
+                let bookmark = await axios.get(`${API_BASE}/posts/${bookmarkId}`, { withCredentials: true })
                 userBookmarks.push(bookmark.data);
             }
 
