@@ -47,6 +47,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     onPostUpdated,
     post
 }) => {
+    const navigate = useNavigate();
     const { user } = useContext(userContext);
     const [text, setText] = useState("");
     const [conventionID, setConventionID] = useState("");
@@ -191,6 +192,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
             }
 
             await axios.delete(`${API_BASE}/posts/${post._id}`, { withCredentials: true });
+            navigate(`/posts`);
         }catch (err: any) {
             console.error("Update post error:", err);
             onClose();
