@@ -182,7 +182,7 @@ const ConventionsPage: React.FC = () => {
   }, [user, tab, page, location]);
 
   if (loading) {
-    return <div className="text-center mt-10 text-gray-500">Loading user session...</div>;
+    return <div>Loading user session...</div>;
   }
 
   return (

@@ -26,7 +26,8 @@ export const createConvention = async (
   isOnline: boolean,
   address: string,
   exclusive: boolean,
-  ownerIds: string[]
+  ownerIds: string[],
+  fundings: number
 ) => {
   name = checkStringTrimmed(name, 'Convention Name');
   if (name.length < 3) throw 'Convention name must be at least 3 characters long';
@@ -61,7 +62,8 @@ export const createConvention = async (
     exclusive,
     owners,
     panelists: [],
-    attendees: []
+    attendees: [],
+    fundings
   };
 
   const insertInfo = await conventionCollection.insertOne(newConvention);
@@ -119,7 +121,8 @@ if (Array.isArray(convention.attendees) && convention.attendees.length > 0) {
     exclusive: convention.exclusive,
     owners: convention.owners,
     panelists: populatedPanelists|| [], 
-    attendees: convention.attendees
+    attendees: convention.attendees,
+    fundings: convention.fundings
   };
 };
 //Get Every Convention with id and name
@@ -163,7 +166,8 @@ export const getAllConventions = async (page: number, pageSize: number) => {
         imageUrl: c.imageUrl || '/default-convention-banner.png',
         productCount: c.productCount ?? 0,
         groupCount: c.groupCount ?? 0,
-        countdownDays: calculateCountdownDays(c.startDate)
+        countdownDays: calculateCountdownDays(c.startDate),
+        fundings:c.fundings ?? 0
       })),
       total,
       page,
@@ -668,7 +672,55 @@ export const applyAttendee = async (conventionId: string, userId: string) => {
       totalPages
     };
   };
-  
+  export const sponsorConvention = async (
+  userId: string,
+  conventionId: string,
+  amount: number = 10
+) => {
+  userId = checkId(userId, 'User ID');
+  conventionId = checkId(conventionId, 'Convention ID');
+  if (typeof amount !== 'number' || amount <= 0) throw 'Invalid amount';
+
+  const userCollection = await users();
+  const conventionCollection = await conventions();
+
+  const userRes = await userCollection.updateOne(
+    { _id: new ObjectId(userId), balance: { $gte: amount } },
+    { $inc: { balance: -amount } }
+  );
+  if (userRes.modifiedCount === 0)
+    throw 'Insufficient balance or user not found';
+
+  const conRes = await conventionCollection.updateOne(
+    { _id: new ObjectId(conventionId) },
+    { $inc: { fundings: amount } }
+  );
+
+  if (conRes.modifiedCount === 0) {
+    await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $inc: { balance: amount } }
+    );
+    throw 'Convention not found';
+  }
+
+  const updatedUser = await userCollection.findOne(
+    { _id: new ObjectId(userId) },
+    { projection: { balance: 1 } }
+  );
+  const updatedCon = await conventionCollection.findOne(
+    { _id: new ObjectId(conventionId) },
+    { projection: { fundings: 1 } }
+  );
+
+  return {
+    newBalance: updatedUser?.balance ?? 0,
+    fundings: updatedCon?.fundings ?? 0
+  };
+};
+
+
+
   
 export default {
   createConvention,
@@ -694,5 +746,6 @@ export default {
   getRecommendedConventions,
   followConvention,
   unfollowConvention,
-  getUserFollowingConventions
+  getUserFollowingConventions,
+  sponsorConvention
 };

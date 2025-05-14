@@ -294,7 +294,23 @@ export const getUserFollowingConventions = async (
   );
   return data;
 };
+export const sponsorConvention = async (
+  conventionId: string,      
+  amount: number = 10           
+) => {
+  try {
+    const { data } = await axios.post(
+      `${API_URL}/${conventionId}/sponsor`,
+      { amount },            
+      { withCredentials: true }
+    );
 
+    return data;
+  } catch (err: any) {
+    console.error(err);
+    throw err?.response?.data?.error ?? 'Failed to sponsor';
+  }
+};
 export default {
   createConvention,
   getConventionById,
@@ -322,4 +338,5 @@ export default {
   followConvention,
   unfollowConvention,
   getUserFollowingConventions,
+  sponsorConvention
 };
