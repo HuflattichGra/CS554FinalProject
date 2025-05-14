@@ -41,18 +41,31 @@ const PostList: React.FC = () => {
             const postsWithDetails = await Promise.all(
                 userData.data.map(async (post: Post) => {
                     try {
-                        // Get convention details
-                        const conventionData = await axios.get(`${API_BASE}/conventions/${post.conventionID}`, { withCredentials: true });
+                        let conventionName = 'No Convention';
+                        // Only fetch convention details if conventionID exists
+                        if (post.conventionID) {
+                            try {
+                                const conventionData = await axios.get(`${API_BASE}/conventions/${post.conventionID}`, { withCredentials: true });
+                                conventionName = conventionData.data.name;
+                            } catch (conventionError) {
+                                console.error('Error fetching convention details:', conventionError);
+                            }
+                        }
+                        
                         // Get user details
                         const userData = await axios.get(`${API_BASE}/user/${post.userID}`, { withCredentials: true });
                         return {
                             ...post,
-                            conventionName: conventionData.data.name,
+                            conventionName,
                             posterName: userData.data.username
                         };
                     } catch (e) {
                         console.error('Error fetching post details:', e);
-                        return post;
+                        return {
+                            ...post,
+                            conventionName: 'No Convention',
+                            posterName: 'Unknown User'
+                        };
                     }
                 })
             );
