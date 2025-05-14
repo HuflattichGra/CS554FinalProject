@@ -6,6 +6,7 @@ import axios from 'axios';
 import userContext from "../../context/userContext";
 import PostView from  "../Posts/PostView";
 import EditModal from "./editUserModal";
+import UserModal from "./viewUsersModal"
 import postModal from "../Posts/PostModal";
 import { API_BASE } from '../../api';
 import "./Profile.css"
@@ -46,9 +47,11 @@ const Profile: React.FC = () => {
     const [bookmarks, setBookmarks] = useState<Post[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showFollowing, setShowFollowing] = useState(false);
+    const [showFollowers, setShowFollowers] = useState(false);
     const [showPosts, setShowPosts] = useState(true);
     const [showLikes, setShowLikes] = useState(false);
-    const [showBookmarks, setShowBookmarks] = useState(false)
+    const [showBookmarks, setShowBookmarks] = useState(false);
     const [error, setError] = useState<any>("")
     const { id = "" } = useParams();
 
@@ -203,8 +206,8 @@ const Profile: React.FC = () => {
                     <div className="profile-info">              
                         <h3>{profile?.firstname} {profile?.lastname}</h3>                
                         <p>{profile?.bio.trim() !== "" ? profile?.bio : "No bio has been set"}</p>
-                        <p>Following: {profile?.following.length}</p>
-                        <p>Followers: {profile?.followers.length}</p>
+                        <p onClick={() => setShowFollowing(true)}>Following: {profile?.following.length}</p>
+                        <p onClick={() => setShowFollowers(true)}>Followers: {profile?.followers.length}</p>
                         {user?._id === profile._id ? <p className="balance-display">Balance: ${profile?.balance !== undefined ? profile.balance.toFixed(2) : "0.00"}</p> : <></>}
                     </div>
                 </div>
@@ -264,6 +267,22 @@ const Profile: React.FC = () => {
                     }}
                     editUser={profile}
                 />)}
+
+                {showFollowing && (
+                    <UserModal
+                        isOpen={showFollowing}
+                        onClose={()=> setShowFollowing(false)}
+                        userList={profile.following}
+                    />
+                )}
+
+                {showFollowers && (
+                    <UserModal
+                        isOpen={showFollowers}
+                        onClose={()=> setShowFollowers(false)}
+                        userList={profile.followers}
+                    />
+                )}
             </div>
         )
     }
