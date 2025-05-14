@@ -94,7 +94,7 @@ const ConventionDetailPage: React.FC = () => {
 
 
   if (!convention) {
-    return <div className="text-center mt-10 text-red-500">Convention not found.</div>;
+    return <div>Convention not found.</div>;
   }
 
   const isOwner = user && Array.isArray(convention.owners) && convention.owners.includes(user._id);

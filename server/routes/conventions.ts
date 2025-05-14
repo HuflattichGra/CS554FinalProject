@@ -135,19 +135,19 @@ router.put('/:id', async (req: Request, res: Response) => {
     const unchanged = Object.entries(updates).every(([key, value]) => {
       return JSON.stringify(value) === JSON.stringify(convention[key]);
     });
-    
+
     if (unchanged) {
       return res.status(200).json({ message: 'No changes detected', data: convention });
     }
     const updatedConvention = await conventionFunctions.updateConvention(id, updates);
-
+    const isOwner = user && (ownerIds.includes(user._id.toString()) || user.admin);
     await client.del('conventions:all');
     await client.del(`convention:${id}`);
     const keys = await client.keys('conventions:page:*');
     if (keys.length > 0) {
       await client.del(...keys);
     }
-    return res.status(200).json(updatedConvention);
+    return res.status(200).json({ ...updatedConvention, isOwner });
   } catch (e) {
     return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
@@ -677,7 +677,7 @@ router.get('/:id/attendees', async (req: Request, res: Response) => {
 //       return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
 //   }
 // });
- 
+
 router.get('/user/:userId/recommended', async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
