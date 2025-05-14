@@ -46,7 +46,9 @@ const DetailPostView: React.FC = () => {
 
             // Fetch post data with a cache-busting parameter to ensure fresh data
             const timestamp = new Date().getTime();
-            const postData: any = await axios.get(`${API_BASE}/posts/${id}?_t=${timestamp}`);
+            const postData: any = await axios.get(`${API_BASE}/posts/${id}?_t=${timestamp}`, {
+                withCredentials: true,
+            });
             var newPost = postData.data;
 
             setPost(postData.data);
@@ -65,7 +67,10 @@ const DetailPostView: React.FC = () => {
                 }
 
                 const userData = await axios.get(
-                    `${API_BASE}/user/${newPost.userID}`
+                    `${API_BASE}/user/${newPost.userID}`,
+                    {
+                        withCredentials: true,
+                    }
                 );
 
                 setPoster(userData.data);
@@ -74,7 +79,10 @@ const DetailPostView: React.FC = () => {
                 if (newPost.conventionID) {
                     try {
                         const conventionData = await axios.get(
-                            `${API_BASE}/conventions/${newPost.conventionID}`
+                            `${API_BASE}/conventions/${newPost.conventionID}`,
+                            {
+                                withCredentials: true,
+                            }
                         );
                         setConvention(conventionData.data);
                     } catch (err) {
@@ -88,20 +96,25 @@ const DetailPostView: React.FC = () => {
                     setLiked(newPost.likes?.includes(user._id) || false);
 
                     // Check if post is bookmarked by current user
-                    const currentUserData = await axios.get(`${API_BASE}/user/${user._id}`);
+                    const currentUserData = await axios.get(`${API_BASE}/user/${user._id}`, {
+                        withCredentials: true,
+                    });
                     const userBookmarks = currentUserData.data.bookmarks || [];
                     setBookmarked(userBookmarks.includes(newPost._id) || false);
                 }
 
                 if (postData.data) {
-                    var commentFetch = await axios.get(`${API_BASE}/comments/posts/${id}`);
+                    var commentFetch = await axios.get(`${API_BASE}/comments/posts/${id}`, {
+                        withCredentials: true,
+                    });
 
                     setComments(commentFetch.data);
 
-
                     var commenters: any[] = [];
                     for (let i = 0; i < commentFetch.data.length; i++) {
-                        var userfetch = await axios.get(`${API_BASE}/user/${commentFetch.data[i].userID}`);
+                        var userfetch = await axios.get(`${API_BASE}/user/${commentFetch.data[i].userID}`, {
+                            withCredentials: true,
+                        });
 
                         commenters = [...commenters, userfetch.data];
                     }
@@ -306,6 +319,9 @@ const DetailPostView: React.FC = () => {
                                                             `${API_BASE}/comments/${x._id}`,
                                                             {
                                                                 likes: newLikes,
+                                                            },
+                                                            {
+                                                                withCredentials: true,
                                                             }
                                                         );
 
@@ -325,6 +341,9 @@ const DetailPostView: React.FC = () => {
                                                             `${API_BASE}/comments/` + x._id,
                                                             {
                                                                 likes: newLikes,
+                                                            },
+                                                            {
+                                                                withCredentials: true,
                                                             }
                                                         );
                                                         // Right now the patch will return a 401 because the admin file is set to false

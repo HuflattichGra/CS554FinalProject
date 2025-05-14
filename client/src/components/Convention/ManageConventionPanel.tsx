@@ -7,14 +7,10 @@ import {
     addPanelist,
     removePanelist,
     listAttendeeApplications,
-    approveAttendeeApplication,
     addAttendee,
-    rejectAttendeeApplication,
     listAttendees,
     removeAttendee,
     listPanelistApplications,
-    approvePanelistApplication,
-    rejectPanelistApplication
 } from '../../api/conventions.ts';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';

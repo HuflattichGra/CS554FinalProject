@@ -338,7 +338,7 @@ export const updateUser = async (id: string, user: updateUser) => {
   //lastname error checking
   if (user.lastname !== undefined) {
     let lastname = checkStringTrimmed(user.lastname, "last name");
-    if (lastname.length < 3) throw "last name is below 3 characters!";
+    if (lastname.length < 2) throw "last name is below 2 characters!";
     if (lastname.length > 25) throw "last name is above 25 characters!";
 
     let hasChar = false;

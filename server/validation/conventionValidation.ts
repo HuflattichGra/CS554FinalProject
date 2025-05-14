@@ -45,8 +45,8 @@ export function validateConventionFields(body: any) {
 
   if (!body.description || typeof body.description !== 'string') {
     errors.push('Description is required and must be a string');
-  } else if (body.description.trim().length < 10 || body.description.trim().length > 100) {
-    errors.push('Description must be between 10 and 100 characters');
+  } else if (body.description.trim().length < 10 || body.description.trim().length > 300) {
+    errors.push('Description must be between 10 and 300 characters');
   }
 
   return errors;

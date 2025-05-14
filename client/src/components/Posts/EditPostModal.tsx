@@ -47,7 +47,6 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     onPostUpdated,
     post
 }) => {
-    const redirect = useNavigate();
     const { user } = useContext(userContext);
     const [text, setText] = useState("");
     const [conventionID, setConventionID] = useState("");
@@ -188,6 +187,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
             var commentData = await axios.get(`${API_BASE}/comments/posts/${post._id}`);
 
             for(let i=0;i<commentData.data.length;i++){
+                console.log(commentData.data[i]._id);
                 await axios.delete(`${API_BASE}/comments/${commentData.data[i]._id}`);
             }
 
@@ -199,7 +199,6 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
         }finally{
             setIsSaving(false);
         }
-        redirect('/posts');
     }
 
     return (
