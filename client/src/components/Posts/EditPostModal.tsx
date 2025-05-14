@@ -60,7 +60,7 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     useEffect(() => {
         if (post) {
             setText(post.text);
-            setConventionID(post.conventionID);
+            setConventionID(post.conventionID || "");
             setExistingImages(post.images || []);
 
             console.log("Initializing edit form with images:", post.images);
