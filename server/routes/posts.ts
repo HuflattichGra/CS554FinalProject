@@ -6,6 +6,7 @@ import { extractMultiple } from "../images/extract";
 import { ObjectId } from "mongodb";
 // @ts-ignore
 import { checkStringTrimmed, checkId } from "../typechecker";
+import {users} from "../config/mongoCollections"
 const router = Router();
 
 const apistring = "POST:";
@@ -208,6 +209,27 @@ router
 
       deletePostCache();
       
+      const usersDb = await users();
+        //Delete post from likes array
+        var likedUsers = await usersDb.find({likes: ret._id}).toArray()
+        for(let user of likedUsers){
+          let likesToString = user.likes.map((like: ObjectId) => like.toString())
+          let index = likesToString.indexOf(ret._id)
+          user.likes.splice(index, 1)
+          await usersDb.updateOne({_id: user._id}, {$set: user})
+          await client.del("user:" + user._id);
+        }
+      
+        //Delete post from bookmarks array
+        var bookmarkedUsers = await usersDb.find({bookmarks: ret._id}).toArray()
+        for(let user of bookmarkedUsers){
+          let bookmarksToString = user.bookmarks.map((bookmark: ObjectId) => bookmark.toString())
+          let index = bookmarksToString.indexOf(ret._id)
+          user.bookmarks.splice(index, 1)
+          await usersDb.updateOne({_id: user._id}, {$set: user})
+          await client.del("user:" + user._id);
+        }
+
       res.status(200).send(ret);
     } catch (e) {
       res.status(400).send({ error: (e as Error).message });
