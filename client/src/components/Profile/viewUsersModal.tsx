@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactModal from "react-modal";
 import { Link } from "react-router-dom";
-//import { useContext } from "react";
-//import userContext from "../../context/userContext";
+
 import axios from "axios";
 import styles from "../Posts/PostView.module.css"
 import { API_BASE } from "../../api";
@@ -56,7 +55,6 @@ const UserModal: React.FC<UserModalProps> = ({
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<any>("")
     const [users, setUsers] = useState<user[]>([])
-    //const { user, setUser } = React.useContext(userContext);
     
     
     const fetchData = async () => {
@@ -94,17 +92,21 @@ const UserModal: React.FC<UserModalProps> = ({
                 isOpen={isOpen}
                 onRequestClose={onClose}
             >
-            {users.map((user : user) => (
-                <div className={"container"} style={styles}>
-                    <Link to={`/user/${user._id}`} onClick={onClose}>
-                            <div className={styles.userInfo}>
-                                <User size={18} className={styles.userIcon} />
-                                <p>{user.username}</p>
-                            </div>
-                        </Link>        
-            </div>))}
-            <br></br>
-            <button type="button" onClick={onClose} style={{ marginLeft: "1rem" }}>Cancel</button>
+            {users.length !== 0 ?
+                <div>
+                    {users.map((user : user) => (
+                        <div className={"container"} style={styles}>
+                            <Link to={`/user/${user._id}`} onClick={onClose}>
+                                    <div className={styles.userInfo}>
+                                        <User size={18} className={styles.userIcon} />
+                                        <p>{user.username}</p>
+                                    </div>
+                                </Link>        
+                    </div>))}
+                    <br/>
+                </div>
+                : <p className="profile-info" style={{"color": "black"}}>No Users Yet</p>}
+                <button type="button" onClick={onClose} style={{ marginLeft: "1rem" }}>Cancel</button>
             </ReactModal>
         )
     }
