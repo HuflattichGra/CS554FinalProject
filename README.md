@@ -107,29 +107,31 @@ To initialize the database with sample data when running locally:
 
 ---
 
-## Conventions Showcase App  
+## Conventions Showcase Website  
 
-A social media platform focused on getting people to discover conventions, showcase their art and hobbies, and engage with others.  
+A modern social media platform for discovering conventions, showcasing your art and hobbies, and connecting with like-minded communities.  
 
-For **convention organizers**, the site will be a hub to:
-- Publish convention details  
-- Link guest profiles  
-- Enhance audience engagement  
-- Perform promotional work  
+For **convention organizers**:
+- Create, publish, and manage convention details 
+- Add and manage panelists and attendees  
+- Engage with fans via posts and updates 
+- Promote your events and attract a wider audience
 
 Each convention will have a **feed**, which includes:
-- Posts from organizers  
-- Updates  
-- Posts made by official guests and panelists  
+- Official updates from organizers  
+- Guest and panelist posts
+- Community discussions and content  
 
-For **users that aren’t convention organizers**:
-- Sign up to have your posts featured and tagged under conventions you are attending  
-- Promote your merchandise or grow your audience  
+For **Regular Users**:
+- Sign up and link your posts to conventions you are attending  
+- Promote your art, merchandise, or cosplay
+- Grow your following and connect with fans
 
-**Other users** can:
-- Post and tag conventions for hobby-specific feeds  
-- Comment, like, follow, bookmark posts  
-- Give out **virtual currency** to show appreciation  
+**All users** can:
+- Create and tag posts under specific conventions 
+- Like, comment, and bookmark posts
+- Follow creators and keep up with their updates
+
 
 ---
 
