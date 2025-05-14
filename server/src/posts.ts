@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
-import { posts, users, conventions } from "../config/mongoCollections";
-import comments from "./comments";
+import { posts, users, conventions, comments } from "../config/mongoCollections";
+import commentsFuc from "./comments";
 // @ts-ignore
 import * as typecheck from "../typechecker.js";
 import { Request } from 'express';
@@ -194,10 +194,18 @@ async function deletePost(id: string, userId: string) {
     throw new Error("You can only delete your own posts");
   }
 
-  var postComments = await comments.getCommmentFromPost(id);
+  var postComments = await commentsFuc.getCommmentFromPost(id);
 
-  for(let i=0;i<postComments.length;i++){
-    await comments.deleteComment(postComments[i]._id);
+  // Delete all comments associated with this post
+  for(let i = 0; i < postComments.length; i++) {    
+    const commentsDb = await comments();
+    const deleteResult = await commentsDb.deleteOne({ 
+      _id: postComments[i]._id
+    });
+
+    if (deleteResult.deletedCount === 0) {
+      throw new Error(`Failed to delete comment ${postComments[i]._id}`);
+    }
   }
 
 
