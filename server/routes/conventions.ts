@@ -762,7 +762,7 @@ router.get('/user/:userId/following', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/:id/sponsor', async (req: Request, res: Response) => {
+router.post('/:id/sponsor', async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = req.session?.user?._id;
     if (!userId) return res.status(401).json({ error: 'Not logged in' });
