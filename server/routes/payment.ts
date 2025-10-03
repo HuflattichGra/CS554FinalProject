@@ -6,7 +6,7 @@ import client from "../redis/client.js";
 const router = Router();
 
 // Add balance to a user's account
-router.post("/addBalance", async (req: Request, res: Response): Promise<any> => {
+router.post("/addBalance", async (req: Request, res: Response) => {
   try {
     if (!req.session.user) {
       return res.status(401).json({ error: "Error: User not logged in" });

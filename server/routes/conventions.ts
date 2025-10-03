@@ -1,21 +1,25 @@
 import express, { Request, Response, Router } from 'express';
-import conventionFunctions from '../src/conventions.js';
+import conventionFunctions from '../src/conventions';
 import { checkId } from '../typechecker';
-import { validateConventionFields } from '../validation/conventionValidation.js';
-import client, { parseRedisData } from '../redis/client.js';
+import { validateConventionFields } from '../validation/conventionValidation';
+import client, { parseRedisData } from '../redis/client';
 import { users } from '../config/mongoCollections';
 
 const router: Router = express.Router();
 
 // Create Convention
-router.post('/', async (req: Request, res: Response): Promise<any> => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const user = req.session?.user;
-    if (!user || !user._id) return res.status(401).json({ error: 'User not logged in' });
+    if (!user || !user._id) {
+      res.status(401).json({ error: 'User not logged in' });
+      return;
+    }
     
     const errors = validateConventionFields(req.body);
     if (errors.length > 0) {
-      return res.status(400).json({ error: errors.join('; ') });
+      res.status(400).json({ error: errors.join('; ') });
+      return;
     }
 
     const { name, tags, startDate, endDate, description, isOnline, address, exclusive, ownerIds } = req.body;
@@ -44,9 +48,9 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     if (keys.length > 0) {
       await client.del(...keys);
     }
-    return res.status(201).json(newConvention);
+    res.status(201).json(newConvention);
   } catch (e) {
-    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+    res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 // Get Every Conventions
@@ -64,7 +68,7 @@ router.get("/every", async (req: Request, res: Response) => {
   }
 })
 // Get Convention by ID
-router.get('/:id', async (req: Request, res: Response): Promise<any> => {
+router.get('/:id', async (req: Request, res: Response)=> {
   try {
     const id = checkId(req.params.id, 'Convention ID');
     const cacheKey = `convention:${id}`;
@@ -77,19 +81,20 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
         'Pragma': 'no-cache',
         'Expires': '0'
       });
-      return res.status(200).json(parseRedisData(cached));
+      res.status(200).json(parseRedisData(cached));
+      return;
     }
 
     const convention = await conventionFunctions.getConventionById(id);
     await client.set(cacheKey, JSON.stringify(convention), { EX: 300 });
 
-    return res.status(200).json(convention);
+    res.status(200).json(convention);
   } catch (e) {
-    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+    res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 //Get All Conventions
-router.get('/', async (req: Request, res: Response): Promise<any> => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 10;
@@ -767,7 +772,7 @@ router.get('/user/:userId/following', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/:id/sponsor', async (req: Request, res: Response): Promise<any> => {
+router.post('/:id/sponsor', async (req: Request, res: Response) => {
   try {
     const userId = req.session?.user?._id;
     if (!userId) return res.status(401).json({ error: 'Not logged in' });

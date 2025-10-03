@@ -22,7 +22,7 @@ router.route('/').get(async (req, res) => {
         res.status(400).send({ error: e });
     }
 })
-    .post(async (req, res): Promise<any> => {
+    .post(async (req, res) => {
         try {
             const user = req.session?.user;
             if (!user || !user._id) {
@@ -66,7 +66,7 @@ router.route('/:id')
             res.status(400).send({ error: e });
         }
     })
-    .patch(async (req, res): Promise<any> => {
+    .patch(async (req, res) => {
         try {
             const user = req.session?.user;
             if (!user || !user._id) {
@@ -85,7 +85,7 @@ router.route('/:id')
             res.status(400).send({ error: e.message });
         }
     })
-    .delete(async (req, res): Promise<any> => {
+    .delete(async (req, res) => {
         try {
             const user = req.session?.user;
             if (!user || !user._id) {
