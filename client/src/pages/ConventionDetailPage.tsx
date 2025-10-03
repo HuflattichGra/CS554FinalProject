@@ -38,8 +38,10 @@ const ConventionDetailPage: React.FC = () => {
     try {
       const { balance, fundings } = await sponsorConvention(convention._id);
       alert('Thank you for supporting this convention!');
-      setConvention((prev) => ({ ...prev, fundings }));
-      setUser?.((prev) => ({ ...prev, balance }));
+      setConvention((prev: any) => ({ ...prev, fundings }));
+      if (setUser) {
+        setUser({ ...user, balance } as any);
+      }
     } catch (e: any) {
       alert(e);
     }

@@ -22,7 +22,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Link } from 'react-router-dom';
 import '../ui/conventionManage.css'
-const ManageConventionPanel = () => {
+const ManageConventionPanel = ({ convention: initialConvention, refresh }: { convention?: any; refresh?: () => Promise<void> }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [convention, setConvention] = useState<any>(null);
@@ -192,7 +192,7 @@ const ManageConventionPanel = () => {
                                 <div className="date-range">
                                     <DatePicker
                                         selected={form.startDate ? new Date(form.startDate) : null}
-                                        onChange={(date) => setForm({ ...form, startDate: date })}
+                                        onChange={(date: any) => setForm({ ...form, startDate: date })}
                                         showTimeSelect
                                         timeIntervals={15}
                                         dateFormat="yyyy-MM-dd HH:mm"
@@ -200,7 +200,7 @@ const ManageConventionPanel = () => {
                                     />
                                     <DatePicker
                                         selected={form.endDate ? new Date(form.endDate) : null}
-                                        onChange={(date) => setForm({ ...form, endDate: date })}
+                                        onChange={(date: any) => setForm({ ...form, endDate: date })}
                                         showTimeSelect
                                         timeIntervals={15}
                                         dateFormat="yyyy-MM-dd HH:mm"
@@ -293,7 +293,7 @@ const ManageConventionPanel = () => {
                                 </div>
                             </div>
                             <Button onClick={handleSave}>Save</Button>
-                            <Button variant="destructive" onClick={handleDelete}>Delete Convention</Button>
+                            <Button onClick={handleDelete} style={{backgroundColor: '#dc3545', color: 'white'}}>Delete Convention</Button>
                         </div>
                     ) : (
                         <div>

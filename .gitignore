@@ -111,3 +111,4 @@ server/uploads/
 *READY_TO_DEPLOY*.md
 deployment-secrets.md
 secrets.md
+.vercel
