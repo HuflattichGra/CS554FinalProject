@@ -11,7 +11,7 @@ const router = Router();
 //TODO: redis
 router
     .route('/signup')
-    .post(async (req: Request, res: Response) => {
+    .post(async (req: Request, res: Response): Promise<any> => {
         if(req.session.user){
             return res.status(400).json({error: "cannot sign up while there is an active session"});
         }
@@ -159,15 +159,17 @@ router
 //Destroys Session
 router
     .route('/logout')
-    .get(async (req: Request, res: Response) => {
-        req.session.destroy();
+    .get(async (req: Request, res: Response): Promise<any> => {
+        req.session.destroy((err) => {
+            if (err) console.error('Session destroy error:', err);
+        });
 
         return res.status(200).json({currentSessionDestroyed: true})
     })
 
 router
     .route('/checkSession')
-    .get(async (req: Request, res: Response) => {
+    .get(async (req: Request, res: Response): Promise<any> => {
         if(req.session.user){
             return res.status(200).json(req.session.user)
         }

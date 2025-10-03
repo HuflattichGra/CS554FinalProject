@@ -5,7 +5,7 @@ declare module 'express-session' {
     user?: {
       _id: string;
       username: string;
-      email: string;
+      email?: string;  // 改为可选字段
       admin?: boolean;
       [key: string]: any;
     };
