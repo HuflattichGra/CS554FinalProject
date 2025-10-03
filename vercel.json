@@ -11,7 +11,8 @@
       "config": {
         "maxDuration": 30,
         "includeFiles": "server/**/*",
-        "supportsWrapper": false
+        "supportsWrapper": false,
+        "nodeVersion": "20.x"
       }
     },
     {
