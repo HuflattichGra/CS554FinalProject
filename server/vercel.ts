@@ -35,5 +35,15 @@ try {
 
 configRoutes(app);
 
+// Global error handler
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('Global error handler:', error);
+  res.status(500).json({ 
+    code: '500',
+    message: 'A server error has occurred',
+    ...(process.env.NODE_ENV === 'development' && { error: error.message })
+  });
+});
+
 // For Vercel serverless functions
 export default app;
