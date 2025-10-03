@@ -1,7 +1,7 @@
 import { Request } from "express";
 import { ObjectId } from "mongodb";
 import { createImageInfo, createImagesInfo } from "../models/images";
-import { ImageType, processImage, processImages } from "./imagemagick";
+import { ImageType, processImage, processImages } from "./imagemagick.js";
 
 export const extractOne = async (req: Request): Promise<ObjectId> => {
   const { file } = req;

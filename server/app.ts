@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import session from "express-session";
 import cors from "cors";
-import configRoutes from "./routes/index";
+import configRoutes from "./routes/index.js";
 import { ensureUploadDirExists } from "./images";
 import { seedDB } from "./seed.js";
 

@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import conventionFunctions from '../src/conventions.js';
 import { checkId } from '../typechecker.js';
-import { validateConventionFields } from '../validation/conventionValidation';
+import { validateConventionFields } from '../validation/conventionValidation.js';
 import client, { parseRedisData } from '../redis/client.js';
 import { users } from '../config/mongoCollections';
 

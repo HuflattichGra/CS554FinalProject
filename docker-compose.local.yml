@@ -1,0 +1,23 @@
+# 本地测试用 Docker Compose
+version: '3.8'
+services:
+  mongodb-local:
+    image: mongo:7.0
+    container_name: mongodb-local-test
+    restart: always
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=DucKnight-CS554-Final
+    volumes:
+      - mongodb_local_data:/data/db
+
+  redis-local:
+    image: redis:7.2-alpine
+    container_name: redis-local-test
+    restart: always
+    ports:
+      - "6380:6379"
+
+volumes:
+  mongodb_local_data:

@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from "express";
 import session from "express-session";
 import cors from "cors";
-import configRoutes from "./routes/index";
-import { ensureUploadDirExists } from "./images";
+import configRoutes from "./routes/index.js";
+import { ensureUploadDirExists } from "./images/index.js";
 
 const app = express();
 

@@ -1,12 +1,12 @@
 import { Router, Request, Response } from "express";
-import posts from "../src/posts";
+import posts from "../src/posts.js";
 import client, { parseRedisData } from "../redis/client.js";
-import { imageUpload } from "../images/upload";
-import { extractMultiple } from "../images/extract";
+import { imageUpload } from "../images/upload.js";
+import { extractMultiple } from "../images/extract.js";
 import { ObjectId } from "mongodb";
 // @ts-ignore
-import { checkStringTrimmed, checkId } from "../typechecker";
-import {users} from "../config/mongoCollections"
+import { checkStringTrimmed, checkId } from "../typechecker.js";
+import {users} from "../config/mongoCollections.js"
 const router = Router();
 
 const apistring = "POST:";

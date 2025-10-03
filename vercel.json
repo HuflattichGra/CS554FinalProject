@@ -5,7 +5,8 @@
       "src": "api/**/*.ts",
       "use": "@vercel/node",
       "config": {
-        "maxDuration": 30
+        "maxDuration": 30,
+        "includeFiles": "server/**/*"
       }
     },
     {
@@ -19,13 +20,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/[...slug].ts"
+      "dest": "/api/[...slug]"
     },
     {
       "src": "/(.*)",
       "dest": "/client/dist/$1"
     }
-  ],
-  "installCommand": "cd client && npm install && cd ../server && npm install",
-  "buildCommand": "cd client && npm run build"
+  ]
 }

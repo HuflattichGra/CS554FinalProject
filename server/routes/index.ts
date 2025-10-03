@@ -1,9 +1,9 @@
-import userRoutes from "./users";
-import postRoutes from "./posts";
-import commentRoutes from "./comments";
-import imageRoutes from "./image";
+import userRoutes from "./users.js";
+import postRoutes from './posts.js';
+import commentRoutes from './comments.js';
+import imageRoutes from './image.js';
 import conventionsRouter from "./conventions.js";
-import paymentRoutes from "./payment";
+import paymentRoutes from "./payment.js";
 
 const constructorMethod = (app: any) => {
   app.use("/", userRoutes);
