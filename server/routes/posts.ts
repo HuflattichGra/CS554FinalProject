@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import posts from "../src/posts";
-import client from "../redis/client";
+import client, { parseRedisData } from "../redis/client.js";
 import { imageUpload } from "../images/upload";
 import { extractMultiple } from "../images/extract";
 import { ObjectId } from "mongodb";
@@ -32,7 +32,7 @@ router
         res.status(200).send(ret);
         return;
       }
-      res.status(200).json(JSON.parse(cache));
+      res.status(200).json(parseRedisData(cache));
     } catch (e) {
       res.status(400).send({ error: (e as Error).message });
     }
@@ -114,7 +114,7 @@ router
         return;
       }
 
-      res.status(200).send(JSON.parse(cache));
+      res.status(200).send(parseRedisData(cache));
     } catch (e) {
       res.status(400).send({ error: (e as Error).message });
     }

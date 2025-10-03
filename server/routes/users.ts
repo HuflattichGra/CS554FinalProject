@@ -1,7 +1,7 @@
 import {Router, Request, Response} from 'express';
 import userData from '../src/users';
 import {checkId} from '../typechecker.js';
-import client from "../redis/client.js";
+import client, { parseRedisData } from '../redis/client.js';
 import { imageUpload } from "../images/upload";
 import { extractOne } from "../images/extract";
 
@@ -79,8 +79,8 @@ router
 
         if(exists){
             let user = await client.get('user:' + id);
-
-            return res.status(200).json(JSON.parse(user));
+            let parsedUser = parseRedisData(user);
+            return res.status(200).json(parsedUser);
         }
         else{
             let user = null;

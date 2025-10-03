@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import comments from "../src/comments";
-import client from '../redis/client';
+import client, { parseRedisData } from "../redis/client.js";
 const router = Router();
 
 const apistring = 'COMMENTS:'
@@ -61,7 +61,7 @@ router.route('/:id')
                 return;
             }
 
-            res.status(200).send(cache);
+            res.status(200).send(parseRedisData(cache));
         } catch (e) {
             res.status(400).send({ error: e });
         }

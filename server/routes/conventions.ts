@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import conventionFunctions from '../src/conventions.js';
 import { checkId } from '../typechecker.js';
 import { validateConventionFields } from '../validation/conventionValidation';
-import client from "../redis/client.js";
+import client, { parseRedisData } from '../redis/client.js';
 import { users } from '../config/mongoCollections';
 
 const router: Router = express.Router();
@@ -76,7 +76,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
         'Pragma': 'no-cache',
         'Expires': '0'
       });
-      return res.status(200).json(JSON.parse(cached));
+      return res.status(200).json(parseRedisData(cached));
     }
 
     const convention = await conventionFunctions.getConventionById(id);
@@ -98,7 +98,7 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
 
     if (cached) {
       console.log(`[Cache Hit] Conventions Page ${page}`);
-      return res.status(200).json(JSON.parse(cached));
+      return res.status(200).json(parseRedisData(cached));
     }
 
     const result = await conventionFunctions.getAllConventions(page, pageSize);
