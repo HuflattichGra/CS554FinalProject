@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import conventionFunctions from '../src/conventions.js';
-import { checkId } from '../typechecker.js';
+import { checkId } from '../typechecker';
 import { validateConventionFields } from '../validation/conventionValidation.js';
 import client, { parseRedisData } from '../redis/client.js';
 import { users } from '../config/mongoCollections';
@@ -29,7 +29,8 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
       isOnline,
       address,
       exclusive,
-      ownerIds
+      ownerIds,
+      0  // 初始资金为0
     );
 
     if (!name || typeof name !== 'string') throw 'Name is required and must be a string';
@@ -476,21 +477,25 @@ router.get('/:id/panelistApplications', async (req: Request, res: Response) => {
   try {
     const conventionId = checkId(req.params.id, 'Convention ID');
     const user = req.session?.user;
-    if (!user || !user._id) return res.status(401).json({ error: 'User not logged in' });
+    if (!user || !user._id) {
+      res.status(401).json({ error: 'User not logged in' });
+      return;
+    }
 
     const convention = await conventionFunctions.getConventionById(conventionId);
     const ownerIds = convention.owners.map((id: any) => id.toString());
     if (!ownerIds.includes(user._id.toString()) && !user.admin) {
-      return res.status(403).json({ error: 'Only owners or admins can view panelist applications' });
+      res.status(403).json({ error: 'Only owners or admins can view panelist applications' });
+      return;
     }
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0'
     });
-    return res.status(200).json({ panelistApplications: convention.panelistApplications || [] });
+    res.status(200).json({ panelistApplications: convention.panelistApplications || [] });
   } catch (e) {
-    return res.status(400).json({ error: e?.toString() || 'Unknown Error' });
+    res.status(400).json({ error: e?.toString() || 'Unknown Error' });
   }
 });
 //Apple Attendee

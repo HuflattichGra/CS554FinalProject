@@ -224,6 +224,8 @@ const seedDB = async () => {
       owners: [filipId],
       panelists: [konstantinosId, junranId],
       attendees: [haolinId, weitingId],
+      panelistApplications: [],
+      attendeeApplications: [],
       fundings:0
     };
 
@@ -240,6 +242,8 @@ const seedDB = async () => {
       owners: [haolinId],
       panelists: [filipId],
       attendees: [konstantinosId, junranId, weitingId],
+      panelistApplications: [],
+      attendeeApplications: [],
       fundings:0
     };
 
@@ -256,6 +260,8 @@ const seedDB = async () => {
       owners: [junranId, konstantinosId],
       panelists: [],
       attendees: [],
+      panelistApplications: [],
+      attendeeApplications: [],
       fundings:0
     };
 

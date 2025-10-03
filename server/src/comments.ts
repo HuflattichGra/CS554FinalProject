@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { comments } from '../config/mongoCollections';
 //@ts-ignore
-import * as typecheck from "../typechecker.js";
+import * as typecheck from "../typechecker";
 import { posts } from '../config/mongoCollections';
 import { users } from '../config/mongoCollections';
 

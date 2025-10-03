@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { posts, users, conventions, comments } from "../config/mongoCollections";
 import commentsFuc from "./comments";
 // @ts-ignore
-import * as typecheck from "../typechecker.js";
+import * as typecheck from "../typechecker";
 import { Request } from 'express';
 
 export type Post = {

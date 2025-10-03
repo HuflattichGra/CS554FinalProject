@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
 // @ts-ignore
-import { checkId } from "../typechecker.js";
+import { checkId } from "../typechecker";
 
 const router = Router();
 

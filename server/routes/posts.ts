@@ -5,7 +5,7 @@ import { imageUpload } from "../images/upload.js";
 import { extractMultiple } from "../images/extract.js";
 import { ObjectId } from "mongodb";
 // @ts-ignore
-import { checkStringTrimmed, checkId } from "../typechecker.js";
+import { checkStringTrimmed, checkId } from "../typechecker";
 import {users} from "../config/mongoCollections.js"
 const router = Router();
 

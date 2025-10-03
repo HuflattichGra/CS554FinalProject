@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 // @ts-ignore
 import { images } from "../config/mongoCollections";
 // @ts-ignore
-import { checkId } from "../typechecker.js";
+import { checkId } from "../typechecker";
 
 interface ImageInfo {
   _id: ObjectId;

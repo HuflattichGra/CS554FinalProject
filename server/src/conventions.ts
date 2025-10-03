@@ -1,6 +1,6 @@
-import { users, conventions } from '../config/mongoCollections.js';
+import { users, conventions } from '../config/mongoCollections';
 import { ObjectId } from 'mongodb';
-import { checkStringTrimmed, checkId, checkDate } from '../typechecker.js';
+import { checkStringTrimmed, checkId, checkDate } from '../typechecker';
 
 function calculateCountdownDays(startDate: string): number {
   if (!startDate) return 0;
@@ -63,6 +63,8 @@ export const createConvention = async (
     owners,
     panelists: [],
     attendees: [],
+    panelistApplications: [],
+    attendeeApplications: [],
     fundings
   };
 
@@ -122,6 +124,8 @@ if (Array.isArray(convention.attendees) && convention.attendees.length > 0) {
     owners: convention.owners,
     panelists: populatedPanelists|| [], 
     attendees: convention.attendees,
+    panelistApplications: Array.isArray(convention.panelistApplications) ? convention.panelistApplications.map(p => p.toString()) : [],
+    attendeeApplications: Array.isArray(convention.attendeeApplications) ? convention.attendeeApplications.map(a => a.toString()) : [],
     fundings: convention.fundings
   };
 };

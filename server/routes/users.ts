@@ -1,6 +1,6 @@
 import {Router, Request, Response} from 'express';
 import userData from '../src/users.js';
-import {checkId} from '../typechecker.js';
+import {checkId} from '../typechecker';
 import client, { parseRedisData } from '../redis/client.js';
 import { imageUpload } from "../images/upload.js";
 import { extractOne } from "../images/extract.js";

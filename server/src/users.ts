@@ -3,10 +3,10 @@ import {
   images,
   conventions,
   posts,
-} from "../config/mongoCollections.js";
+} from "../config/mongoCollections";
 import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
-import { checkString, checkStringTrimmed, checkId } from "../typechecker.js";
+import { checkString, checkStringTrimmed, checkId } from "../typechecker";
 
 export interface user {
   _id: ObjectId;

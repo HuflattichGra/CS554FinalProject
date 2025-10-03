@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import userData from "../src/users";
-import { checkId } from "../typechecker.js";
+import { checkId } from "../typechecker";
 import client from "../redis/client.js";
 
 const router = Router();
