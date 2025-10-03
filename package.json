@@ -2,7 +2,7 @@
   "name": "cs554-final-project",
   "version": "1.0.0",
   "scripts": {
-    "build": "cd client && npm install && npm run build",
-    "vercel-build": "npm run build"
+    "build": "cd client && npm ci && npm run build",
+    "vercel-build": "cd client && npm ci && npm run build"
   }
 }

@@ -6,10 +6,10 @@
       "use": "@vercel/node"
     },
     {
-      "src": "client/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "client/dist"
       }
     }
   ],
@@ -28,10 +28,6 @@
       "maxDuration": 30
     }
   },
-  "env": {
-    "MONGO_URL": "@mongo_url",
-    "MONGO_DB": "@mongo_db", 
-    "REDIS_URL": "@redis_url",
-    "SESSION_SECRET": "@session_secret"
-  }
+  "installCommand": "cd client && npm install && cd ../server && npm install",
+  "buildCommand": "cd client && npm run build"
 }
