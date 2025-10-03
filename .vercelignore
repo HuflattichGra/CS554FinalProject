@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Docker files
+docker-compose.yml
+*/Dockerfile
+Dockerfile
+
+# Development files
+.env.local
+.env.development
+server/uploads/
+
+# Build outputs (except dist for static files)
+server/dist/
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
